@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Maximize2, Minimize2, RotateCcw } from 'lucide-react';
+import { X, Maximize2, Minimize2 } from 'lucide-react';
 
 const InddViewer = ({ url, title }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
