@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#c0392b">
+
+  <!-- iOS home screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JudoHub">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
+  <!-- Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <title>JudoHub</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<div id="error-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#e02d2d;color:#fff;padding:10px 16px;font-size:13px;font-family:monospace;white-space:pre-wrap;"></div>
+
+<!-- ── ONBOARDING (shown until profile set) ── -->
+<div id="onboarding-screen"></div>
+
+<div id="app-wrap">
+
+  <!-- ── APP HEADER ── -->
+  <header id="app-header">
+    <div class="app-header-inner">
+      <div class="app-logo" onclick="showView('home')" style="cursor:pointer">
+        <span class="app-logo-icon">🥋</span>
+        <div class="app-logo-stack">
+          <span class="app-logo-top">JUDO</span>
+          <span class="app-logo-btm">TRAINING</span>
+        </div>
+      </div>
+      <button class="app-header-feedback" onclick="openFeedback()" title="Send Feedback">💬 Feedback</button>
+      <button class="app-header-profile" onclick="openProfile()" title="Profile">
+        <span id="header-belt-dot" class="header-belt-dot"></span>
+        <span id="header-profile-label">Profile</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── MAIN VIEWS ── -->
+  <main id="main">
+
+    <!-- HOME -->
+    <div class="view active" id="view-home">
+      <div class="view-body home-view-body" id="home-body"></div>
+    </div>
+
+    <!-- TECHNIQUES -->
+    <div class="view" id="view-techniques">
+      <div class="view-body">
+        <div class="filter-bar">
+          <input type="text" id="tech-search" placeholder="Search techniques…" oninput="filterTechniques()">
+          <select id="tech-cat" onchange="filterTechniques()">
+            <option value="">All Categories</option>
+            <optgroup label="── Nage-waza (Throws)">
+              <option value="Te-waza">Te-waza (Hand throws)</option>
+              <option value="Koshi-waza">Koshi-waza (Hip throws)</option>
+              <option value="Ashi-waza">Ashi-waza (Foot throws)</option>
+              <option value="Ma-sutemi-waza">Ma-sutemi-waza (Front sacrifice)</option>
+              <option value="Yoko-sutemi-waza">Yoko-sutemi-waza (Side sacrifice)</option>
+              <option value="Makikomi-waza">Makikomi-waza (Wraparound)</option>
+              <option value="Kaeshi-waza">Kaeshi-waza (Counters)</option>
+            </optgroup>
+            <optgroup label="── Katame-waza (Ground)">
+              <option value="Osaekomi-waza">Osaekomi-waza (Holds)</option>
+              <option value="Shime-waza">Shime-waza (Strangles)</option>
+              <option value="Kansetsu-waza">Kansetsu-waza (Arm locks)</option>
+            </optgroup>
+            <optgroup label="── Training">
+              <option value="Ukemi">Ukemi (Breakfalls)</option>
+              <option value="Combination">Combinations &amp; Ne-waza</option>
+              <option value="Randori">Randori &amp; Tips</option>
+              <option value="Exercise">Exercise Videos</option>
+            </optgroup>
+          </select>
+          <span class="count-badge" id="tech-count"></span>
+        </div>
+        <div class="tech-grid" id="tech-grid"></div>
+      </div>
+    </div>
+
+    <!-- GRADES -->
+    <div class="view" id="view-belt">
+      <div class="view-body" id="belt-body">
+        <div class="belt-tab-bar">
+          <button class="belt-tab active" id="btab-senior" onclick="switchBeltTab('senior')">⚫ Senior Grades</button>
+          <button class="belt-tab" id="btab-junior" onclick="switchBeltTab('junior')">⭐ Mon Grades</button>
+        </div>
+        <div class="gr-entry-bar">
+        <button class="gr-entry-btn" onclick="openGradingReadiness()">
+          <span>🏅</span>
+          <div>
+            <div class="gr-entry-name">Check Grading Readiness</div>
+            <div class="gr-entry-desc">See your score, gaps &amp; next steps</div>
+          </div>
+          <span class="gr-entry-arrow">›</span>
+        </button>
+      </div>
+      <div id="belt-tab-content"></div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="view" id="view-progress">
+      <div class="view-body" id="progress-body"></div>
+    </div>
+
+    <!-- PERSONAL TRAINING -->
+    <div class="view" id="view-pt">
+      <div class="view-body pt-view-body" id="pt-body"></div>
+    </div>
+
+    <!-- RANDORI BRAIN -->
+    <div class="view" id="view-randori">
+      <div class="view-body" id="rb-body"></div>
+    </div>
+
+    <!-- TRAINING BUILDER -->
+    <div class="view" id="view-builder">
+      <div class="view-body" style="overflow:hidden;height:100%;display:flex;flex-direction:column;">
+        <div class="builder-layout" style="flex:1;min-height:0;">
+          <div class="builder-panel">
+            <div class="builder-panel-header">
+              <h3>Technique Library</h3>
+              <p>Drag onto any day</p>
+            </div>
+            <div class="builder-search">
+              <input type="text" id="builder-search" placeholder="Filter techniques…" oninput="filterBuilderList()">
+            </div>
+            <div class="builder-list" id="builder-list"></div>
+          </div>
+          <div class="builder-main">
+            <div class="week-controls">
+              <button onclick="prevWeek()">← Prev</button>
+              <span class="week-label" id="week-label"></span>
+              <button onclick="nextWeek()">Next →</button>
+              <button class="btn-primary" onclick="clearWeek()">Clear Week</button>
+            </div>
+            <div class="week-grid" id="week-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── BOTTOM NAV ── -->
+  <nav id="bottom-nav">
+    <button class="bnav-btn active" onclick="showView('home')" data-view="home">
+      <span class="bnav-icon"><img src="images/home.png" class="bnav-icon-img" alt=""></span>
+      <span class="bnav-label">Home</span>
+    </button>
+    <button class="bnav-btn" onclick="showView('belt')" data-view="belt">
+      <span class="bnav-icon"><img src="images/grades.png" class="bnav-icon-img" alt=""></span>
+      <span class="bnav-label">Grades</span>
+    </button>
+    <button class="bnav-btn" onclick="showView('techniques')" data-view="techniques">
+      <span class="bnav-icon"><img src="images/techniques.png" class="bnav-icon-img" alt=""></span>
+      <span class="bnav-label">Techniques</span>
+    </button>
+    <button class="bnav-btn" onclick="showView('progress')" data-view="progress">
+      <span class="bnav-icon"><img src="images/progress.png" class="bnav-icon-img" alt=""></span>
+      <span class="bnav-label">Progress</span>
+    </button>
+    <button class="bnav-btn" id="bnav-more" onclick="openMoreDrawer()">
+      <span class="bnav-icon"><img src="images/more.png" class="bnav-icon-img" alt=""></span>
+      <span class="bnav-label">More</span>
+    </button>
+  </nav>
+
+
+  <!-- ── JUNIOR VIEWS ── -->
+  <div class="view" id="view-junior-home">
+    <div class="jh-view-body" id="junior-home-body"></div>
+  </div>
+  <div class="view" id="view-junior-grades">
+    <div class="view-body" id="junior-grades-body"></div>
+  </div>
+  <div class="view" id="view-junior-progress">
+    <div class="view-body" id="junior-progress-body"></div>
+  </div>
+
+  <!-- ── JUNIOR BOTTOM NAV (3 items) ── -->
+  <nav id="junior-nav" style="display:none">
+    <button class="jnav-btn active" onclick="showJuniorView('junior-home')" data-jview="junior-home">
+      <span class="jnav-icon">🏠</span>
+      <span class="jnav-label">Home</span>
+    </button>
+    <button class="jnav-btn" onclick="showJuniorView('junior-grades')" data-jview="junior-grades">
+      <span class="jnav-icon">🏅</span>
+      <span class="jnav-label">My Belt</span>
+    </button>
+    <button class="jnav-btn" onclick="showJuniorView('junior-progress')" data-jview="junior-progress">
+      <span class="jnav-icon">⭐</span>
+      <span class="jnav-label">My Badges</span>
+    </button>
+  </nav>
+
+  <!-- ── MORE DRAWER ── -->
+  <div id="more-overlay" onclick="closeMoreDrawer()"></div>
+  <div id="more-drawer">
+    <div class="more-drawer-handle"></div>
+    <div class="more-drawer-title">More</div>
+    <button class="more-drawer-item" onclick="showView('techniques');closeMoreDrawer()">
+      <span class="more-drawer-icon">📖</span>
+      <div class="more-drawer-text">
+        <div class="more-drawer-name">Technique Library</div>
+        <div class="more-drawer-desc">Browse &amp; watch all techniques</div>
+      </div>
+      <span class="more-drawer-arrow">›</span>
+    </button>
+
+
+
+    <a class="more-drawer-item" href="mailto:judohub@outlook.com?subject=JudoHub Feedback" style="text-decoration:none">
+      <span class="more-drawer-icon">✉️</span>
+      <div class="more-drawer-text">
+        <div class="more-drawer-name">Send Feedback</div>
+        <div class="more-drawer-desc">Tell us what you think</div>
+      </div>
+      <span class="more-drawer-arrow">›</span>
+    </a>
+  </div>
+
+
+  <!-- ── DESKTOP SIDE NAV (hidden on mobile via CSS) ── -->
+  <nav id="desktop-nav" style="display:none">
+    <div class="dnav-logo">🥋 <span>JudoHub</span></div>
+    <div class="dnav-items">
+      <button class="dnav-btn active" onclick="showView('home')" data-view="home">
+        <span class="dnav-icon">🏠</span> Home
+      </button>
+      <button class="dnav-btn" onclick="showView('techniques')" data-view="techniques">
+        <span class="dnav-icon">📖</span> Learn
+      </button>
+      <button class="dnav-btn" onclick="showView('belt')" data-view="belt">
+        <span class="dnav-icon">🏅</span> Grades
+      </button>
+      <button class="dnav-btn" onclick="showView('progress')" data-view="progress">
+        <span class="dnav-icon">📊</span> Progress
+      </button>
+
+
+
+    </div>
+    <div class="dnav-footer">
+      <button class="dnav-profile-btn" onclick="openProfile()" id="dnav-profile-btn">
+        <span id="dnav-belt-dot" class="header-belt-dot"></span>
+        <span id="dnav-profile-label">Profile</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── GRADING READINESS OVERLAY ── -->
+  <div id="grading-overlay"></div>
+
+</div><!-- /app-wrap -->
+
+<!-- ── VIDEO MODAL ── -->
+<div id="video-modal" onclick="onModalBgClick(event)">
+  <div class="vmodal-wrap">
+    <div class="vmodal-header">
+      <div style="flex:1;min-width:0;">
+        <h3 id="vm-title"></h3>
+        <p class="vmodal-subtitle" id="vm-subtitle"></p>
+      </div>
+      <div class="vmodal-nav">
+        <button id="vm-prev" onclick="modalNav(-1)" title="Previous">←</button>
+        <span class="vmodal-counter" id="vm-counter"></span>
+        <button id="vm-next" onclick="modalNav(1)" title="Next">→</button>
+      </div>
+      <button class="vmodal-close" onclick="closeVideoModal()">✕</button>
+    </div>
+    <div class="vmodal-body">
+      <div class="vmodal-player" id="vm-player"></div>
+      <div class="vmodal-side">
+        <div class="vmodal-info" id="vm-info">
+          <div id="vm-tags"></div>
+          <div id="vm-depth"></div>
+        </div>
+        <div class="vmodal-notes-area">
+          <label>My Notes</label>
+          <textarea id="vm-notes" placeholder="Personal cues, things to work on…"></textarea>
+        </div>
+        <div class="vmodal-foot">
+          <button onclick="addCurrentToPlan()">+ Add to this week's plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Netlify Forms detection (hidden) -->
+<form name="judohub-feedback" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input name="bot-field">
+  <input name="rating">
+  <input name="category">
+  <input name="message">
+  <input name="page">
+</form>
+
+<!-- ── FEEDBACK OVERLAY ── -->
+<div id="feedback-overlay" onclick="onFeedbackBgClick(event)">
+  <div class="fb-modal">
+    <div class="fb-header">
+      <div class="fb-title">💬 Send Feedback</div>
+      <button class="fb-close" onclick="closeFeedback()">✕</button>
+    </div>
+    <div class="fb-body">
+      <div class="fb-field">
+        <div class="fb-label">How are you finding JudoHub?</div>
+        <div class="fb-stars" id="fb-stars">
+          <span class="fb-star" data-v="1" onclick="setRating(1)">★</span>
+          <span class="fb-star" data-v="2" onclick="setRating(2)">★</span>
+          <span class="fb-star" data-v="3" onclick="setRating(3)">★</span>
+          <span class="fb-star" data-v="4" onclick="setRating(4)">★</span>
+          <span class="fb-star" data-v="5" onclick="setRating(5)">★</span>
+        </div>
+      </div>
+      <div class="fb-field">
+        <div class="fb-label">Type of feedback</div>
+        <div class="fb-cats" id="fb-cats">
+          <button class="fb-cat" onclick="selectCat(this,'General')">General</button>
+          <button class="fb-cat" onclick="selectCat(this,'Bug')">🐛 Bug</button>
+          <button class="fb-cat" onclick="selectCat(this,'Feature idea')">💡 Feature idea</button>
+          <button class="fb-cat" onclick="selectCat(this,'Content')">📖 Content</button>
+        </div>
+      </div>
+      <div class="fb-field">
+        <div class="fb-label">Tell us more</div>
+        <textarea class="fb-textarea" id="fb-message" placeholder="What's working well? What could be better? Any missing techniques or grades?"></textarea>
+      </div>
+      <div id="fb-status"></div>
+      <button class="fb-submit" onclick="submitFeedback()">Send Feedback →</button>
+    </div>
+  </div>
+</div>
+
+<div id="session-overlay"><div id="session-overlay-inner"></div></div>
+<div id="capture-overlay"><div id="capture-inner"></div></div>
+
+<!-- ── SCRIPTS ── -->
+<script src="js/data.js"></script>
+<script src="js/tech_depth.js"></script>
+<script src="js/onboarding.js"></script>
+<script src="js/app.js"></script>
+<script src="js/techniques.js"></script>
+<script src="js/belt.js"></script>
+<script src="js/grading.js"></script>
+<script src="js/builder.js"></script>
+<script src="js/home.js"></script>
+<script src="js/pt.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/mon.js"></script>
+<script src="js/randori.js"></script>
+<script src="js/junior-home.js"></script>
+<script src="js/junior-grades.js"></script>
+<script src="js/junior-progress.js"></script>
+
+<script>
+  if 

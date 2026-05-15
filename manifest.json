@@ -1,0 +1,25 @@
+{
+  "name": "JudoHub",
+  "short_name": "JudoHub",
+  "description": "Your personal judo training companion — techniques, belt progression, and daily training.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#c0392b",
+  "background_color": "#0f172a",
+  "categories": ["sports", "fitness", "education"],
+  "icons": [
+    {
+      "src": "./images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
