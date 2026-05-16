@@ -212,9 +212,13 @@ function renderBelt() {
 
     <div class="ab-bottom-row">
       ${passedDate
-        ? `<div class="ab-passed-badge">&#10003; Passed ${passedDate} &nbsp;
-           <button class="ab-edit-pass" onclick="openGradingPassModal('${b.id}')">Edit</button></div>`
-        : `<button class="ab-pass-btn" onclick="openGradingPassModal('${b.id}')">&#127881; I Passed This Belt!</button>`
+        ? `<div class="ios-passed-badge">
+             <span class="ios-passed-check">&#10003;</span>
+             <span class="ios-passed-text">Passed ${passedDate}</span>
+             <button class="ios-passed-edit" onclick="openGradingPassModal('${b.id}')">Edit</button>
+             <button class="ios-passed-clear" onclick="clearGradingPass('${b.id}')">&#10005;</button>
+           </div>`
+        : `<button class="ios-pass-btn" onclick="openGradingPassModal('${b.id}')">&#127881; I Passed This Belt!</button>`
       }
     </div>
 
@@ -412,107 +416,270 @@ const BELT_HEX = {
 };
 
 function buildAdultHero(b, pct) {
-  const pctColor  = pct >= 80 ? '#16a34a' : pct >= 50 ? '#d97706' : '#e53e3e';
-  const fromHex   = BELT_HEX[b.fromColor] || '#888';
-  const toHex     = BELT_HEX[b.toColor]   || '#888';
-  const dotStyle  = (hex) => `style="background:${hex};width:44px;height:44px;border-radius:50%;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.25);border:3px solid rgba(255,255,255,0.35);"`;
+  const pctColor  = pct >= 80 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#e63946';
+  const fromFile  = BELT_IMG_MAP[b.fromColor] || 'belt-white.png';
+  const toFile    = BELT_IMG_MAP[b.toColor]   || 'belt-red.png';
+  const statusWord = pct >= 80 ? '&#10003; Ready to grade' : pct >= 50 ? 'Good progress' : 'Keep building';
+
   return `
   <div class="ab-hero">
-    <div class="ab-hero-top">
-      <div class="ab-belt-visual">
-        <div ${dotStyle(fromHex)}></div>
-        <span class="ab-arrow">&#8594;</span>
-        <div ${dotStyle(toHex)}></div>
-        <div class="ab-hero-labels">
-          <div class="ab-hero-grade">${b.label}</div>
-          <div class="ab-hero-sub">Working toward: ${b.to} Belt</div>
-        </div>
+    <!-- Belt image transition -->
+    <div class="ab-belt-row">
+      <div class="ab-belt-img-wrap">
+        <img src="images/${fromFile}" class="ab-belt-img" alt="${b.from} Belt">
+        <span class="ab-belt-img-label">${b.from}</span>
       </div>
-      <div class="ab-hero-pct" style="color:${pctColor}">${pct}<span class="ab-hero-pct-sym">%</span></div>
+      <div class="ab-arrow-track">
+        <div class="ab-arrow-line"></div>
+        <div class="ab-arrow-pct" style="color:${pctColor}">${pct}%</div>
+      </div>
+      <div class="ab-belt-img-wrap">
+        <img src="images/${toFile}" class="ab-belt-img" alt="${b.to} Belt">
+        <span class="ab-belt-img-label">${b.to}</span>
+      </div>
     </div>
+    <!-- Progress bar -->
     <div class="ab-prog-bar">
       <div class="ab-prog-fill" style="width:${pct}%;background:${pctColor}"></div>
     </div>
-    <div class="ab-hero-footer">
+    <!-- Footer -->
+    <div class="ab-hero-foot">
       <span class="ab-hero-duration">&#128337; ${b.duration}</span>
-      <button class="ab-readiness-btn" onclick="openGradingReadiness()">&#127919; Grading Readiness &#8594;</button>
+      <span class="ab-hero-progress-words" style="color:${pctColor}">${statusWord}</span>
     </div>
   </div>`;
 }
 
 // ── ADULT REQUIREMENTS CARD ────────────────────────
-function buildAdultRequirements(b, doneCount, totalCount) {
-  return `
-  <div class="ab-reqs-card">
-    <div class="ab-reqs-header">
-      <div class="ab-reqs-title">&#128203; Requirements</div>
-      <div class="ab-reqs-count">${doneCount} / ${totalCount} ticked</div>
-    </div>
-
-    ${b.groups.map(g => `
-    <div class="ab-req-group">
-      <div class="ab-req-group-title">${g.title}</div>
-      ${g.items.map(item => {
-        const key  = b.id + '_' + item;
-        const done = !!beltProgress[key];
-        const tech       = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === item) : null;
-        const techVid    = tech ? getVideoId(tech.url) : null;
-        const gradingUrl = (typeof GRADING_VIDEOS !== 'undefined') ? GRADING_VIDEOS[item] : null;
-        const gradingVid = gradingUrl ? getVideoId(gradingUrl) : null;
-        const watchBtn   = techVid
-          ? `<button class="ab-req-watch" onclick="event.stopPropagation();openModal('${esc(item)}')">&#9654;</button>`
-          : gradingVid
-            ? `<button class="ab-req-watch" onclick="event.stopPropagation();openGradingVideo('${gradingUrl}','${esc(item)}')">&#9654;</button>`
-            : '';
-        return `
-        <div class="ab-req-row${done ? ' done' : ''}" onclick="toggleAdultReq('${b.id}','${esc(item)}',this)">
-          <div class="ab-req-tick">${done ? '&#10003;' : ''}</div>
-          <div class="ab-req-text-wrap">
-            <span class="ab-req-text">${item}</span>
-            ${tech && tech.en ? `<span class="ab-req-en">${tech.en}</span>`
-              : (typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? `<span class="ab-req-en">${TERMS_EN[item]}</span>` : ''}
-            ${(typeof BELT_KNOWLEDGE_ANSWERS !== 'undefined' && BELT_KNOWLEDGE_ANSWERS[item]) ? `<div class="ab-req-hints">${BELT_KNOWLEDGE_ANSWERS[item].map(function(a){return '<span class="ab-req-hint-item">'+a+'</span>';}).join('')}</div>` : ''}
-          </div>
-          ${watchBtn}
-        </div>`;
-      }).join('')}
-    </div>`).join('')}
-
-    <div class="ab-actions-row">
-      <button class="ab-prep-btn" onclick="startBeltPrepSession('${b.id}')">&#127885; Prep Session</button>
-      <button class="ab-test-btn" onclick="openAdultTestMode('${b.id}')">&#129514; Test Me!</button>
-      <button class="ab-quiz-btn" onclick="openTerminologyQuiz('${b.id}')">&#127981; Name Quiz</button>
-    </div>
-  </div>`;
+function getSectionIcon(title) {
+  if (title.includes('Ukemi'))                           return '\u{1F6E1}';
+  if (title.includes('Tachi'))                           return '\u{1F94B}';
+  if (title.includes('Osaekomi'))                        return '⚡';
+  if (title.includes('Ne-waza'))                         return '\u{1F4AA}';
+  if (title.includes('Combination') || title.includes('Transition')) return '\u{1F517}';
+  if (title.includes('Counter'))                         return '\u{1F504}';
+  if (title.includes('Terminology') || title.includes('Knowledge'))  return '\u{1F4D6}';
+  if (title.includes('Personal'))                        return '⭐';
+  if (title.includes('Performance'))                     return '\u{1F3AF}';
+  if (title.includes('Randori'))                         return '⚔';
+  if (title.includes('Moral') || title.includes('Referee')) return '\u{1F31F}';
+  return '\u{1F4CC}';
 }
 
-// ── TOGGLE REQUIREMENT (focused view) ─────────────
+
+// ── GRADE ACCORDION ───────────────────────────────────────────────
+
+function buildAdultRequirements(b, doneCount, totalCount) {
+  const accentMap = {
+    toRed:'#e02d2d', toYellow:'#f59e0b', toOrange:'#f97316',
+    toGreen:'#16a34a', toBlue:'#2563eb', toBrown:'#78350f'
+  };
+  const accent   = accentMap[b.id] || '#e63946';
+  const checkSvg = '<svg viewBox="0 0 12 10" width="12" height="10"><polyline points="1,5 4.5,9 11,1" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const playSvg  = '<svg viewBox="0 0 24 24" width="14" height="14" fill="#2563eb"><polygon points="6,4 20,12 6,20"/></svg>';
+
+  // Find index of first incomplete group — that one auto-opens
+  const firstIncompleteIdx = b.groups.findIndex(g =>
+    g.items.some(item => !beltProgress[b.id + '_' + item])
+  );
+
+  const groupsHtml = b.groups.map((g, gIdx) => {
+    const gDone   = g.items.filter(item => !!beltProgress[b.id + '_' + item]).length;
+    const gTotal  = g.items.length;
+    const gPct    = gTotal ? Math.round(gDone / gTotal * 100) : 0;
+    const isOpen  = gIdx === firstIncompleteIdx;
+    const pillCol = gPct === 100 ? '#4ade80' : gPct > 0 ? '#f59e0b' : '#e63946';
+    const pillBg  = gPct === 100 ? 'rgba(74,222,128,.12)' : gPct > 0 ? 'rgba(245,158,11,.12)' : 'rgba(230,57,70,.1)';
+    const icon    = getSectionIcon(g.title);
+
+    const rowsHtml = g.items.map((item, idx) => {
+      const key        = b.id + '_' + item;
+      const done       = !!beltProgress[key];
+      const tech       = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === item) : null;
+      const techVid    = tech ? getVideoId(tech.url) : null;
+      const gradingUrl = (typeof GRADING_VIDEOS !== 'undefined') ? GRADING_VIDEOS[item] : null;
+      const thumbUrl   = techVid ? 'https://img.youtube.com/vi/' + techVid + '/mqdefault.jpg' : null;
+      const subtitle   = (tech && tech.en) ? tech.en : ((typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? TERMS_EN[item] : '');
+      const playAction = techVid
+        ? "event.stopPropagation();openModal('" + item.replace(/'/g, "\\'") + "')"
+        : gradingUrl ? "event.stopPropagation();openGradingVideo('" + gradingUrl + "','" + item.replace(/'/g, "\\'") + "')" : null;
+      const isLast     = idx === g.items.length - 1;
+
+      return `
+      <div class="gr-acc-tech${done ? ' ios-checked' : ''}" onclick="toggleAdultReq('${b.id}','${item.replace(/'/g, "\\'")}',this)">
+        <div class="ios-thumb-wrap">
+          ${thumbUrl ? `<img class="ios-thumb" src="${thumbUrl}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+          <div class="ios-thumb-ph" style="${thumbUrl ? 'display:none' : ''}">${icon}</div>
+        </div>
+        <div class="ios-req-info">
+          <span class="ios-req-name">${item}</span>
+          ${subtitle ? '<span class="ios-req-sub">' + subtitle + '</span>' : ''}
+        </div>
+        <div class="ios-req-actions">
+          <div class="ios-check-pill${done ? ' ios-check-on' : ''}">${done ? checkSvg : ''}</div>
+          ${playAction
+            ? '<button class="ios-play-btn" onclick="' + playAction + '">' + playSvg + '</button>'
+            : '<div class="ios-play-ph"></div>'}
+        </div>
+      </div>${!isLast ? '<div class="ios-divider"></div>' : ''}`;
+    }).join('');
+
+    return `
+    <div class="gr-acc-section${isOpen ? ' gr-acc-open' : ''}" id="gr-acc-${b.id}-${gIdx}">
+      <div class="gr-acc-header" onclick="toggleGradeSection('${b.id}',${gIdx})">
+        <div class="ios-sec-dot" style="background:${accent}"></div>
+        <span class="ios-sec-title">${g.title}</span>
+        <span class="gr-acc-pill" style="color:${pillCol};background:${pillBg}">${gDone}/${gTotal}</span>
+        <div class="gr-acc-mini-bar">
+          <div class="gr-acc-mini-fill" style="width:${gPct}%;background:${pillCol}"></div>
+        </div>
+        <span class="gr-acc-chev">${isOpen ? '&#9650;' : '&#9660;'}</span>
+      </div>
+      <div class="gr-acc-body" style="${isOpen ? '' : 'display:none'}">
+        <div class="ios-req-card">${rowsHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="ios-reqs-wrap">
+    <div class="ios-reqs-top">
+      <span class="ios-reqs-heading">Requirements</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="ios-reqs-badge">${doneCount} / ${totalCount}</span>
+        <button class="gr-viewall-btn" onclick="openFullRequirements('${b.id}')">View All &#8594;</button>
+      </div>
+    </div>
+    ${groupsHtml}
+    <div class="ab-actions-row">
+      <button class="ab-prep-btn" onclick="startBeltPrepSession('${b.id}')">&#127879; Prep</button>
+      <button class="ab-test-btn" onclick="openAdultTestMode('${b.id}')">&#129514; Test Me</button>
+      <button class="ab-quiz-btn" onclick="openTerminologyQuiz('${b.id}')">&#127919; Quiz</button>
+    </div>
+  </div>
+  <button class="ios-fab" onclick="openGradingReadiness()" title="Grading Readiness">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+  </button>`;
+}
+
+function toggleGradeSection(beltId, gIdx) {
+  const sec  = document.getElementById('gr-acc-' + beltId + '-' + gIdx);
+  if (!sec) return;
+  const body = sec.querySelector('.gr-acc-body');
+  const chev = sec.querySelector('.gr-acc-chev');
+  const open = sec.classList.toggle('gr-acc-open');
+  if (body) body.style.display = open ? '' : 'none';
+  if (chev) chev.innerHTML     = open ? '&#9650;' : '&#9660;';
+}
+
+function openFullRequirements(beltId) {
+  const b = BELT_DATA.find(b => b.id === beltId);
+  if (!b) return;
+  const checkSvg = '<svg viewBox="0 0 12 10" width="12" height="10"><polyline points="1,5 4.5,9 11,1" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const playSvg  = '<svg viewBox="0 0 24 24" width="14" height="14" fill="#2563eb"><polygon points="6,4 20,12 6,20"/></svg>';
+  const allDone  = b.groups.flatMap(g => g.items).filter(i => !!beltProgress[b.id + '_' + i]).length;
+  const allTotal = b.groups.flatMap(g => g.items).length;
+
+  const html = b.groups.map(g => {
+    const icon = getSectionIcon(g.title);
+    const rows = g.items.map((item, idx) => {
+      const key      = b.id + '_' + item;
+      const done     = !!beltProgress[key];
+      const tech     = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === item) : null;
+      const techVid  = tech ? getVideoId(tech.url) : null;
+      const thumbUrl = techVid ? 'https://img.youtube.com/vi/' + techVid + '/mqdefault.jpg' : null;
+      const subtitle = (tech && tech.en) ? tech.en : ((typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? TERMS_EN[item] : '');
+      const playAct  = techVid ? "event.stopPropagation();openModal('" + item.replace(/'/g, "\\'") + "')" : null;
+      const isLast   = idx === g.items.length - 1;
+      return `
+      <div class="gr-acc-tech${done ? ' ios-checked' : ''}" onclick="toggleAdultReq('${b.id}','${item.replace(/'/g, "\\'")}',this)">
+        <div class="ios-thumb-wrap">
+          ${thumbUrl ? `<img class="ios-thumb" src="${thumbUrl}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+          <div class="ios-thumb-ph" style="${thumbUrl ? 'display:none' : ''}">${icon}</div>
+        </div>
+        <div class="ios-req-info"><span class="ios-req-name">${item}</span>${subtitle ? '<span class="ios-req-sub">' + subtitle + '</span>' : ''}</div>
+        <div class="ios-req-actions">
+          <div class="ios-check-pill${done ? ' ios-check-on' : ''}">${done ? checkSvg : ''}</div>
+          ${playAct ? '<button class="ios-play-btn" onclick="' + playAct + '">' + playSvg + '</button>' : '<div class="ios-play-ph"></div>'}
+        </div>
+      </div>${!isLast ? '<div class="ios-divider"></div>' : ''}`;
+    }).join('');
+    return `<div class="gr-full-group"><div class="gr-full-group-hdr"><div class="ios-sec-dot" style="background:#e63946"></div><span class="ios-sec-title">${g.title}</span></div><div class="ios-req-card">${rows}</div></div>`;
+  }).join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'gr-full-overlay';
+  overlay.id = 'gr-full-overlay';
+  overlay.innerHTML = `
+    <div class="gr-full-sheet">
+      <div class="gr-full-header">
+        <div>
+          <div class="gr-full-title">${b.label}</div>
+          <div class="gr-full-sub">${allDone} of ${allTotal} requirements complete</div>
+        </div>
+        <button class="gr-full-close" onclick="closeFullRequirements()">&#10005;</button>
+      </div>
+      <div class="gr-full-progress">
+        <div class="gr-full-bar-bg"><div class="gr-full-bar-fill" style="width:${allTotal ? Math.round(allDone/allTotal*100) : 0}%"></div></div>
+      </div>
+      <div class="gr-full-body">${html}</div>
+    </div>`;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('gr-full-open'));
+}
+
+function closeFullRequirements() {
+  const ov = document.getElementById('gr-full-overlay');
+  if (!ov) return;
+  ov.classList.remove('gr-full-open');
+  setTimeout(() => ov.remove(), 300);
+}
+
+
 function toggleAdultReq(beltId, item, el) {
   const key = beltId + '_' + item;
   beltProgress[key] = !beltProgress[key];
   localStorage.setItem('judo_belt_progress', JSON.stringify(beltProgress));
 
-  const tick = el.querySelector('.ab-req-tick');
-  if (tick) tick.innerHTML = beltProgress[key] ? '&#10003;' : '';
-  el.classList.toggle('done', !!beltProgress[key]);
+  const checkSvg = '<svg viewBox="0 0 12 10" width="12" height="10"><polyline points="1,5 4.5,9 11,1" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const pill = el.querySelector('.ios-check-pill');
+  if (pill) {
+    pill.classList.toggle('ios-check-on', !!beltProgress[key]);
+    pill.innerHTML = beltProgress[key] ? checkSvg : '';
+  }
+  el.classList.toggle('ios-checked', !!beltProgress[key]);
 
-  // Live-update header count
   const b = BELT_DATA.find(b => b.id === beltId);
   if (b) {
     const all  = b.groups.flatMap(g => g.items);
     const done = all.filter(i => beltProgress[beltId + '_' + i]).length;
     const pct  = all.length ? Math.round(done / all.length * 100) : 0;
-    const cnt  = document.querySelector('.ab-reqs-count');
+    const cnt  = document.querySelector('.ios-reqs-badge');
     const bar  = document.querySelector('.ab-prog-fill');
     const pctEl = document.querySelector('.ab-hero-pct');
-    if (cnt)   cnt.textContent  = done + ' / ' + all.length + ' ticked';
+    if (cnt)   cnt.textContent  = done + ' / ' + all.length;
     if (bar)   bar.style.width  = pct + '%';
     if (pctEl) pctEl.innerHTML  = pct + '<span class="ab-hero-pct-sym">%</span>';
   }
-  showToast(beltProgress[key] ? '&#10003; Ticked!' : 'Unticked');
+  showToast(beltProgress[key] ? '✓ Done!' : 'Unticked');
 }
 
-// ── BROWSE TOGGLE ──────────────────────────────────
+
+function clearGradingPass(beltId) {
+  if (!confirm('Remove this grading pass record?')) return;
+  const tlKey = BELT_PASS_KEYS[beltId] || beltId;
+  const tl    = JSON.parse(localStorage.getItem('judo_belt_timeline') || '[]');
+  const idx   = tl.findIndex(t => t.key === tlKey);
+  if (idx !== -1) tl.splice(idx, 1);
+  localStorage.setItem('judo_belt_timeline', JSON.stringify(tl));
+  // Revert current target back to this belt
+  setCurrentTargetBeltId(beltId);
+  showToast('Pass record removed');
+  if (typeof renderBelt     === 'function') renderBelt();
+  if (typeof renderHome     === 'function') renderHome();
+  if (typeof renderProgress === 'function') renderProgress();
+}
+
 function toggleAdultBrowse() {
   const body = document.getElementById('ab-browse-body');
   const chev = document.getElementById('ab-browse-chev');

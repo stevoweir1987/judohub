@@ -94,109 +94,136 @@ function buildGradingReport(beltId) {
 
   return `
   <div class="gr-wrap">
-    <div class="gr-header">
-      <button class="gr-close" onclick="closeGradingReadiness()">✕</button>
-      <div class="gr-title">Grading Readiness</div>
-      <div class="gr-belt-label">${belt.label}</div>
+    <div class="gr-ios-header">
+      <button class="gr-ios-close" onclick="closeGradingReadiness()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="gr-ios-title">Grading Readiness</div>
+      <div class="gr-ios-belt-pill">${belt.label}</div>
     </div>
 
-    <div class="gr-hero">
-      <div class="gr-ring-wrap">
-        <svg class="gr-ring" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface3)" stroke-width="10"/>
+    <div class="gr-ios-hero-card">
+      <div class="gr-ios-ring-wrap">
+        <svg viewBox="0 0 120 120" width="110" height="110">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="10"/>
           <circle cx="60" cy="60" r="54" fill="none" stroke="${verdictColor}"
             stroke-width="10" stroke-linecap="round"
             stroke-dasharray="${circumference}"
             stroke-dashoffset="${dashOffset}"
             transform="rotate(-90 60 60)"
-            style="transition: stroke-dashoffset .8s ease"/>
+            style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/>
         </svg>
-        <div class="gr-ring-inner">
-          <div class="gr-score" style="color:${verdictColor}">${score}</div>
-          <div class="gr-score-label">/ 100</div>
+        <div class="gr-ios-ring-inner">
+          <div class="gr-ios-score" style="color:${verdictColor}">${score}</div>
+          <div class="gr-ios-score-sub">/100</div>
         </div>
       </div>
-      <div class="gr-verdict-wrap">
-        <div class="gr-verdict-emoji">${verdictEmoji}</div>
-        <div class="gr-verdict" style="color:${verdictColor}">${verdict}</div>
-        <div class="gr-verdict-detail">${verdictDetail}</div>
+      <div class="gr-ios-verdict-col">
+        <div class="gr-ios-verdict-emoji">${verdictEmoji}</div>
+        <div class="gr-ios-verdict" style="color:${verdictColor}">${verdict}</div>
+        <div class="gr-ios-verdict-detail">${verdictDetail}</div>
       </div>
     </div>
 
-    <div class="gr-pillars">
-      ${gradingPillar('Syllabus', sylPct, doneItems.length, allItems.length, 'requirements ticked')}
-      ${gradingPillar('Training', freqPct, Math.round(sessPerWk * 10) / 10, targetSpW, 'sessions/wk')}
-      ${gradingPillar('Techniques', techPct, coveredTechs.length, requiredTechs.length, 'practiced in sessions')}
+    <div class="gr-ios-pillars">
+      ${gradingPillar('Syllabus',   sylPct,  doneItems.length,       allItems.length,       'ticked')}
+      ${gradingPillar('Training',   freqPct, Math.round(sessPerWk*10)/10, targetSpW,         '/wk')}
+      ${gradingPillar('Techniques', techPct, coveredTechs.length,   requiredTechs.length,   'done')}
     </div>
 
     ${actions.length ? `
-    <div class="gr-section">
-      <div class="gr-section-title">Focus Points</div>
-      ${actions.map(a => `
-        <div class="gr-action">
-          <span class="gr-action-icon">${a.icon}</span>
-          <div class="gr-action-text">
-            <div class="gr-action-label">${a.label}</div>
-            <div class="gr-action-detail">${a.detail}</div>
+    <div class="gr-ios-section">
+      <div class="gr-ios-section-label">Focus Points</div>
+      <div class="gr-ios-card">
+        ${actions.map((a,i) => `
+        <div class="gr-ios-action-row">
+          <div class="gr-ios-action-icon">${a.icon}</div>
+          <div class="gr-ios-action-body">
+            <div class="gr-ios-action-label">${a.label}</div>
+            <div class="gr-ios-action-detail">${a.detail}</div>
           </div>
-        </div>`).join('')}
+        </div>${i < actions.length-1 ? '<div class="gr-ios-row-div"></div>' : ''}
+        `).join('')}
+      </div>
     </div>` : ''}
 
     ${missingItems.length ? `
-    <div class="gr-section">
-      <div class="gr-section-title">Unticked Requirements <span class="gr-count">${missingItems.length}</span></div>
-      <div class="gr-missing-list">
-        ${belt.groups.map(g => {
-          const groupMissing = g.items.filter(i => !beltProgress[belt.id + '_' + i]);
-          if (!groupMissing.length) return '';
-          return `
-          <div class="gr-group-label">${g.title}</div>
-          ${groupMissing.map(item => {
-            const tech       = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === item) : null;
-            const techVid    = tech ? getVideoId(tech.url) : null;
-            const gradingUrl = (typeof GRADING_VIDEOS !== 'undefined') ? GRADING_VIDEOS[item] : null;
-            const gradingVid = gradingUrl ? getVideoId(gradingUrl) : null;
-            const watchBtn   = techVid
-              ? `<button class="gr-watch-btn" onclick="event.stopPropagation();openModal('${esc(item)}')">&#9654;</button>`
-              : gradingVid
-                ? `<button class="gr-watch-btn" onclick="event.stopPropagation();openGradingVideo('${gradingUrl}','${esc(item)}')">&#9654;</button>`
-                : '';
-            return `
-            <div class="gr-missing-item">
-              <button class="gr-tick-btn" onclick="tickFromGrading('${belt.id}','${esc(item)}',this)"></button>
-              <span class="gr-missing-text">${item}</span>
-              ${watchBtn}
-            </div>`;
-          }).join('')}`;
-        }).join('')}
+    <div class="gr-ios-section">
+      <div class="gr-ios-section-label">Unticked Requirements <span class="gr-ios-count-badge">${missingItems.length}</span></div>
+      <div class="gr-ios-card">
+        ${(() => {
+          const rows = [];
+          belt.groups.forEach(g => {
+            const gm = g.items.filter(i => !beltProgress[belt.id + '_' + i]);
+            gm.forEach((item, idx) => {
+              const tech     = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === item) : null;
+              const vid      = tech ? getVideoId(tech.url) : null;
+              const gUrl     = (typeof GRADING_VIDEOS !== 'undefined') ? GRADING_VIDEOS[item] : null;
+              const gVid     = gUrl ? getVideoId(gUrl) : null;
+              const subtitle = (tech && tech.en) ? tech.en : ((typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? TERMS_EN[item] : '');
+              const thumbUrl = vid ? 'https://img.youtube.com/vi/' + vid + '/mqdefault.jpg' : null;
+              const checkSvg = '<svg viewBox="0 0 12 10" width="12" height="10"><polyline points="1,5 4.5,9 11,1" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+              const playSvg  = '<svg viewBox="0 0 24 24" width="15" height="15" fill="#2563eb"><polygon points="6,4 20,12 6,20"/></svg>';
+              const playAction = vid  ? `event.stopPropagation();openModal('${esc(item)}')`
+                               : gVid ? `event.stopPropagation();openGradingVideo('${gUrl}','${esc(item)}')`
+                               : null;
+              const thumbHtml = `<div class="ios-thumb-wrap">
+                  ${thumbUrl ? `<img class="ios-thumb" src="${thumbUrl}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+                  <div class="ios-thumb-ph" style="${thumbUrl ? 'display:none' : ''}">&#129354;</div>
+                </div>`;
+              const rowHtml = `<div class="ios-req-row gr-ios-row-clickable" onclick="tickFromGrading('${belt.id}','${esc(item)}',this)">
+                  ${thumbHtml}
+                  <div class="ios-req-info">
+                    <span class="ios-req-name">${item}</span>
+                    ${subtitle ? `<span class="ios-req-sub">${subtitle}</span>` : ''}
+                  </div>
+                  <div class="ios-req-actions">
+                    <div class="ios-check-pill" data-item="${esc(item)}">${''}</div>
+                    ${playAction ? `<button class="ios-play-btn" onclick="${playAction}">${playSvg}</button>` : '<div class="ios-play-ph"></div>'}
+                  </div>
+                </div>`;
+              rows.push(rowHtml);
+              if (idx < gm.length - 1) rows.push('<div class="ios-divider"></div>');
+            });
+          });
+          return rows.join('');
+        })()}
       </div>
-    </div>` : '<div class="gr-section"><div class="gr-all-done">&#10003; All syllabus requirements ticked!</div></div>'}
+    </div>` : `
+    <div class="gr-ios-section">
+      <div class="gr-ios-card gr-ios-all-done">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg>
+        All requirements ticked!
+      </div>
+    </div>`}
 
     ${missingTechs.length ? `
-    <div class="gr-section">
-      <div class="gr-section-title">Techniques Not Yet Logged <span class="gr-count">${missingTechs.length}</span></div>
-      <div class="gr-tech-chips">
-        ${missingTechs.map(t => `<span class="gr-tech-chip" onclick="openModal('${esc(t)}')">${t} ▶</span>`).join('')}
+    <div class="gr-ios-section">
+      <div class="gr-ios-section-label">Techniques to Log <span class="gr-ios-count-badge">${missingTechs.length}</span></div>
+      <div class="gr-ios-chips">
+        ${missingTechs.map(t => `<button class="gr-ios-chip" onclick="closeGradingReadiness();openModal('${esc(t)}')">${t} ▶</button>`).join('')}
       </div>
     </div>` : ''}
 
-    <div class="gr-footer">
-      <button class="gr-cta" onclick="closeGradingReadiness();showView('belt')">Open Belt Checklist →</button>
+    <div class="gr-ios-footer">
+      <button class="gr-ios-cta" onclick="closeGradingReadiness();showView('belt')">
+        Open Belt Checklist
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9,18 15,12 9,6"/></svg>
+      </button>
     </div>
   </div>`;
 }
 
 function gradingPillar(label, pct, done, total, unit) {
   const color = pct >= 80 ? '#16a34a' : pct >= 50 ? '#d97706' : '#e02d2d';
-  return `<div class="gr-pillar">
-    <div class="gr-pillar-pct" style="color:${color}">${pct}%</div>
-    <div class="gr-pillar-bar">
-      <div class="gr-pillar-fill" style="width:${pct}%;background:${color}"></div>
-    </div>
-    <div class="gr-pillar-label">${label}</div>
-    <div class="gr-pillar-sub">${done}/${total} ${unit}</div>
+  return `<div class="gr-ios-pillar">
+    <div class="gr-ios-pillar-pct" style="color:${color}">${pct}<span style="font-size:12px;font-weight:600;opacity:.7">%</span></div>
+    <div class="gr-ios-pillar-bar"><div class="gr-ios-pillar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <div class="gr-ios-pillar-label">${label}</div>
+    <div class="gr-ios-pillar-sub">${done}/${total} ${unit}</div>
   </div>`;
 }
+
 
 function tickFromGrading(beltId, item, btn) {
   const key = beltId + '_' + item;
@@ -212,14 +239,24 @@ function tickFromGrading(beltId, item, btn) {
     btn.classList.remove('ticked');
   }
 
-  const row = btn.closest('.gr-missing-item');
+  // Works with both old button rows and new ios-req-row style
+  const row = btn.closest('.ios-req-row') || btn.closest('.gr-ios-missing-row') || btn.closest('.gr-missing-item');
   if (row) {
-    const label = row.querySelector('.gr-missing-text');
-    if (label) {
-      label.style.textDecoration = nowDone ? 'line-through' : '';
-      label.style.color = nowDone ? 'var(--text-muted)' : '';
+    const checkSvg = '<svg viewBox="0 0 12 10" width="12" height="10"><polyline points="1,5 4.5,9 11,1" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    // New ios-check-pill style (div)
+    const pill = row.querySelector('.ios-check-pill');
+    if (pill) {
+      pill.classList.toggle('ios-check-on', nowDone);
+      pill.innerHTML = nowDone ? checkSvg : '';
     }
-    row.style.opacity = nowDone ? '0.6' : '1';
+    // Legacy button style fallback
+    const legacyBtn = row.querySelector('.gr-ios-tick-btn');
+    if (legacyBtn) {
+      legacyBtn.innerHTML = nowDone ? checkSvg : '';
+      legacyBtn.classList.toggle('gr-ios-tick-on', nowDone);
+    }
+    row.classList.toggle('ios-checked', nowDone);
+    row.style.opacity = nowDone ? '0.55' : '1';
   }
 
   if (typeof renderBelt === 'function') renderBelt();

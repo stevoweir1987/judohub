@@ -10,6 +10,9 @@ function showOnboarding() {
   obProfile = { type: null, belt: null, goal: null, name: '' };
   screen.style.display = '';
   screen.classList.add('open');
+  // Hide bottom nav during onboarding
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.style.display = 'none';
   renderObStep();
 }
 
@@ -31,7 +34,7 @@ function renderObStep() {
 function obStepType() {
   // Try logo image first; fall back to styled text logo
   const logoHtml = `
-    <img class="ob-logo-img" src="images/logo.png"
+    <img class="ob-logo-img" src="images/homeicon.png"
          onerror="this.style.display='none';this.nextElementSibling.style.display='block'"
          alt="JudoHub">
     <div class="ob-logo-fallback" style="display:none">
@@ -279,6 +282,8 @@ function finishOnboarding() {
     if (typeof renderJuniorHome === 'function') renderJuniorHome();
     showJuniorView('junior-home');
   } else {
+    const nav = document.getElementById('bottom-nav');
+    if (nav) nav.style.display = '';
     if (typeof renderHome === 'function') renderHome();
     showView('home');
   }

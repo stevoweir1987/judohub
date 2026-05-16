@@ -476,102 +476,224 @@ function beltImg(colorClass) {
 
 // ── HOME RENDER ────────────────────────────────────
 function renderHome() {
-  // Restart tip rotation whenever home reloads
-  if (typeof startCoachingTipRotation === 'function') setTimeout(() => startCoachingTipRotation(3), 500);
   const activeBelt = getActiveBeltInfo();
   const profile    = getProfile();
   const firstName  = profile && profile.name ? profile.name.split(' ')[0] : 'Judoka';
   const streak     = getStreak();
-  const xp         = getXP();
   const totd       = getTOTD();
   const iq         = getTodayIQ();
+  const theme      = DAILY_THEMES[new Date().getDay()];
+  const days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dayName    = days[new Date().getDay()];
 
-  const fromHex = activeBelt ? (BELT_HEX[activeBelt.belt.fromColor] || '#e8e8e8') : '#e8e8e8';
-  const toHex   = activeBelt ? (BELT_HEX[activeBelt.belt.toColor]   || '#888')    : '#888';
-  const pct     = activeBelt ? activeBelt.pct : 0;
-  const pctCol  = pct >= 80 ? '#4ade80' : '#F5C542';
+  const fromHex  = activeBelt ? (BELT_HEX[activeBelt.belt.fromColor] || '#e8e8e8') : '#e8e8e8';
+  const pct      = activeBelt ? activeBelt.pct : 0;
+  const beltName = activeBelt ? activeBelt.belt.from + ' Belt' : 'Judoka';
+  const targetBeltName = activeBelt ? activeBelt.belt.to + ' Belt' : '';
+  const toBeltColor    = activeBelt ? (BELT_HEX[activeBelt.belt.toColor] || '#888') : '#888';
+  const toBeltFile     = activeBelt ? (BELT_IMG_MAP[activeBelt.belt.toColor] || 'belt-red.png') : 'belt-red.png';
+
+  // Technique of the day
+  const totdVid   = totd ? getVideoId(totd.url) : null;
+  const totdThumb = totdVid ? `https://img.youtube.com/vi/${totdVid}/mqdefault.jpg` : null;
+
+  // Today's Word — pick from TERMS_EN keys based on day of year
+  const termKeys = (typeof TERMS_EN !== 'undefined') ? Object.keys(TERMS_EN) : [];
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const todayTermKey = termKeys.length ? termKeys[dayOfYear % termKeys.length] : null;
+  const todayTermVal = todayTermKey ? TERMS_EN[todayTermKey] : null;
+
+  // Progress bar colour
+  const pctCol = pct >= 80 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#e63946';
+
+  // CTA label
+  const hasActiveSession = (typeof currentSession !== 'undefined' && currentSession && typeof timerInterval !== 'undefined' && timerInterval !== null);
+  const ctaLabel  = hasActiveSession ? 'Resume Session →' : "Start Today’s Training →";
+  const ctaAction = hasActiveSession ? "showView('train')" : "onStartFocused()";
 
   document.getElementById('home-body').innerHTML = `
+  <div class="hf-wrap">
 
-  <!-- GRADE HERO CARD — full width, flush top -->
-  <div class="hd-grade-hero">
-
-    <!-- Branding row inside card -->
-    <div class="hd-hero-brand-row">
-      <div class="hd-hero-logo">
-        <img src="images/homeicon.png" class="hd-hero-logo-img" alt="JudoHub">
-        <div class="hd-hero-logo-text">
-          <span class="hd-hero-logo-top">JudoHub</span>
-          <span class="hd-hero-logo-sub">JUDO TRAINING</span>
+    <!-- ① HEADER -->
+    <div class="hf-header">
+      <div class="hf-logo-row">
+        <div class="hf-logo">
+          <img src="images/homeicon.png" class="hf-logo-img" alt="JudoHub"
+               onerror="this.style.display='none'">
+          <div class="hf-logo-text">
+            <span class="hf-logo-name">JudoHub</span>
+            <span class="hf-logo-sub">TRAINING</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${activeBelt ? `
+          <div class="hf-belt-capsule" onclick="showView('belt')">
+            <img src="images/${toBeltFile}" class="hf-belt-capsule-img" alt="${targetBeltName}">
+            <span class="hf-belt-capsule-name">${targetBeltName}</span>
+          </div>` : ''}
+          <button class="hf-feedback-btn" onclick="openFeedbackModal()" title="Send Feedback">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </button>
         </div>
       </div>
-      <div class="hd-hero-brand-right">
-        <div class="hd-stats-row">
-          <div class="hd-stat-chip hd-stat-fire"><span>🔥</span><strong>${streak || 0}</strong></div>
-          <div class="hd-stat-chip hd-stat-xp"><span>⚡</span><strong>${xp}</strong></div>
+      <div class="hf-greeting">Good ${getTimeOfDay()}, ${firstName}</div>
+      <div class="hf-identity-row">
+        <div class="hf-belt-info">
+          <span class="hf-belt-dot" style="background:${fromHex}"></span>
+          <span class="hf-belt-label">${beltName}</span>
         </div>
-        <button class="hd-hero-profile-btn" onclick="openProfile()">
-          <span class="hd-hero-profile-dot" style="background:${fromHex}"></span>
-          <span>${firstName}</span>
-        </button>
+        <span class="hf-identity-sep">·</span>
+        <div class="hf-streak-info" onclick="showView('progress')">
+          <span class="hf-streak-fire">🔥</span>
+          <span class="hf-streak-label">${streak || 0} Day Streak</span>
+        </div>
       </div>
     </div>
 
+    <!-- ② TODAY CARD -->
+    <div class="hf-today-card">
+
+      <div class="hf-day-row">
+        <span class="hf-day-label">${dayName}</span>
+        <span class="hf-theme-chip">
+          <span>${theme.emoji}</span>
+          <span>${theme.name}</span>
+        </span>
+      </div>
+
+      <div class="hf-card-title">Today's Training</div>
+
+      <div class="hf-items">
+
+        <!-- Technique of the day -->
+        <div class="hf-item" onclick="${totd ? `openModal('${(totd.name||'').replace(/'/g,"\'")}')` : "showView('belt')"}">
+          <div class="hf-item-thumb">
+            ${totdThumb ? `<img src="${totdThumb}" class="hf-thumb-img" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'">` : ''}
+            <div class="hf-thumb-ph"${totdThumb ? ' style="display:none"' : ''}>
+              <svg viewBox="0 0 40 30" width="32" height="24"><rect width="40" height="30" rx="4" fill="#2a2a36"/><polygon points="16,9 28,15 16,21" fill="#555"/></svg>
+            </div>
+          </div>
+          <div class="hf-item-body">
+            <div class="hf-item-label">TECHNIQUE</div>
+            <div class="hf-item-name">${totd ? totd.name : 'O-soto-gari'}</div>
+            <div class="hf-item-sub">${totd && totd.en ? totd.en : 'Major outer reap'}</div>
+          </div>
+          <div class="hf-item-arrow">›</div>
+        </div>
+
+        <div class="hf-divider"></div>
+
+        <!-- Judo IQ -->
+        <div class="hf-item" onclick="revealIQCard()">
+          <div class="hf-item-thumb hf-thumb-icon" style="background:rgba(59,130,246,.12)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#3b82f6" stroke-width="1.8"/>
+              <path d="M12 8v1M12 11v5" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="hf-item-body">
+            <div class="hf-item-label">JUDO IQ</div>
+            <div class="hf-item-name">${iq ? iq.q : 'What is Kuzushi?'}</div>
+            <div class="hf-item-sub" id="hf-iq-sub" style="display:none">${iq ? iq.a : ''}</div>
+            <div class="hf-item-sub" id="hf-iq-tap">Tap to reveal</div>
+          </div>
+          <div class="hf-item-arrow">›</div>
+        </div>
+
+        <div class="hf-divider"></div>
+
+        <!-- Physical / theme -->
+        <div class="hf-item" onclick="showView('train')">
+          <div class="hf-item-thumb hf-thumb-icon" style="background:rgba(255,255,255,.04);overflow:visible;">
+            ${activeBelt
+              ? `<img src="images/${toBeltFile}" style="height:32px;width:auto;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))">`
+              : `<span style="font-size:20px">${theme.emoji}</span>`}
+          </div>
+          <div class="hf-item-body">
+            <div class="hf-item-label">PHYSICAL</div>
+            <div class="hf-item-name">${theme.name} Session</div>
+            <div class="hf-item-sub">Tap to open training</div>
+          </div>
+          <div class="hf-item-arrow">›</div>
+        </div>
+
+        <div class="hf-divider"></div>
+
+        <!-- Today's Word -->
+        ${todayTermKey ? `
+        <div class="hf-item hf-item-word" onclick="showView('techniques')">
+          <div class="hf-item-thumb hf-thumb-icon" style="background:rgba(245,197,66,.08)">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+              <path d="M4 6h16M4 10h10M4 14h12M4 18h8" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="hf-item-body">
+            <div class="hf-item-label">TODAY'S WORD</div>
+            <div class="hf-item-name">${todayTermKey}</div>
+            <div class="hf-item-sub">${todayTermVal}</div>
+          </div>
+          <div class="hf-item-arrow">›</div>
+        </div>` : ''}
+
+      </div><!-- /hf-items -->
+
+      <!-- Grade progress strip -->
+      ${activeBelt ? `
+      <div class="hf-grade-strip" onclick="showView('belt')">
+        <div class="hf-grade-strip-top">
+          <span class="hf-grade-strip-label">Grading for ${targetBeltName}</span>
+          <span class="hf-grade-strip-pct" style="color:${pctCol}">${pct}%</span>
+        </div>
+        <div class="hf-grade-bar-bg">
+          <div class="hf-grade-bar-fill" style="width:${pct}%;background:${pctCol}"></div>
+        </div>
+      </div>` : ''}
+
+    </div><!-- /hf-today-card -->
+
+    <!-- ③ CTA -->
+    <button class="hf-cta-btn" onclick="${ctaAction}">${ctaLabel}</button>
+
+    <!-- ④ PROGRESSION CONTEXT -->
     ${activeBelt ? `
-    <!-- Welcome line -->
-    <div class="hd-hero-welcome">Welcome back, ${firstName} 👋</div>
+    <div class="hf-progress-context" onclick="showView('belt')">
+      <div class="hf-pc-line1">${targetBeltName} Grading &nbsp;·&nbsp; ${pct}%</div>
+      <div class="hf-pc-line2">${activeBelt.total - activeBelt.done} technique${(activeBelt.total - activeBelt.done) !== 1 ? 's' : ''} remaining</div>
+    </div>` : ''}
 
-    <!-- Grade label + name -->
-    <div class="hd-grade-hero-label">CURRENT GRADE</div>
-    <div class="hd-grade-belt-name">${activeBelt.belt.from} Belt</div>
-    <div class="hd-grade-next-target">Grading for: <strong>${activeBelt.belt.to} Belt</strong> →</div>
-
-    <!-- Belt image -->
-    <div class="hd-belt-svg-wrap">
-      ${beltImg(activeBelt.belt.fromColor)}
-    </div>
-
-    <!-- Progress -->
-    <div class="hd-grade-progress-row">
-      <span class="hd-grade-progress-text">${activeBelt.done} of ${activeBelt.total} techniques reviewed</span>
-      <span class="hd-grade-pct-label" style="color:${pctCol}">${pct}%</span>
-    </div>
-    <div class="hd-grade-progress-track">
-      <div class="hd-grade-progress-fill" style="width:${pct}%;background:${pctCol}"></div>
-    </div>
-
-    ${pct >= 80 ? `<div class="hd-grade-ready-badge">✓ Looking ready to grade!</div>` : ''}
-
-    <!-- Primary CTA -->
-    <button class="hd-grade-syllabus-btn" onclick="showView('belt')">View Syllabus</button>
-    <button class="hd-grade-passed-link" onclick="openGradingPassModal('${activeBelt.belt.id}')">🎉 Already passed? Record it</button>
-    ` : `
-    <div class="hd-hero-welcome">Welcome back, ${firstName} 👋</div>
-    <div style="font-size:40px;margin:16px 0 8px;text-align:center">🏆</div>
-    <div class="hd-grade-belt-name" style="text-align:center">All Kyu Grades Done!</div>
-    <button class="hd-grade-syllabus-btn" style="margin-top:20px" onclick="showView('belt')">View Record</button>
-    `}
-  </div>
-
-  <!-- scrollable content below hero -->
-  <div class="hd-scroll-body">
-
-    <!-- ① CONTINUE LEARNING ───────────────────────── -->
-    ${buildContinueLearning(activeBelt)}
-
-    <!-- ② QUICK STATS ────────────────────────────── -->
-    ${buildQuickStats(streak, xp)}
-
-    <!-- ③ COACHING TIP ───────────────────────────── -->
-    ${buildCoachingTip()}
-
-    <!-- ④ QUICK REVISION ─────────────────────────── -->
-    ${buildQuickRevision()}
-
-  </div><!-- end hd-scroll-body -->
-
+  </div><!-- /hf-wrap -->
   `;
 }
+
+
+// Helper used by new home screen IQ reveal
+function revealIQCard() {
+  const sub = document.getElementById('hf-iq-sub');
+  const tap = document.getElementById('hf-iq-tap');
+  if (sub && tap) {
+    sub.style.display = 'block';
+    tap.style.display = 'none';
+  }
+}
+
+// Time-of-day greeting
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
+}
+
+// Start focused session from home CTA
+function onStartFocused() {
+  const theme = DAILY_THEMES[new Date().getDay()];
+  currentSession = generateSession(selectedMinutes || 15, selectedLocation || 'home', theme.tag);
+  showView('train');
+}
+
 
 
 function selectTime(m) {
@@ -777,6 +899,8 @@ function advanceTimer() {
     return;
   }
   timerSecsLeft = session.blocks[timerBlockIdx].items[timerItemIdx].duration;
+  // Auto-pause on each new technique item so user can preview the move
+  if (block.type === 'technique') timerPaused = true;
   paintTimer();
 }
 
@@ -1101,7 +1225,6 @@ function buildQuickStats(streak, xp) {
         <div class="qs-streak-row">
           <span class="qs-big">${streak || 0}</span>
           <span class="qs-fire">🔥</span>
-          <span class="qs-big">${streak || 0}</span>
         </div>
         <div class="qs-label">Day Streak</div>
       </div>

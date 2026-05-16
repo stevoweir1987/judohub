@@ -1382,5 +1382,4 @@ const TECH_DEPTH = {
     counters: ['Pull the arm back before it is trapped'],
     comp: 'Can be applied during standing grip exchanges. Very quick submission when timed correctly. Requires a committed sleeve grip from uke.',
   },
-
- 
+};

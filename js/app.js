@@ -65,11 +65,12 @@ function showView(name) {
   // Update header title
   const titles = { home:'JudoHub', techniques:'Techniques', belt:'Grades',
                    progress:'Progress', pt:'Personal Training',
-                   randori:'Randori Brain', builder:'Training Builder' };
+                   randori:'Randori Brain', builder:'Training Builder', train:'Train' };
   const logoEl = document.querySelector('.app-logo span');
   if (logoEl) logoEl.textContent = titles[name] || 'JudoHub';
 
   if (name === 'builder')  renderWeek();
+  if (name === 'train')    renderTrain();
   if (name === 'home')     renderHome();
   if (name === 'pt')       renderPT();
   if (name === 'progress') renderProgress();
@@ -169,6 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => showOnboarding(), 100);
   } else if (profile.type === 'junior') {
     activateJuniorMode();
+  } else {
+    // Show daily intent check-in for adult users
+    try { checkDailyIntent(); } catch(e) {}
   }
 });
 
@@ -249,4 +253,122 @@ function submitFeedback() {
       window.location.href = 'mailto:judohub@outlook.com?subject=JudoHub Feedback&body=' + body;
       closeFeedback();
     });
+}
+
+
+/* ─────────────────────────────────────────────
+   TRAIN VIEW
+   ───────────────────────────────────────────── */
+const TRAIN_CATEGORIES = [
+  { id: 'technique', icon: '🎯', title: 'Technique',         sub: 'Perfect your throws, holds & transitions' },
+  { id: 'fitness',   icon: '💪', title: 'Strength & Fitness', sub: 'Build the body of a judoka' },
+  { id: 'randori',   icon: '🤼', title: 'Randori Prep',       sub: 'Sharpen your contest mindset' },
+  { id: 'mental',    icon: '🧠', title: 'Mental Game',        sub: 'Focus, pressure and resilience' }
+];
+
+function renderTrain() {
+  const el = document.getElementById('train-cards-list');
+  if (!el) return;
+  const focus = localStorage.getItem('judohub_focus') || null;
+  el.innerHTML = TRAIN_CATEGORIES.map(cat => `
+    <div class="train-card" onclick="openTrainCategory('${cat.id}')">
+      <div class="train-card-icon" style="border:1.5px solid ${cat.id === focus ? '#d97706' : 'transparent'}">
+        ${cat.icon}
+      </div>
+      <div class="train-card-body">
+        <div class="train-card-title">${cat.title}${cat.id === focus ? ' <span style="font-size:10px;color:#d97706;font-weight:700;vertical-align:middle">● TODAY</span>' : ''}</div>
+        <div class="train-card-sub">${cat.sub}</div>
+      </div>
+      <div class="train-card-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function openTrainCategory(id) {
+  const msg = document.createElement('div');
+  msg.style.cssText = 'position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:#1a1a24;border:1px solid rgba(217,119,6,.3);color:#d97706;font-size:13px;font-weight:700;padding:10px 20px;border-radius:20px;z-index:3000;white-space:nowrap';
+  msg.textContent = '🚧 Coming soon — stay tuned!';
+  document.body.appendChild(msg);
+  setTimeout(() => msg.remove(), 2500);
+}
+
+/* ─────────────────────────────────────────────
+   TYPE PICKER (Home nav tap)
+   ───────────────────────────────────────────── */
+function showTypePicker() {
+  const current = localStorage.getItem('judohub_user_type') || 'adult';
+  document.querySelectorAll('.type-picker-btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.querySelector('.type-picker-btn[onclick*="' + current + '"]');
+  if (activeBtn) activeBtn.classList.add('active');
+  document.getElementById('type-picker-overlay').style.display = 'flex';
+}
+
+function closeTypePicker(e) {
+  if (!e || e.target === document.getElementById('type-picker-overlay')) {
+    document.getElementById('type-picker-overlay').style.display = 'none';
+  }
+}
+
+function pickType(type) {
+  localStorage.setItem('judohub_user_type', type);
+  document.getElementById('type-picker-overlay').style.display = 'none';
+  const nav  = document.getElementById('bottom-nav');
+  const jNav = document.getElementById('junior-nav');
+  if (type === 'junior') {
+    if (nav)  nav.style.display  = 'none';
+    if (jNav) jNav.style.display = '';
+    if (typeof renderJuniorHome === 'function') renderJuniorHome();
+    showJuniorView('junior-home');
+  } else {
+    if (nav)  nav.style.display  = '';
+    if (jNav) jNav.style.display = 'none';
+    if (typeof renderHome === 'function') renderHome();
+    showView('home');
+  }
+}
+
+/* ─────────────────────────────────────────────
+   DAILY INTENT CHECK-IN
+   ───────────────────────────────────────────── */
+function checkDailyIntent() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (localStorage.getItem('judohub_focus_date') === today) return;
+  setTimeout(() => {
+    const el = document.getElementById('intent-overlay');
+    if (el) el.style.display = 'flex';
+  }, 600);
+}
+
+function setDailyIntent(focus) {
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem('judohub_focus', focus);
+  localStorage.setItem('judohub_focus_date', today);
+  const el = document.getElementById('intent-overlay');
+  if (el) el.style.display = 'none';
+  if (typeof renderHome  === 'function') renderHome();
+  if (typeof renderTrain === 'function') renderTrain();
+}
+
+/* ─────────────────────────────────────────────
+   FEEDBACK MODAL
+   ───────────────────────────────────────────── */
+function openFeedbackModal() {
+  const el = document.getElementById('feedback-modal-overlay');
+  if (el) el.style.display = 'flex';
+  setTimeout(() => { const ta = document.getElementById('feedback-modal-text'); if (ta) ta.focus(); }, 100);
+}
+
+function closeFeedbackModal(e) {
+  if (!e || e.target === document.getElementById('feedback-modal-overlay')) {
+    document.getElementById('feedback-modal-overlay').style.display = 'none';
+  }
+}
+
+function submitFeedback() {
+  const ta   = document.getElementById('feedback-modal-text');
+  const text = ta ? ta.value.trim() : '';
+  if (!text) { closeFeedbackModal(); return; }
+  window.location.href = 'mailto:judohub@outlook.com?subject=JudoHub%20Feedback&body=' + encodeURIComponent(text);
+  closeFeedbackModal();
+  if (ta) ta.value = '';
 }
