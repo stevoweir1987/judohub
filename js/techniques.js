@@ -1,3 +1,6 @@
+let activeTechBelt = '';
+let expandedTechCat = null;
+
 // ── HELPERS ────────────────────────────────────────
 function getVideoId(url) {
   if (!url) return null;
@@ -70,29 +73,27 @@ function renderTechDepth(depth, compact=false) {
 function filterTechniques() { renderTechGrid(); }
 
 function currentFilter() {
-  const q   = (document.getElementById('tech-search') || {}).value || '';
-  const cat = (document.getElementById('tech-cat')    || {}).value || '';
+  const q = (document.getElementById('tech-search') || {}).value || '';
+  // Belt filter
+  const beltNames = (typeof BELT_TECHNIQUES !== 'undefined' && activeTechBelt)
+    ? (BELT_TECHNIQUES[activeTechBelt] || [])
+    : null;
   return TECHNIQUES.filter(t => {
     const mq = !q || t.name.toLowerCase().includes(q.toLowerCase()) || (t.en||'').toLowerCase().includes(q.toLowerCase());
-    let mc = true;
-    if (cat) {
-      if      (cat === 'Ground')        mc = t.cat === 'Katame-waza';
-      else if (cat === 'Osaekomi-waza') mc = t.sub === 'Osaekomi-waza';
-      else if (cat === 'Shime-waza')    mc = t.sub === 'Shime-waza';
-      else if (cat === 'Kansetsu-waza') mc = t.sub === 'Kansetsu-waza';
-      else if (cat === 'Combination')   mc = t.cat === 'Combination' || t.cat === 'Ne-waza';
-      else if (cat === 'Randori')       mc = t.cat === 'Randori';
-      else if (cat === 'Exercise')      mc = t.cat === 'Exercise';
-      else if (cat === 'Ukemi')         mc = t.cat === 'Ukemi';
-      else                              mc = t.sub === cat || t.cat === cat;
-    }
-    return mq && mc;
+    const mb = !beltNames || beltNames.some(n => n.toLowerCase() === t.name.toLowerCase());
+    return mq && mb;
   });
 }
 
 function renderTechGrid() {
   const filtered = currentFilter();
+  const q = (document.getElementById('tech-search') || {}).value || '';
   document.getElementById('tech-count').textContent = filtered.length + ' techniques';
+  // Use accordion view when no search/filter active
+  if (!q) {
+    document.getElementById('tech-grid').innerHTML = renderTechAccordion(filtered);
+    return;
+  }
   document.getElementById('tech-grid').innerHTML = filtered.map(t => techCard(t)).join('');
   filtered.forEach(t => {
     const ta = document.getElementById('note-' + safeId(t.name));
@@ -279,4 +280,124 @@ function openGradingVideo(url, title) {
   paintModal();
   document.getElementById('video-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TECHNIQUES ACCORDION VIEW
+   ───────────────────────────────────────────────────────────── */
+
+const TECH_CAT_META = {
+  'Te-waza':          { en: 'Hand Techniques',   icon: 'hand'     },
+  'Koshi-waza':       { en: 'Hip Techniques',    icon: 'hip'      },
+  'Ashi-waza':        { en: 'Foot & Leg',        icon: 'foot'     },
+  'Ma-sutemi-waza':   { en: 'Rear Sacrifice',    icon: 'sacrifice'},
+  'Yoko-sutemi-waza': { en: 'Side Sacrifice',    icon: 'sacrifice'},
+  'Makikomi-waza':    { en: 'Winding Throws',    icon: 'wind'     },
+  'Kaeshi-waza':      { en: 'Counter Techniques',icon: 'counter'  },
+  'Osaekomi-waza':    { en: 'Hold Downs',        icon: 'hold'     },
+  'Shime-waza':       { en: 'Strangles',         icon: 'choke'    },
+  'Kansetsu-waza':    { en: 'Joint Locks',       icon: 'joint'    },
+  'Combination':      { en: 'Combinations',      icon: 'combo'    },
+  'Drills':           { en: 'Drills & Training', icon: 'drill'    },
+  'Ukemi':            { en: 'Ukemi (Breakfalls)', icon: 'ukemi'   },
+  'Tips':             { en: 'Judo Tips',         icon: 'tip'      },
+};
+
+const JUDO_SVG = `<svg viewBox="0 0 40 40" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="28" cy="7" r="4" fill="currentColor" opacity=".9"/>
+  <circle cx="13" cy="8" r="4" fill="currentColor" opacity=".6"/>
+  <path d="M20 15 C16 13 10 16 9 22 L8 30 L14 30 L15 24 L18 27 L22 30 L27 30 L22 22 Z" fill="currentColor" opacity=".7"/>
+  <path d="M22 14 C26 12 32 15 33 21 L34 30 L28 30 L27 24 L24 27 L20 24 Z" fill="currentColor" opacity=".9"/>
+</svg>`;
+
+
+function renderTechAccordion(techniques) {
+  // Group by sub, preserving order
+  const ORDER = ['Te-waza','Koshi-waza','Ashi-waza','Ma-sutemi-waza','Yoko-sutemi-waza',
+                 'Makikomi-waza','Kaeshi-waza','Osaekomi-waza','Shime-waza','Kansetsu-waza',
+                 'Combination','Drills','Ukemi','Tips'];
+  const groups = {};
+  ORDER.forEach(k => { groups[k] = []; });
+  techniques.forEach(t => {
+    const key = t.sub || t.cat || 'Other';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(t);
+  });
+
+  return Object.entries(groups)
+    .filter(([, techs]) => techs.length > 0)
+    .map(([sub, techs]) => {
+      const meta    = TECH_CAT_META[sub] || { en: sub, icon: 'hand' };
+      const isOpen  = expandedTechCat === sub;
+      const withVid = techs.filter(t => getVideoId(t.url)).length;
+
+      const rows = isOpen ? techs.map(t => {
+        const vid   = getVideoId(t.url);
+        const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : null;
+        const safeName = esc(t.name);
+        return `
+          <div class="tac-row" onclick="toggleTech(event,'${safeName}')">
+            <div class="tac-row-thumb">
+              ${thumb
+                ? `<img src="${thumb}" class="tac-row-img" loading="lazy" onerror="this.style.display='none'">`
+                : `<div class="tac-row-ph">${JUDO_SVG}</div>`}
+            </div>
+            <div class="tac-row-info">
+              <div class="tac-row-name">${t.name}</div>
+              ${t.en ? `<div class="tac-row-en">${t.en}</div>` : ''}
+            </div>
+            <div class="tac-row-actions">
+              ${vid ? `<button class="tac-play-btn" onclick="event.stopPropagation();openModal('${safeName}')">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+              </button>` : ''}
+            </div>
+          </div>`;
+      }).join('') : '';
+
+      return `
+        <div class="tac-card${isOpen ? ' tac-open' : ''}" id="tac-${sub.replace(/[^a-z]/gi,'_')}" onclick="toggleTechCat('${sub}')">
+          <div class="tac-header">
+            <div class="tac-icon">${JUDO_SVG}</div>
+            <div class="tac-meta">
+              <div class="tac-name">${sub}</div>
+              <div class="tac-sub">${meta.en} · ${techs.length} techniques${withVid ? ` · ${withVid} videos` : ''}</div>
+            </div>
+            <div class="tac-chev">${isOpen ? '▲' : '▼'}</div>
+          </div>
+          ${isOpen ? `<div class="tac-body">${rows}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function toggleTechCat(sub) {
+  expandedTechCat = (expandedTechCat === sub) ? null : sub;
+  renderTechGrid();
+  if (expandedTechCat) {
+    setTimeout(() => {
+      const el = document.getElementById('tac-' + sub.replace(/[^a-z]/gi,'_'));
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+}
+
+
+function selectTechBelt(btn, belt) {
+  activeTechBelt = belt;
+  document.querySelectorAll('.tbc').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Preserve scroll position, keep categories open
+  const vb = document.querySelector('#view-techniques .view-body');
+  const sc = vb ? vb.scrollTop : 0;
+  renderTechGrid();
+  if (vb) requestAnimationFrame(() => { vb.scrollTop = sc; });
+}
+
+/* ── Video modal info toggle ─────────────────────────────────── */
+function toggleVModalInfo() {
+  const panel = document.getElementById('vm-info-panel');
+  const label = document.getElementById('vm-handle-label');
+  if (!panel) return;
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? '' : 'none';
+  if (label) label.innerHTML = open ? '&#8681; Close' : '&#8679; Notes &amp; Info';
 }

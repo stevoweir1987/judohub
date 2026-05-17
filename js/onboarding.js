@@ -71,6 +71,10 @@ function obStepType() {
 
 function selectType(type) {
   obProfile.type = type;
+  // Show focus prompt before entering onboarding
+  const el = document.getElementById('intent-overlay');
+  if (el) { el.style.display = 'flex'; return; }
+  // fallback if overlay not found
   obStep = 2;
   renderObStep();
 }

@@ -18,7 +18,77 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <title>JudoHub</title>
-  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/main.css?v=1778980224">
+  <style>
+    /* ── Train view hard overrides ── */
+    #view-train { background: #09090e !important; color: #f0f4ff !important; }
+    #view-train.active { display: block !important; background: #09090e !important; }
+    .tm-header { background: #0d0d12 !important; padding: 14px 16px 10px !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; }
+    .tm-header-top { display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 10px !important; min-height: 28px !important; }
+    .tm-header-label { font-size: 11px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #888 !important; }
+    .tm-header-day { font-size: 13px !important; font-weight: 800 !important; letter-spacing: .1em !important; color: #d97706 !important; }
+    .tm-refresh-btn { display: inline-flex !important; align-items: center !important; gap: 5px !important; background: rgba(217,119,6,.1) !important; border: 1px solid rgba(217,119,6,.25) !important; border-radius: 6px !important; color: #d97706 !important; font-size: 11px !important; font-weight: 700 !important; padding: 4px 9px !important; cursor: pointer !important; letter-spacing: .03em !important; flex-shrink: 0 !important; transition: background .15s !important; }
+    .tm-refresh-btn:active { background: rgba(217,119,6,.22) !important; }
+    .tm-progress-row { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 5px !important; }
+    .tm-progress-label { font-size: 10px !important; font-weight: 700 !important; letter-spacing: .09em !important; color: #555 !important; }
+    .tm-progress-pct { font-size: 11px !important; font-weight: 800 !important; color: #d97706 !important; }
+    .tm-progress-track { height: 5px !important; background: rgba(255,255,255,.07) !important; border-radius: 99px !important; overflow: hidden !important; margin-bottom: 10px !important; }
+    .tm-progress-fill { height: 100% !important; border-radius: 99px !important; background: linear-gradient(90deg,#dc2626,#d97706) !important; transition: width .4s !important; }
+    .tm-seg-ctrl { display: flex !important; background: rgba(255,255,255,.05) !important; border-radius: 8px !important; padding: 3px !important; gap: 3px !important; }
+    .tm-seg-btn { flex: 1 !important; background: transparent !important; border: none !important; color: #666 !important; font-size: 12px !important; font-weight: 700 !important; padding: 6px 0 !important; border-radius: 6px !important; cursor: pointer !important; letter-spacing: .04em !important; }
+    .tm-seg-btn.active { background: #1a1a2e !important; color: #fff !important; box-shadow: 0 1px 4px rgba(0,0,0,.4) !important; }
+    .tm-cards { padding: 10px 14px 90px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; }
+
+    /* Card — no left bar */
+    .tm-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; overflow: hidden !important; cursor: pointer !important; box-shadow: 0 2px 10px rgba(0,0,0,.3) !important; transition: border-color .2s !important; }
+    .tm-card-open { border-color: rgba(255,255,255,.18) !important; }
+    .tm-card-bar { display: none !important; }
+    .tm-card-main { display: flex !important; align-items: center !important; padding: 13px 12px !important; gap: 10px !important; }
+    .tm-card-icon { font-size: 24px !important; flex-shrink: 0 !important; width: 36px !important; text-align: center !important; }
+    .tm-card-body { flex: 1 !important; min-width: 0 !important; }
+    .tm-card-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .13em !important; text-transform: uppercase !important; color: #888 !important; margin-bottom: 2px !important; display: flex !important; align-items: center !important; gap: 5px !important; }
+    .tm-today-badge { background: #d97706 !important; color: #000 !important; font-size: 8px !important; font-weight: 900 !important; padding: 1px 5px !important; border-radius: 4px !important; }
+    .tm-card-title { font-size: 15px !important; font-weight: 800 !important; color: #f0f4ff !important; letter-spacing: -.2px !important; }
+    .tm-card-focus { font-size: 11px !important; color: #555 !important; margin-top: 2px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+
+    /* Circular progress */
+    .tm-card-circ { position: relative !important; flex-shrink: 0 !important; width: 40px !important; height: 40px !important; }
+    .tm-card-circ svg { position: absolute !important; inset: 0 !important; }
+    .tm-card-circ-txt { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 9px !important; font-weight: 800 !important; color: #aaa !important; }
+    .tm-card-cycle { background: none !important; border: none !important; color: rgba(255,255,255,.3) !important; padding: 6px 4px !important; cursor: pointer !important; display: flex !important; align-items: center !important; flex-shrink: 0 !important; transition: color .15s !important; -webkit-tap-highlight-color: transparent !important; }
+    .tm-card-cycle:active { color: #d97706 !important; }
+
+    /* Checklist */
+    .tm-card-items { padding: 4px 14px 14px !important; display: flex !important; flex-direction: column !important; gap: 9px !important; border-top: 1px solid rgba(255,255,255,.06) !important; }
+    .tm-item { display: flex !important; align-items: center !important; gap: 10px !important; font-size: 13px !important; color: #ccc !important; cursor: pointer !important; padding: 3px 0 !important; }
+    .tm-item-done { color: #444 !important; }
+    .tm-item-done span { text-decoration: line-through !important; }
+    .tm-item-check { width: 20px !important; height: 20px !important; border-radius: 6px !important; border: 2px solid !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: background .15s !important; }
+    .tm-item-text { flex: 1 !important; }
+    .tm-item-wrap { display: flex !important; flex-direction: column !important; gap: 0 !important; }
+    .tm-item-play { flex-shrink: 0 !important; background: none !important; border: none !important; padding: 4px !important; cursor: pointer !important; opacity: .55 !important; transition: opacity .15s !important; display: flex !important; align-items: center !important; -webkit-tap-highlight-color: transparent !important; }
+    .tm-item-play:active, .tm-item-play-active { opacity: 1 !important; }
+    .tm-inline-video { border-radius: 10px !important; overflow: hidden !important; aspect-ratio: 16/9 !important; background: #000 !important; margin: 6px 0 4px !important; }
+    .tm-inline-video iframe { width: 100% !important; height: 100% !important; display: block !important; border: none !important; }
+
+    /* Play button row */
+    .tm-play-row { padding: 4px 14px 10px !important; border-top: 1px solid rgba(255,255,255,.06) !important; }
+    .tm-play-btn { display: inline-flex !important; align-items: center !important; gap: 8px !important; background: rgba(255,255,255,.07) !important; border: 1.5px solid rgba(255,255,255,.12) !important; border-radius: 8px !important; color: #f0f4ff !important; font-size: 13px !important; font-weight: 700 !important; padding: 9px 14px !important; cursor: pointer !important; transition: background .15s !important; }
+    .tm-play-btn:active { background: rgba(255,255,255,.13) !important; }
+
+    /* Quiz */
+    .tm-quiz-wrap { padding: 4px 14px 14px !important; border-top: 1px solid rgba(255,255,255,.06) !important; }
+    .tm-quiz-q { margin-bottom: 14px !important; }
+    .tm-quiz-q:last-child { margin-bottom: 0 !important; }
+    .tm-quiz-scenario { font-size: 13px !important; font-weight: 600 !important; color: #dde !important; line-height: 1.4 !important; margin-bottom: 10px !important; padding-top: 10px !important; }
+    .tm-quiz-options { display: flex !important; flex-direction: column !important; gap: 7px !important; }
+    .tm-quiz-opt { background: rgba(255,255,255,.05) !important; border: 1.5px solid rgba(255,255,255,.1) !important; border-radius: 8px !important; color: #ccc !important; font-size: 12px !important; font-weight: 600 !important; padding: 9px 12px !important; text-align: left !important; cursor: pointer !important; transition: border-color .18s, background .18s !important; line-height: 1.35 !important; }
+    .tm-quiz-opt:active { opacity: .8 !important; }
+    .tm-quiz-correct { border-color: #16a34a !important; background: rgba(22,163,74,.15) !important; color: #4ade80 !important; }
+    .tm-quiz-wrong { border-color: #dc2626 !important; background: rgba(220,38,38,.12) !important; color: #f87171 !important; }
+    .tm-quiz-correct-reveal { border-color: rgba(22,163,74,.4) !important; background: rgba(22,163,74,.07) !important; color: #555 !important; }
+    .tm-quiz-explain { font-size: 12px !important; color: #888 !important; font-style: italic !important; line-height: 1.45 !important; margin-top: 9px !important; padding: 9px 12px !important; background: rgba(255,255,255,.03) !important; border-radius: 8px !important; border-left: 3px solid #d97706 !important; }
+  </style>
 </head>
 <body>
 
@@ -32,18 +102,26 @@
   <!-- ── APP HEADER ── -->
   <header id="app-header">
     <div class="app-header-inner">
-      <div class="app-logo" onclick="showView('home')" style="cursor:pointer">
-        <span class="app-logo-icon">🥋</span>
-        <div class="app-logo-stack">
-          <span class="app-logo-top">JUDO</span>
-          <span class="app-logo-btm">TRAINING</span>
+      <div class="app-header-logo" onclick="showView('home')" style="cursor:pointer">
+        <img src="images/homeicon.png" class="app-header-logo-img" onerror="this.style.display='none'">
+        <div class="app-header-logo-text">
+          <span class="app-header-logo-name">JudoHub</span>
+          <span class="app-header-logo-sub">TRAINING</span>
         </div>
       </div>
-      <button class="app-header-feedback" onclick="openFeedback()" title="Send Feedback">💬 Feedback</button>
-      <button class="app-header-profile" onclick="openProfile()" title="Profile">
-        <span id="header-belt-dot" class="header-belt-dot"></span>
-        <span id="header-profile-label">Profile</span>
-      </button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="app-header-name-pill" onclick="showTypePicker()">
+          <img id="app-header-belt-img" class="app-header-belt-img" src="images/belt-white.png" alt="">
+          <span id="app-header-name-text">Judoka</span>
+          <span class="app-header-pill-arrow">&#9662;</span>
+        </div>
+        <button class="app-header-envelope" onclick="openFeedbackModal()" title="Send Feedback">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -58,32 +136,18 @@
     <!-- TECHNIQUES -->
     <div class="view" id="view-techniques">
       <div class="view-body">
-        <div class="filter-bar">
+        <div class="tech-filter-bar">
           <input type="text" id="tech-search" placeholder="Search techniques…" oninput="filterTechniques()">
-          <select id="tech-cat" onchange="filterTechniques()">
-            <option value="">All Categories</option>
-            <optgroup label="── Nage-waza (Throws)">
-              <option value="Te-waza">Te-waza (Hand throws)</option>
-              <option value="Koshi-waza">Koshi-waza (Hip throws)</option>
-              <option value="Ashi-waza">Ashi-waza (Foot throws)</option>
-              <option value="Ma-sutemi-waza">Ma-sutemi-waza (Front sacrifice)</option>
-              <option value="Yoko-sutemi-waza">Yoko-sutemi-waza (Side sacrifice)</option>
-              <option value="Makikomi-waza">Makikomi-waza (Wraparound)</option>
-              <option value="Kaeshi-waza">Kaeshi-waza (Counters)</option>
-            </optgroup>
-            <optgroup label="── Katame-waza (Ground)">
-              <option value="Osaekomi-waza">Osaekomi-waza (Holds)</option>
-              <option value="Shime-waza">Shime-waza (Strangles)</option>
-              <option value="Kansetsu-waza">Kansetsu-waza (Arm locks)</option>
-            </optgroup>
-            <optgroup label="── Training">
-              <option value="Ukemi">Ukemi (Breakfalls)</option>
-              <option value="Combination">Combinations &amp; Ne-waza</option>
-              <option value="Randori">Randori &amp; Tips</option>
-              <option value="Exercise">Exercise Videos</option>
-            </optgroup>
-          </select>
-          <span class="count-badge" id="tech-count"></span>
+          <div class="tech-belt-chips" id="tech-belt-chips">
+            <button class="tbc active" data-belt="" onclick="selectTechBelt(this,'')">All</button>
+            <button class="tbc" data-belt="toRed"    onclick="selectTechBelt(this,'toRed')"   ><img class="tbc-belt" src="images/belt-red.png">Red</button>
+            <button class="tbc" data-belt="toYellow" onclick="selectTechBelt(this,'toYellow')"><img class="tbc-belt" src="images/belt-yellow.png">Yellow</button>
+            <button class="tbc" data-belt="toOrange" onclick="selectTechBelt(this,'toOrange')"><img class="tbc-belt" src="images/belt-orange.png">Orange</button>
+            <button class="tbc" data-belt="toGreen"  onclick="selectTechBelt(this,'toGreen')" ><img class="tbc-belt" src="images/belt-green.png">Green</button>
+            <button class="tbc" data-belt="toBlue"   onclick="selectTechBelt(this,'toBlue')"  ><img class="tbc-belt" src="images/belt-blue.png">Blue</button>
+            <button class="tbc" data-belt="toBrown"  onclick="selectTechBelt(this,'toBrown')" ><img class="tbc-belt" src="images/belt-brown.png">Brown</button>
+          </div>
+          <div class="tech-count-bar"><span id="tech-count"></span></div>
         </div>
         <div class="tech-grid" id="tech-grid"></div>
       </div>
@@ -199,13 +263,28 @@
 
   <!-- ── MORE DRAWER ── -->
     <div class="view" id="view-train">
-      <div class="view-body" id="train-body">
-        <div class="train-header">
-          <div class="train-header-title">Train</div>
-          <div class="train-header-sub">Choose your session focus</div>
+      <!-- TODAY'S MENU header -->
+      <div class="tm-header">
+        <div class="tm-header-top">
+          <div class="tm-header-label">TODAY'S MENU</div>
+          <div class="tm-header-day" id="tm-day-label">MONDAY</div>
+
         </div>
-        <div class="train-cards" id="train-cards-list"></div>
+        <div class="tm-progress-row">
+          <span class="tm-progress-label">DAILY PROGRESS</span>
+          <span class="tm-progress-pct" id="tm-progress-pct">0%</span>
+        </div>
+        <div class="tm-progress-track">
+          <div class="tm-progress-fill" id="tm-progress-fill" style="width:0%"></div>
+        </div>
+        <!-- Mode segmented control -->
+        <div class="tm-seg-ctrl">
+          <button class="tm-seg-btn active" id="tm-seg-adult" onclick="tmSetMode('adult')">Adult</button>
+          <button class="tm-seg-btn" id="tm-seg-junior" onclick="tmSetMode('junior')">Junior</button>
+        </div>
       </div>
+      <!-- Cards container -->
+      <div class="tm-cards" id="tm-cards-list"></div>
     </div>
 
   <div id="more-overlay" onclick="closeMoreDrawer()"></div>
@@ -270,34 +349,45 @@
 <!-- ── VIDEO MODAL ── -->
 <div id="video-modal" onclick="onModalBgClick(event)">
   <div class="vmodal-wrap">
-    <div class="vmodal-header">
-      <div style="flex:1;min-width:0;">
-        <h3 id="vm-title"></h3>
-        <p class="vmodal-subtitle" id="vm-subtitle"></p>
-      </div>
-      <div class="vmodal-nav">
-        <button id="vm-prev" onclick="modalNav(-1)" title="Previous">←</button>
-        <span class="vmodal-counter" id="vm-counter"></span>
-        <button id="vm-next" onclick="modalNav(1)" title="Next">→</button>
-      </div>
+
+    <!-- Top bar: counter + close only -->
+    <div class="vmodal-topbar">
+      <span class="vmodal-counter" id="vm-counter"></span>
       <button class="vmodal-close" onclick="closeVideoModal()">✕</button>
     </div>
-    <div class="vmodal-body">
-      <div class="vmodal-player" id="vm-player"></div>
-      <div class="vmodal-side">
-        <div class="vmodal-info" id="vm-info">
-          <div id="vm-tags"></div>
-          <div id="vm-depth"></div>
-        </div>
-        <div class="vmodal-notes-area">
-          <label>My Notes</label>
-          <textarea id="vm-notes" placeholder="Personal cues, things to work on…"></textarea>
-        </div>
-        <div class="vmodal-foot">
-          <button onclick="addCurrentToPlan()">+ Add to this week's plan</button>
-        </div>
+
+    <!-- Video — dominates the screen -->
+    <div class="vmodal-player" id="vm-player"></div>
+
+    <!-- Compact footer: name + nav -->
+    <div class="vmodal-footer">
+      <button class="vmodal-arr" id="vm-prev" onclick="flushModalNotes();modalNav(-1)">&#8592;</button>
+      <div class="vmodal-footer-info">
+        <div class="vmodal-footer-name" id="vm-title"></div>
+        <div class="vmodal-footer-en" id="vm-subtitle"></div>
       </div>
+      <button class="vmodal-arr" id="vm-next" onclick="flushModalNotes();modalNav(1)">&#8594;</button>
     </div>
+
+    <!-- Info handle — tap to reveal notes/depth -->
+    <div class="vmodal-info-handle" onclick="toggleVModalInfo()">
+      <span id="vm-handle-label">&#8679; Notes &amp; Info</span>
+    </div>
+
+    <!-- Collapsible info panel -->
+    <div class="vmodal-info-panel" id="vm-info-panel" style="display:none">
+      <div id="vm-tags"></div>
+      <div id="vm-depth"></div>
+      <div class="vmodal-notes-area">
+        <label class="vmodal-notes-label">My Notes</label>
+        <textarea id="vm-notes" placeholder="Personal cues, things to work on…"></textarea>
+      </div>
+      <button class="vmodal-plan-btn" onclick="addCurrentToPlan()">+ Add to this week's plan</button>
+    </div>
+
+    <!-- Hidden legacy div so existing JS refs don't break -->
+    <div id="vm-info" style="display:none"></div>
+
   </div>
 </div>
 
@@ -417,22 +507,22 @@
   </div>
 
 <!-- ── SCRIPTS ── -->
-<script src="js/data.js"></script>
-<script src="js/tech_depth.js"></script>
-<script src="js/onboarding.js"></script>
-<script src="js/app.js"></script>
-<script src="js/techniques.js"></script>
-<script src="js/belt.js"></script>
-<script src="js/grading.js"></script>
-<script src="js/builder.js"></script>
-<script src="js/home.js"></script>
-<script src="js/pt.js"></script>
-<script src="js/progress.js"></script>
-<script src="js/mon.js"></script>
-<script src="js/randori.js"></script>
-<script src="js/junior-home.js"></script>
-<script src="js/junior-grades.js"></script>
-<script src="js/junior-progress.js"></script>
+<script src="js/data.js?v=1778980224"></script>
+<script src="js/tech_depth.js?v=1778980224"></script>
+<script src="js/onboarding.js?v=1778980224"></script>
+<script src="js/app.js?v=1778980224"></script>
+<script src="js/techniques.js?v=1778980224"></script>
+<script src="js/belt.js?v=1778980224"></script>
+<script src="js/grading.js?v=1778980224"></script>
+<script src="js/builder.js?v=1778980224"></script>
+<script src="js/home.js?v=1778980224"></script>
+<script src="js/pt.js?v=1778980224"></script>
+<script src="js/progress.js?v=1778980224"></script>
+<script src="js/mon.js?v=1778980224"></script>
+<script src="js/randori.js?v=1778980224"></script>
+<script src="js/junior-home.js?v=1778980224"></script>
+<script src="js/junior-grades.js?v=1778980224"></script>
+<script src="js/junior-progress.js?v=1778980224"></script>
 
 <script>
   if 

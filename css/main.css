@@ -3152,6 +3152,11 @@ body.junior-mode #main {
 #main {
   overflow: hidden !important;
   padding-bottom: 0 !important;
+  top: 54px !important;
+}
+/* On home screen the global header is hidden, so #main fills from top */
+body.home-active #main {
+  top: 0 !important;
 }
 .view {
   position: absolute !important;
@@ -8328,3 +8333,1100 @@ body.junior-mode #main {
   cursor: pointer;
 }
 /* ios-sec-dot dark override (grade view all) */
+
+/* ── Name pill (type switcher in home header) ───────────────── */
+.hf-name-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 20px;
+  padding: 6px 12px 6px 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+}
+.hf-name-pill:active { background: rgba(255,255,255,.15); }
+.hf-name-pill-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e0e0ec;
+  white-space: nowrap;
+}
+.hf-name-pill-arrow {
+  font-size: 10px;
+  color: #888;
+}
+
+/* ── Techniques view dark theme ─────────────────────────────── */
+#view-techniques .view-body {
+  background: #09090e !important;
+}
+#view-techniques .view-section-title,
+#view-techniques .view-label,
+#view-techniques h2, #view-techniques h3 {
+  color: #f0f0f5 !important;
+}
+#view-techniques .tech-card {
+  background: #141419 !important;
+  border: 1px solid rgba(255,255,255,.07) !important;
+  box-shadow: none !important;
+  color: #e0e0ec !important;
+}
+#view-techniques .tech-card-name,
+#view-techniques .tech-name {
+  color: #f0f0f5 !important;
+}
+#view-techniques .tech-card-sub,
+#view-techniques .tech-en,
+#view-techniques .tech-sub {
+  color: #888 !important;
+}
+#view-techniques .tech-cat-label,
+#view-techniques .cat-label {
+  color: #d97706 !important;
+}
+#view-techniques input[type="search"],
+#view-techniques .search-bar,
+#view-techniques .tech-search {
+  background: #1a1a24 !important;
+  border-color: rgba(255,255,255,.1) !important;
+  color: #e0e0ec !important;
+}
+#view-techniques .filter-chip,
+#view-techniques .tag {
+  background: #1a1a24 !important;
+  border-color: rgba(255,255,255,.1) !important;
+  color: #c8c8d8 !important;
+}
+#view-techniques .filter-chip.active,
+#view-techniques .tag.active {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #fff !important;
+}
+
+/* ── Progress view dark theme ───────────────────────────────── */
+#view-progress .view-body {
+  background: #09090e !important;
+}
+#view-progress .view-section-title,
+#view-progress h2, #view-progress h3,
+#view-progress .prog-title,
+#view-progress .stat-label {
+  color: #f0f0f5 !important;
+}
+#view-progress .hd-stat-card,
+#view-progress .stat-card,
+#view-progress .prog-card,
+#view-progress .card {
+  background: #141419 !important;
+  border: 1px solid rgba(255,255,255,.07) !important;
+  box-shadow: none !important;
+  color: #e0e0ec !important;
+}
+#view-progress .stat-value,
+#view-progress .prog-number {
+  color: #f0f0f5 !important;
+}
+#view-progress .stat-sub,
+#view-progress .prog-sub {
+  color: #888 !important;
+}
+#view-progress .progress-bar,
+#view-progress .prog-bar-bg {
+  background: #2a2a36 !important;
+}
+#view-progress .hd-stat-week {
+  background: rgba(217,119,6,.15) !important;
+  color: #d97706 !important;
+  border-color: rgba(217,119,6,.3) !important;
+}
+
+/* ── Techniques Accordion Cards (dark dojo theme) ─────────────── */
+#view-techniques .view-body {
+  background: #09090e !important;
+  padding: 0 !important;
+}
+.tech-acc-wrap {
+  padding: 12px 14px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Category card */
+.tac-card {
+  background: #141419;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .15s;
+}
+.tac-card.tac-open {
+  border-color: rgba(217,119,6,.5);
+}
+
+/* Category header */
+.tac-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+.tac-card.tac-open .tac-header {
+  background: rgba(217,119,6,.1);
+  border-bottom: 1px solid rgba(217,119,6,.2);
+}
+.tac-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,.06);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d97706;
+  flex-shrink: 0;
+}
+.tac-card.tac-open .tac-icon {
+  background: rgba(217,119,6,.18);
+}
+.tac-meta { flex: 1; min-width: 0; }
+.tac-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f0f0f5;
+  letter-spacing: -.1px;
+}
+.tac-card.tac-open .tac-name { color: #d97706; }
+.tac-sub {
+  font-size: 11.5px;
+  color: #666;
+  margin-top: 2px;
+}
+.tac-chev {
+  font-size: 11px;
+  color: #555;
+  flex-shrink: 0;
+  transition: color .15s;
+}
+.tac-card.tac-open .tac-chev { color: #d97706; }
+
+/* Technique rows inside expanded card */
+.tac-body {
+  display: flex;
+  flex-direction: column;
+}
+.tac-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s;
+}
+.tac-row:active { background: rgba(255,255,255,.04); }
+.tac-row-thumb {
+  width: 52px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #1e1e28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tac-row-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tac-row-ph {
+  color: rgba(255,255,255,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tac-row-info { flex: 1; min-width: 0; }
+.tac-row-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #e8e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tac-row-en {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tac-row-actions { flex-shrink: 0; }
+.tac-play-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #d97706;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .15s;
+}
+.tac-play-btn:active { opacity: .75; }
+
+/* Search bar dark styling for techniques */
+#view-techniques .tech-search-bar {
+  background: #141419 !important;
+  border-bottom: 1px solid rgba(255,255,255,.07) !important;
+  padding: 10px 14px !important;
+}
+#view-techniques #tech-search {
+  background: #1e1e28 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  color: #e8e8f0 !important;
+  border-radius: 12px !important;
+}
+#view-techniques #tech-search::placeholder { color: #555 !important; }
+#view-techniques #tech-cat {
+  background: #1e1e28 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  color: #e8e8f0 !important;
+  border-radius: 12px !important;
+}
+#view-techniques .tech-count {
+  color: #666 !important;
+  font-size: 12px !important;
+  padding: 4px 14px 8px !important;
+}
+
+/* Flat filtered results (when searching) — dark cards */
+#view-techniques .tech-card {
+  background: #141419 !important;
+  border: 1px solid rgba(255,255,255,.07) !important;
+  box-shadow: none !important;
+  border-radius: 16px !important;
+}
+#view-techniques .tech-name { color: #f0f0f5 !important; }
+#view-techniques .tech-en   { color: #888 !important; }
+#view-techniques .tech-card.expanded {
+  border-color: rgba(217,119,6,.4) !important;
+}
+
+/* ── Techniques view layout fixes ─────────────────────────────── */
+#view-techniques .view-body {
+  padding: 0 !important;
+  overflow-y: auto !important;
+}
+#view-techniques .filter-bar {
+  background: #0d0d12;
+  padding: 12px 14px 10px;
+  margin-bottom: 0 !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  gap: 8px !important;
+}
+#view-techniques #tech-search {
+  background: #1a1a24 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  color: #e8e8f0 !important;
+  border-radius: 10px !important;
+  padding: 9px 12px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+#view-techniques #tech-cat {
+  background: #1a1a24 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  color: #e8e8f0 !important;
+  border-radius: 10px !important;
+  padding: 9px 10px !important;
+}
+#view-techniques .count-badge {
+  color: #555 !important;
+  font-size: 11px !important;
+  white-space: nowrap;
+}
+/* Override grid → single column flex for accordion */
+#view-techniques #tech-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 12px 14px 100px !important;
+  grid-template-columns: none !important;
+}
+
+/* ── Global App Header ─────────────────────────────────────────── */
+#app-header {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: #0d0d12;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  padding: 0 16px;
+}
+.app-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+}
+.app-header-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.app-header-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.app-header-logo-name {
+  font-size: 15px;
+  font-weight: 900;
+  color: #f0f0f5;
+  letter-spacing: -.2px;
+}
+.app-header-logo-sub {
+  font-size: 8px;
+  font-weight: 700;
+  color: #d97706;
+  letter-spacing: 2px;
+}
+.app-header-name-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 20px;
+  padding: 5px 11px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e0e0ec;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-header-name-pill:active { background: rgba(255,255,255,.14); }
+.app-header-pill-arrow { font-size: 9px; color: #888; }
+.app-header-envelope {
+  background: none;
+  border: none;
+  color: #666;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-header-envelope:active { opacity: .6; }
+
+/* ── Techniques filter bar (no dropdown) ───────────────────────── */
+.tech-filter-bar {
+  background: #0d0d12;
+  padding: 10px 14px 0;
+  position: sticky;
+  top: 54px;
+  z-index: 9;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.tech-filter-bar #tech-search {
+  width: 100%;
+  background: #1a1a24;
+  border: 1px solid rgba(255,255,255,.08);
+  color: #e8e8f0;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+.tech-filter-bar #tech-search::placeholder { color: #555; }
+
+/* Belt chips scrollable row */
+.tech-belt-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 0 10px;
+  scrollbar-width: none;
+}
+.tech-belt-chips::-webkit-scrollbar { display: none; }
+.tbc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #1a1a24;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .15s, color .15s;
+}
+.tbc.active {
+  border-color: #d97706;
+  color: #d97706;
+  background: rgba(217,119,6,.1);
+}
+.tbc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tech-count-bar {
+  font-size: 11px;
+  color: #555;
+  padding: 0 2px 8px;
+}
+
+/* Adjust tech-grid top when header visible */
+#view-techniques #tech-grid {
+  padding-top: 10px !important;
+}
+
+/* ── Techniques UI fixes ───────────────────────────────────────── */
+
+/* Belt image in chip */
+.tbc-belt {
+  width: 28px;
+  height: 9px;
+  object-fit: contain;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Compact filter bar */
+.tech-filter-bar {
+  background: #0d0d12 !important;
+  padding: 10px 14px 0 !important;
+  position: sticky !important;
+  top: 54px !important;
+  z-index: 9 !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+}
+.tech-filter-bar #tech-search {
+  width: 100% !important;
+  background: #1a1a24 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  color: #e8e8f0 !important;
+  border-radius: 10px !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+.tech-belt-chips {
+  display: flex !important;
+  gap: 6px !important;
+  overflow-x: auto !important;
+  padding: 8px 0 8px !important;
+  scrollbar-width: none !important;
+}
+.tech-belt-chips::-webkit-scrollbar { display: none !important; }
+.tbc {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  background: #1a1a24 !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 20px !important;
+  padding: 4px 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #888 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.tbc.active {
+  border-color: #d97706 !important;
+  color: #d97706 !important;
+  background: rgba(217,119,6,.12) !important;
+}
+.tech-count-bar {
+  font-size: 11px !important;
+  color: #555 !important;
+  padding: 4px 0 6px !important;
+}
+
+/* List clears bottom nav */
+#view-techniques #tech-grid {
+  padding-bottom: 100px !important;
+}
+
+/* ── Global header on all non-home views ───────────────────────── */
+/* Enable by default, JS hides on home */
+#app-header {
+  display: flex !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 900 !important;
+  background: #0d0d12 !important;
+  border-bottom: 1px solid rgba(255,255,255,.07) !important;
+  flex-shrink: 0 !important;
+}
+/* JS adds home-active class to body to hide on home */
+body.home-active #app-header { display: none !important; }
+
+/* Breathing room under global header for all non-home views */
+#view-progress .view-header,
+#view-train .view-header,
+#view-techniques .view-header,
+#view-mytechs .view-header,
+#view-daily .view-header {
+  padding-top: 18px !important;
+}
+/* Grades / Progress / Train have no .view-header — pad their view-body tops */
+#belt-body,
+#progress-body,
+#view-train > .view-body {
+  padding-top: 14px !important;
+}
+/* Belt tab bar also needs a small gap */
+.belt-tab-bar {
+  margin-top: 8px !important;
+}
+
+/* ── Video-first modal redesign ─────────────────────────────────── */
+#video-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 2000;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+#video-modal.open { display: flex; }
+
+.vmodal-wrap {
+  width: 100%;
+  max-width: 430px;
+  background: #0a0a0f;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 96vh;
+  overflow: hidden;
+}
+
+/* Top bar */
+.vmodal-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  flex-shrink: 0;
+}
+.vmodal-topbar .vmodal-counter {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+}
+.vmodal-topbar .vmodal-close {
+  background: rgba(255,255,255,.1);
+  border: none;
+  color: #ccc;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* VIDEO — the star of the show */
+#video-modal .vmodal-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  flex-shrink: 0;
+}
+#video-modal .vmodal-player iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+.vmodal-novideo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #444;
+  gap: 10px;
+  font-size: 13px;
+}
+.vmodal-novideo span:first-child { font-size: 32px; }
+
+/* Footer: prev / name / next */
+.vmodal-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  flex-shrink: 0;
+}
+.vmodal-arr {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #ccc;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s;
+}
+.vmodal-arr:disabled { opacity: .25; pointer-events: none; }
+.vmodal-arr:active { background: rgba(255,255,255,.15); }
+.vmodal-footer-info { flex: 1; min-width: 0; text-align: center; }
+.vmodal-footer-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f0f0f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vmodal-footer-en {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* Info handle — subtle tap target */
+.vmodal-info-handle {
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  border-top: 1px solid rgba(255,255,255,.05);
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.vmodal-info-handle:active { color: #d97706; }
+
+/* Collapsible info panel */
+.vmodal-info-panel {
+  overflow-y: auto;
+  padding: 12px 16px 20px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+  max-height: 35vh;
+}
+.vmodal-notes-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin: 10px 0 6px;
+}
+.vmodal-info-panel textarea {
+  width: 100%;
+  background: #1a1a24;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  color: #e0e0ec;
+  font-size: 13px;
+  padding: 10px 12px;
+  min-height: 60px;
+  resize: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.vmodal-plan-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: rgba(217,119,6,.15);
+  border: 1px solid rgba(217,119,6,.3);
+  border-radius: 10px;
+  color: #d97706;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* ── Comprehensive fixes ─────────────────────────────────────────── */
+
+/* Fix home-view-body light background override */
+.home-view-body {
+  background: #09090e !important;
+}
+
+/* Belt image inside home name pill */
+.hf-name-pill-belt {
+  width: 34px;
+  height: 11px;
+  object-fit: contain;
+  border-radius: 3px;
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+/* Belt image inside global header pill */
+.app-header-belt-img {
+  width: 34px;
+  height: 11px;
+  object-fit: contain;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Ensure pills don't clip images */
+.hf-name-pill,
+.app-header-name-pill {
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* ── Belt chips: 2-row grid so all belts visible at once ──────────── */
+.tech-belt-chips {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 7px !important;
+  padding: 10px 0 !important;
+  overflow: visible !important;
+  scrollbar-width: none !important;
+}
+.tech-belt-chips::-webkit-scrollbar { display: none !important; }
+
+.tbc {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: #1a1a24 !important;
+  border: 1.5px solid rgba(255,255,255,.08) !important;
+  border-radius: 14px !important;
+  padding: 10px 12px 8px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #888 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  min-width: 58px !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: border-color .15s, background .15s !important;
+}
+.tbc.active {
+  border-color: #d97706 !important;
+  color: #d97706 !important;
+  background: rgba(217,119,6,.12) !important;
+}
+.tbc-belt {
+  width: 40px !important;
+  height: 13px !important;
+  object-fit: contain !important;
+  border-radius: 3px !important;
+  margin: 0 !important;
+  display: block !important;
+}
+
+/* All belt chip — no image, just text centred */
+.tbc[data-belt=""] {
+  font-size: 13px !important;
+  padding: 16px 14px !important;
+}
+
+/* ── Filter bar + chip final fixes ──────────────────────────────── */
+
+/* Filter bar height accounts for header above */
+#view-techniques .view-body {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+.tech-filter-bar {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  top: auto !important;
+  padding-top: 14px !important;
+}
+/* The grid is the scrollable area, not the whole view-body */
+#view-techniques #tech-grid {
+  flex: 1 !important;
+
+/* ═══════════════════════════════════════════════
+   TODAY'S MENU — TRAIN VIEW
+   ═══════════════════════════════════════════════ */
+#view-train {
+  background: #09090e !important;
+}
+#view-train.active {
+  display: block !important;
+  background: #09090e !important;
+}
+
+/* Header */
+.tm-header {
+  flex-shrink: 0;
+  background: #0d0d12;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.tm-header-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.tm-header-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: #666;
+}
+.tm-header-day {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: #d97706;
+}
+.tm-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.tm-progress-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  color: #555;
+}
+.tm-progress-pct {
+  font-size: 11px;
+  font-weight: 800;
+  color: #d97706;
+}
+.tm-progress-track {
+  height: 5px;
+  background: rgba(255,255,255,.07);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.tm-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #dc2626 0%, #d97706 100%);
+  transition: width .4s ease;
+}
+
+/* Segmented control */
+.tm-seg-ctrl {
+  display: flex;
+  background: rgba(255,255,255,.05);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+.tm-seg-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .18s;
+  letter-spacing: .04em;
+}
+.tm-seg-btn.active {
+  background: #1a1a2e;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+
+/* Cards list */
+.tm-cards {
+  padding: 10px 14px 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Card */
+.tm-card {
+  background: #13131c;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .18s, box-shadow .18s;
+  box-shadow: 0 2px 10px rgba(0,0,0,.25);
+}
+.tm-card:active {
+  opacity: .88;
+}
+.tm-card-open {
+  border-color: rgba(255,255,255,.15);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+.tm-card-main {
+  display: flex;
+  align-items: center;
+  padding: 12px 12px 12px 0;
+  gap: 10px;
+}
+.tm-card-bar {
+  width: 5px;
+  align-self: stretch;
+  border-radius: 14px 0 0 14px;
+  flex-shrink: 0;
+  min-height: 60px;
+}
+.tm-card-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+}
+.tm-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.tm-card-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tm-today-badge {
+  background: #d97706;
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: .06em;
+}
+.tm-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f0f4ff;
+  letter-spacing: -.2px;
+}
+.tm-card-focus {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Circular progress */
+.tm-card-circ {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  margin-right: 4px;
+}
+.tm-card-circ svg {
+  position: absolute;
+  inset: 0;
+}
+.tm-card-circ-txt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #aaa;
+  letter-spacing: -.5px;
+}
+
+/* Expanded items */
+.tm-card-items {
+  padding: 0 12px 12px 53px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding-top: 10px;
+}
+.tm-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #ccc;
+  cursor: pointer;
+  transition: color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tm-item-done {
+  color: #555;
+}
+.tm-item-done span {
+  text-decoration: line-through;
+}
+.tm-item-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}

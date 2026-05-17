@@ -526,13 +526,13 @@ function renderHome() {
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          ${activeBelt ? `
-          <div class="hf-belt-capsule" onclick="showView('belt')">
-            <img src="images/${toBeltFile}" class="hf-belt-capsule-img" alt="${targetBeltName}">
-            <span class="hf-belt-capsule-name">${targetBeltName}</span>
-          </div>` : ''}
+          <div class="hf-name-pill" onclick="showTypePicker()">
+            ${activeBelt ? `<img src="images/${BELT_IMG_MAP[activeBelt.belt.fromColor]||'belt-white.png'}" class="hf-name-pill-belt" alt="">` : ''}
+            <span class="hf-name-pill-text">${firstName}</span>
+            <span class="hf-name-pill-arrow">▾</span>
+          </div>
           <button class="hf-feedback-btn" onclick="openFeedbackModal()" title="Send Feedback">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
