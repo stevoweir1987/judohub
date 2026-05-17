@@ -69,6 +69,9 @@ function showView(name) {
   const logoEl = document.querySelector('.app-logo span');
   if (logoEl) logoEl.textContent = titles[name] || 'JudoHub';
 
+  // Toggle dark body background for Training view
+  document.body.classList.toggle('training-active', name === 'train');
+
   if (name === 'builder')  renderWeek();
   if (name === 'train')    renderTrain();
   try { syncAppHeader(name); } catch(e) {}
@@ -616,6 +619,11 @@ function tmToggleItemVideo(catId, idx, url, title) {
 }
 
 function renderTrain() {
+  // Route to whichever inner tab is active
+  switchTrainTab(trainActiveTab || 'overview');
+}
+
+function _renderTrainLegacy() {
   const days = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
   const dayEl = document.getElementById('tm-day-label');
   if (dayEl) dayEl.textContent = days[new Date().getDay()];
@@ -852,4 +860,628 @@ function syncAppHeader(viewName) {
     const firstName = p && p.name ? p.name.split(' ')[0] : 'Judoka';
     nameEl.textContent = firstName;
   }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   TRAINING VIEW — REDESIGN (inner tabs + session panel)
+   ═══════════════════════════════════════════════════════════ */
+
+let trainActiveTab = 'overview';
+let sessionActiveCat  = null;
+let sessionActiveTab  = 'checklist';
+let sessionVideoTech  = null; // {catId, itemIdx, techName, techUrl}
+let trainTechBelt    = '';
+
+/* ─── Inner tab routing ─── */
+function switchTrainTab(tab) {
+  trainActiveTab = tab;
+  document.querySelectorAll('.train-tab').forEach(t => t.classList.remove('active'));
+  const btn = document.getElementById('ttab-' + tab);
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.train-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('tp-' + tab);
+  if (panel) panel.classList.add('active');
+
+  if (tab === 'overview')    renderTrainOverview();
+  if (tab === 'training')    renderTrainingHub();
+  if (tab === 'techniques')  renderTrainTech();
+  if (tab === 'randori')     renderTrainRandori();
+}
+
+/* ═══════════════════════════════
+   OVERVIEW TAB
+   ═══════════════════════════════ */
+// COACHING_TIPS defined in home.js
+
+// BELT_ORDER defined in progress.js (array of {key,color,label,border})
+
+function renderTrainOverview() {
+  const el = document.getElementById('tp-overview');
+  if (!el) return;
+
+  const p = (typeof getProfile === 'function') ? getProfile() : null;
+  const beltKey  = (p && p.belt) ? p.belt : 'white';
+  const beltName = beltKey.charAt(0).toUpperCase() + beltKey.slice(1) + ' Belt';
+  const beltImg  = 'images/belt-' + beltKey + '.png';
+
+  const curIdx  = BELT_ORDER.findIndex(b => b.key === beltKey);
+  const nextObj = BELT_ORDER[Math.min(curIdx + 1, BELT_ORDER.length - 1)] || {};
+  const nextKey = nextObj.key || beltKey;
+  const nextName = nextObj.label || (nextKey.charAt(0).toUpperCase() + nextKey.slice(1) + ' Belt');
+
+  // Belt syllabus progress
+  const allProg = JSON.parse(localStorage.getItem('judo_belt_progress') || '{}');
+  const doneCount = Object.values(allProg).filter(Boolean).length;
+  const gradesPct = Math.min(100, Math.round((doneCount / 28) * 100));
+
+  // XP & streak
+  const xp     = parseInt(localStorage.getItem('judohub_xp')     || '0');
+  const streak = parseInt(localStorage.getItem('judohub_streak') || '0');
+
+  // Week sessions
+  const sessLog = JSON.parse(localStorage.getItem('judohub_sessions_log') || '[]');
+  const today   = new Date();
+  const dow     = (today.getDay() + 6) % 7; // Mon=0
+  const monday  = new Date(today); monday.setDate(today.getDate() - dow);
+  const weekStart = monday.toISOString().slice(0,10);
+  const weekSessions = sessLog.filter(s => s.date >= weekStart);
+  const weekDays  = new Set(weekSessions.map(s => s.date)).size;
+  const weekMins  = weekSessions.reduce((a,s) => a + (s.duration || 20), 0);
+  const weekTarget = 5;
+
+  // Today's focus
+  const focus = localStorage.getItem('judohub_focus') || 'technique';
+  const focusMap = {
+    technique:  { title: 'Nage Waza Drills',   sub: 'Perfect your throwing technique', icon: '🥋', cat: 'training' },
+    randori:    { title: 'Randori Session',      sub: 'Sharpen your contest mindset',   icon: '🤼', cat: 'training' },
+    fitness:    { title: 'S&C Circuit',          sub: "Build a judoka's body",           icon: '💪', cat: 'training' },
+    mental:     { title: 'Mind Training',        sub: 'Focus & tactical quiz',           icon: '🧠', cat: 'training' },
+    groundwork: { title: 'Ne Waza Drills',       sub: 'Pins, chokes & arm locks',        icon: '🟢', cat: 'training' },
+  };
+  const foc = focusMap[focus] || focusMap.technique;
+
+  // Coaching tip (rotates daily) — COACHING_TIPS is [{title,body,img}] from home.js
+  const _tipObj = (typeof COACHING_TIPS !== 'undefined') ? COACHING_TIPS[new Date().getDay() % COACHING_TIPS.length] : null;
+  const tip = _tipObj ? _tipObj.body : 'Focus on kuzushi — every great throw starts with breaking balance.';
+
+  // Week ring SVG
+  const R = 36, C2 = 2 * Math.PI * R;
+  const dash2 = C2 - Math.min(weekDays / weekTarget, 1) * C2;
+
+  el.innerHTML = `
+    <div class="ov-scroll">
+      <!-- Grade card (tap → Grades) -->
+      <div class="ov-grade-card" onclick="showView('belt')" style="cursor:pointer">
+        <img class="ov-belt-img" src="${beltImg}" alt="${beltName}" onerror="this.style.opacity='.3'">
+        <div class="ov-grade-body">
+          <div class="ov-grade-name">${beltName}</div>
+          <div class="ov-grade-next">Working towards ${nextName}</div>
+          <div class="ov-grade-bar"><div class="ov-grade-bar-fill" style="width:${gradesPct}%"></div></div>
+          <div class="ov-grade-pct">${gradesPct}% of syllabus complete</div>
+        </div>
+      </div>
+
+      <!-- Today's focus (tap → Training hub) -->
+      <div class="ov-focus-card" onclick="switchTrainTab('training')">
+        <div class="ov-focus-label">TODAY&apos;S FOCUS &rsaquo;</div>
+        <div class="ov-focus-title">${foc.icon} ${foc.title}</div>
+        <div class="ov-focus-sub">${foc.sub}</div>
+      </div>
+
+      <!-- Week ring + stats -->
+      <div class="ov-row">
+        <div class="ov-week-card">
+          <div class="ov-week-label">THIS WEEK</div>
+          <svg width="88" height="88" viewBox="0 0 88 88">
+            <circle cx="44" cy="44" r="${R}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>
+            <circle cx="44" cy="44" r="${R}" fill="none" stroke="#d97706" stroke-width="7"
+              stroke-dasharray="${C2.toFixed(1)}" stroke-dashoffset="${dash2.toFixed(1)}"
+              stroke-linecap="round" transform="rotate(-90 44 44)"/>
+            <text x="44" y="40" text-anchor="middle" fill="#f0f4ff" font-size="20" font-weight="900" font-family="system-ui,sans-serif">${weekDays}</text>
+            <text x="44" y="56" text-anchor="middle" fill="#888" font-size="10" font-family="system-ui,sans-serif">of ${weekTarget}</text>
+          </svg>
+          <div class="ov-week-sub">${weekMins} mins<br>this week</div>
+        </div>
+        <div class="ov-stats">
+          <div class="ov-stat"><div class="ov-stat-val">🔥 ${streak}</div><div class="ov-stat-label">Day streak</div></div>
+          <div class="ov-stat"><div class="ov-stat-val">⚡ ${xp}</div><div class="ov-stat-label">Total XP</div></div>
+          <div class="ov-stat"><div class="ov-stat-val">🎖️ ${doneCount}</div><div class="ov-stat-label">Syllabus items</div></div>
+        </div>
+      </div>
+
+      <!-- Coaching tip -->
+      <div class="ov-tip-card">
+        <div class="ov-tip-label">🧠 COACHING INSIGHT</div>
+        <div class="ov-tip-text">&ldquo;${tip}&rdquo;</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════
+   TRAINING HUB TAB
+   ═══════════════════════════════ */
+const HUB_CATS = [
+  { id:'nage',    icon:'🥋', title:'Daily Drills',   sub:'Throws & technique work',   xp:30 },
+  { id:'randori', icon:'🤼', title:'Randori Prep',    sub:'Contest & sparring drills', xp:40 },
+  { id:'weight',  icon:'💪', title:'S&C',             sub:'Strength & conditioning',  xp:25 },
+  { id:'mental',  icon:'🧠', title:'Study & Theory',  sub:'Tactical quiz & mindset',  xp:20 },
+  { id:'ne',      icon:'🟢', title:'Ne Waza',         sub:'Groundwork & submission',  xp:30 },
+];
+
+function renderTrainingHub() {
+  const el = document.getElementById('train-hub-cards');
+  if (!el) return;
+
+  const focus  = localStorage.getItem('judohub_focus') || 'technique';
+  const recMap = { technique:'nage', randori:'randori', fitness:'weight', mental:'mental', groundwork:'ne' };
+  const recId  = recMap[focus] || 'nage';
+  const plan   = buildDailyPlan(tmMode);
+
+  // Count items/questions per category
+  const countMap = {};
+  plan.forEach(c => {
+    countMap[c.id] = c.quiz ? c.quiz.length : (c.items || []).length;
+  });
+  const labelMap = { nage:'Drills', randori:'Drills', weight:'Workouts', mental:'Topics', ne:'Drills' };
+
+  // Streak + week dots
+  const streak    = parseInt(localStorage.getItem('judohub_streak') || '0');
+  const sessLog   = JSON.parse(localStorage.getItem('judohub_sessions_log') || '[]');
+  const today     = new Date();
+  const dow       = (today.getDay() + 6) % 7; // Mon=0
+  const weekDates = Array.from({length:7}, (_,i) => {
+    const d = new Date(today); d.setDate(today.getDate() - dow + i);
+    return d.toISOString().slice(0,10);
+  });
+  const doneDates = new Set(sessLog.map(s => s.date));
+  const weekDayLabels = ['M','T','W','T','F','S','S'];
+  const weekGoal  = 5;
+  const weekDone  = weekDates.slice(0,5).filter(d => doneDates.has(d)).length;
+  const weekBadge = weekDone >= weekGoal;
+  const weekBadgeKey = 'judohub_week_badge_' + weekDates[0];
+  if (weekBadge && !localStorage.getItem(weekBadgeKey)) {
+    localStorage.setItem(weekBadgeKey, '1');
+    setTimeout(() => { if (typeof showToast === 'function') showToast('🏆 Weekly goal complete! Great week!'); }, 300);
+  }
+
+  const dotRow = weekDates.map((d,i) => {
+    const done    = doneDates.has(d);
+    const isToday = d === today.toISOString().slice(0,10);
+    const bg      = done ? '#d97706' : isToday ? 'rgba(217,119,6,.3)' : 'rgba(255,255,255,.1)';
+    const border  = isToday ? '1.5px solid #d97706' : 'none';
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="width:28px;height:28px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center">
+        ${done ? '<svg width="11" height="11" viewBox="0 0 11 11"><polyline points="1.5,5.5 4.5,8.5 9.5,2" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' : ''}
+      </div>
+      <span style="font-size:9px;font-weight:700;color:${isToday?'#d97706':'#555'}">${weekDayLabels[i]}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="padding:0 14px 6px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#666;padding-top:12px">TRAINING HUB</div>
+      <div style="font-size:12px;color:#444;margin-top:2px;margin-bottom:4px">Structure your daily work</div>
+    </div>
+
+    <div class="hub-cards-wrap">
+      ${HUB_CATS.map(cat => {
+        const isRec   = cat.id === recId;
+        const count   = countMap[cat.id] || 0;
+        const lbl     = labelMap[cat.id] || 'Items';
+        const plan_cat = plan.find(c => c.id === cat.id);
+        const vidId   = plan_cat && plan_cat.videoId;
+        const thumb   = vidId ? 'https://img.youtube.com/vi/' + vidId + '/mqdefault.jpg' : '';
+        const thumbHtml = thumb
+          ? `<div style="flex-shrink:0;width:64px;height:44px;border-radius:7px;overflow:hidden;background:#000;position:relative">
+              <img src="${thumb}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display='none'">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">
+                <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6.5" fill="rgba(0,0,0,.4)"/><polygon points="5.5,4 11,7 5.5,10" fill="#fff"/></svg>
+              </div>
+            </div>`
+          : `<div class="hub-card-icon">${cat.icon}</div>`;
+
+        return `<div class="hub-card${isRec ? ' hub-card-rec' : ''}" onclick="openTrainSession('${cat.id}')">
+          ${thumbHtml}
+          <div class="hub-card-body">
+            ${isRec ? '<div class="hub-rec-badge">RECOMMENDED</div>' : ''}
+            <div class="hub-card-title">${cat.title}</div>
+            <div class="hub-card-sub">${count} ${lbl}</div>
+          </div>
+          <div class="hub-card-xp">+${cat.xp} XP</div>
+          <div class="hub-card-arr">›</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="hub-streak-banner">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:18px">🔥</span>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#f0f4ff">${streak} Day Streak</div>
+          <div style="font-size:10px;color:#666">${weekDone} of ${weekGoal} sessions this week</div>
+        </div>
+        ${weekBadge
+          ? `<div class="hub-week-badge" title="Weekly goal achieved!">🏆</div>`
+          : `<div style="margin-left:auto;font-size:10px;color:#555">${weekGoal - weekDone > 0 ? weekGoal - weekDone + ' to go' : ''}</div>`}
+      </div>
+      <div style="display:flex;justify-content:space-around">${dotRow}</div>
+    </div>`;
+}
+
+function _OLD_renderTrainingHub() {
+  const el = document.getElementById('train-hub-cards');
+  if (!el) return;
+  const focus = localStorage.getItem('judohub_focus') || 'technique';
+  const recMap = { technique:'nage', randori:'randori', fitness:'weight', mental:'mental', groundwork:'ne' };
+  const recId  = recMap[focus] || 'nage';
+
+  // Pull video IDs from the currently active plan sets so thumbnails are real
+  const plan = buildDailyPlan(tmMode);
+  const vidMap = {};
+  plan.forEach(c => { if (c.videoId) vidMap[c.id] = c.videoId; });
+
+  el.innerHTML = '<div class="hub-cards-wrap">' + HUB_CATS.map(cat => {
+    const isRec  = cat.id === recId;
+    const vidId  = vidMap[cat.id];
+    const thumb  = vidId ? 'https://img.youtube.com/vi/' + vidId + '/mqdefault.jpg' : '';
+
+    // Thumbnail strip (only when video exists)
+    const thumbHtml = thumb ? `
+      <div class="hub-card-thumb" style="flex-shrink:0;width:72px;height:48px;border-radius:8px;overflow:hidden;background:#000;position:relative">
+        <img src="${thumb}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display='none'">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)">
+          <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8.5" fill="rgba(0,0,0,.5)"/><polygon points="7,5.5 14,9 7,12.5" fill="#fff"/></svg>
+        </div>
+      </div>` : '';
+
+    return `
+      <div class="hub-card${isRec ? ' hub-card-rec' : ''}" onclick="openTrainSession('${cat.id}')">
+        ${thumbHtml || ('<div class="hub-card-icon">' + cat.icon + '</div>')}
+        <div class="hub-card-body">
+          ${isRec ? '<div class="hub-rec-badge">RECOMMENDED</div>' : ''}
+          <div class="hub-card-title">${cat.title}</div>
+          <div class="hub-card-sub">${cat.sub}</div>
+        </div>
+        <div class="hub-card-xp">+${cat.xp} XP</div>
+        <div class="hub-card-arr">›</div>
+      </div>`;
+  }).join('') + '</div>';
+}
+
+/* ═══════════════════════════════
+   FULL-SCREEN SESSION PANEL
+   ═══════════════════════════════ */
+function openSessionVideo(catId, itemIdx, techName, techUrl) {
+  if (event) event.stopPropagation();
+  sessionVideoTech = { catId, itemIdx, techName, techUrl };
+  switchSessionTab('video');
+  renderSessionBody();
+}
+
+function openTrainSession(catId) {
+  sessionActiveCat = catId;
+  sessionActiveTab = 'checklist';
+  const panel = document.getElementById('train-session-panel');
+  if (!panel) return;
+  const cat   = HUB_CATS.find(c => c.id === catId) || {};
+  const titleEl = document.getElementById('tsp-title');
+  const xpEl    = document.getElementById('tsp-xp');
+  if (titleEl) titleEl.textContent = cat.title || '';
+  if (xpEl)    xpEl.textContent    = '+' + (cat.xp || 30) + ' XP';
+  // Reset complete button
+  const completeBtn = document.getElementById('tsp-complete-btn');
+  if (completeBtn) { completeBtn.textContent = 'Complete Drill ✓'; completeBtn.classList.remove('done'); completeBtn.disabled = false; }
+  panel.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _activateSessionTab('checklist');
+  renderSessionBody();
+}
+
+function closeTrainSession() {
+  const panel = document.getElementById('train-session-panel');
+  if (panel) panel.classList.remove('open');
+  document.body.style.overflow = '';
+  sessionActiveCat = null;
+}
+
+function switchSessionTab(tab) {
+  sessionActiveTab = tab;
+  _activateSessionTab(tab);
+  renderSessionBody();
+}
+
+function _activateSessionTab(tab) {
+  document.querySelectorAll('.tsp-tab').forEach(t => t.classList.remove('active'));
+  const btn = document.getElementById('tsp-tab-' + tab);
+  if (btn) btn.classList.add('active');
+}
+
+function renderSessionBody() {
+  const el = document.getElementById('tsp-body');
+  if (!el || !sessionActiveCat) return;
+
+  const plan = buildDailyPlan(tmMode);
+  const cat  = plan.find(c => c.id === sessionActiveCat);
+
+  /* ── CHECKLIST ── */
+  if (sessionActiveTab === 'checklist') {
+    if (!cat) { el.innerHTML = '<p style="color:#666;padding:24px;text-align:center">No session data</p>'; return; }
+
+    if (cat.quiz) {
+      el.innerHTML = '<div style="padding:16px">' + cat.quiz.map((q, qi) => {
+        const ansKey  = tmMode + '_' + sessionActiveCat + '_q' + qi;
+        const picked  = tmQuizAnswers[ansKey];
+        const answered = picked !== undefined;
+        return `<div style="margin-bottom:22px">
+          <div style="font-size:14px;font-weight:700;color:#dde;line-height:1.45;margin-bottom:10px">${q.q}</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${q.options.map((opt, oi) => {
+              let cls = 'tm-quiz-opt';
+              if (answered) {
+                if (oi === picked) cls += opt.correct ? ' tm-quiz-correct' : ' tm-quiz-wrong';
+                else if (opt.correct) cls += ' tm-quiz-correct tm-quiz-correct-reveal';
+              }
+              return `<button class="${cls}" onclick="tmAnswerQuiz('${sessionActiveCat}',${qi},${oi});renderSessionBody()">${opt.text}</button>`;
+            }).join('')}
+          </div>
+          ${answered ? `<div class="tm-quiz-explain">${q.options[picked].reason}</div>` : ''}
+        </div>`;
+      }).join('') + '</div>';
+      return;
+    }
+
+    // Regular checklist items
+    const items = cat.items || [];
+    const DIFF = ['Beginner','Intermediate','Advanced'];
+    const DIFF_COLORS = ['#16a34a','#d97706','#dc2626'];
+
+    el.innerHTML = `
+      <div style="padding:14px 16px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#888;margin-bottom:14px">${cat.focus}</div>
+        ${items.map((item, i) => {
+          const done = !!tmDone[tmMode + '_' + sessionActiveCat + '_' + i];
+          const techEntry = item.tech && typeof TECHNIQUES !== 'undefined'
+            ? TECHNIQUES.find(t => t.name === item.tech) : null;
+          const techUrl = techEntry ? techEntry.url : '';
+          const playBtn = techUrl
+            ? `<button class="sp-play-btn" onclick="openSessionVideo('${sessionActiveCat}',${i},'${(item.tech||'').replace(/'/g,"\\'")}','${techUrl.replace(/'/g,"\\'")}')">
+                <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" stroke="rgba(217,119,6,.5)" stroke-width="1.2" fill="none"/><polygon points="7,5.5 14,9 7,12.5" fill="#d97706"/></svg>
+              </button>` : '';
+          const diffIdx = i === 0 ? 0 : i === items.length - 1 ? 2 : 1;
+          const diffColor = DIFF_COLORS[diffIdx];
+          const dots = [0,1,2].map(d => `<span style="width:6px;height:6px;border-radius:50%;background:${d <= diffIdx ? diffColor : 'rgba(255,255,255,.15)'};display:inline-block"></span>`).join('');
+
+          return `<div class="sp-item${done ? ' sp-item-done' : ''}" onclick="tmToggleItem('${sessionActiveCat}',${i});renderSessionBody()">
+            <div class="sp-check" style="background:${done?'#d97706':'transparent'}">
+              ${done ? '<svg width="11" height="11" viewBox="0 0 11 11"><polyline points="1.5,5.5 4.5,8.5 9.5,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' : ''}
+            </div>
+            <div class="sp-item-body">
+              <div class="sp-item-text">${item.text}</div>
+              <div class="sp-item-meta">
+                <span class="sp-diff-tag" style="background:${diffColor}22;color:${diffColor}">${DIFF[diffIdx]}</span>
+                <div style="display:flex;gap:3px">${dots}</div>
+              </div>
+            </div>
+            ${playBtn}
+          </div>`;
+        }).join('')}
+      </div>`;
+    return;
+  }
+
+  /* ── VIDEO TAB ── */
+  if (sessionActiveTab === 'video') {
+    // If user tapped a play button, show that technique; otherwise show session overview
+    const svt = sessionVideoTech;
+    const depth = (svt && typeof TECH_DEPTH !== 'undefined') ? TECH_DEPTH[svt.techName] : null;
+    const getVid = url => { if (!url) return ''; const m = (url||'').match(/[?&]v=([^&]+)/)||url.match(/youtu\.be\/([^?]+)/); return m?m[1]:''; };
+
+    if (svt && svt.techUrl) {
+      // ── Technique-specific video view ──
+      const vidId = getVid(svt.techUrl);
+      const thumb = vidId ? `https://img.youtube.com/vi/${vidId}/mqdefault.jpg` : '';
+      const keyPoints = depth ? [
+        depth.grips,
+        ...((depth.mistakes||[]).slice(0,2).map(m => 'Avoid: ' + m.charAt(0).toLowerCase() + m.slice(1)))
+      ] : ['Focus on clean entry and full commitment to the throw.'];
+      const coachNote = depth ? depth.comp : '';
+
+      el.innerHTML = `<div style="padding:12px 14px 80px">
+        <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#888;margin-bottom:8px">TECHNIQUE VIDEO</div>
+        <div style="border-radius:10px;overflow:hidden;aspect-ratio:16/9;background:#000;margin-bottom:12px;position:relative">
+          ${vidId
+            ? `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0&playsinline=1"
+                frameborder="0" allow="autoplay;encrypted-media" allowfullscreen style="display:block"></iframe>`
+            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:13px">No video available</div>`}
+        </div>
+
+        <div style="font-size:15px;font-weight:800;color:#f0f4ff;margin-bottom:2px">${svt.techName}</div>
+        <div style="font-size:11px;color:#666;margin-bottom:14px">${svt.catId ? cat && cat.focus || '' : ''}</div>
+
+        <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#888;margin-bottom:8px">KEY POINTS</div>
+        ${keyPoints.map(pt => `
+          <div style="display:flex;gap:8px;margin-bottom:7px;align-items:flex-start">
+            <span style="color:#d97706;font-size:12px;flex-shrink:0;margin-top:1px">✓</span>
+            <span style="font-size:12px;color:#dde;line-height:1.45">${pt}</span>
+          </div>`).join('')}
+
+        ${coachNote ? `
+          <div style="background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-top:10px">
+            <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#888;margin-bottom:6px">COACH NOTES</div>
+            <div style="font-size:12px;color:#999;line-height:1.6">${coachNote}</div>
+          </div>` : ''}
+
+        <button onclick="spIPracticed()" style="width:100%;margin-top:14px;padding:14px;background:#d97706;color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+          ✓ I Practiced This
+        </button>
+      </div>`;
+    } else {
+      // ── No technique selected yet — show session overview video ──
+      const videoId = cat && cat.videoId;
+      if (videoId) {
+        el.innerHTML = `<div style="padding:12px 14px 20px">
+          <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#888;margin-bottom:8px">SESSION OVERVIEW</div>
+          <div style="border-radius:10px;overflow:hidden;aspect-ratio:16/9;background:#000;margin-bottom:10px">
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&playsinline=1"
+              frameborder="0" allow="autoplay;encrypted-media" allowfullscreen style="display:block"></iframe>
+          </div>
+          <div style="font-size:12px;color:#666;line-height:1.5;margin-bottom:12px">${cat.focus || ''}</div>
+          <div style="background:rgba(217,119,6,.08);border:.5px solid rgba(217,119,6,.2);border-radius:9px;padding:10px 12px">
+            <div style="font-size:11px;color:#d97706;font-weight:700">💡 Tap ▶ next to any drill in Checklist to watch that technique</div>
+          </div>
+        </div>`;
+      } else {
+        el.innerHTML = `<div style="padding:40px 24px;text-align:center">
+          <div style="font-size:36px;margin-bottom:12px">▶</div>
+          <div style="font-size:14px;color:#555;line-height:1.6">Tap the <span style="color:#d97706">▶</span> play button<br>next to any drill in the Checklist tab<br>to watch the technique here.</div>
+        </div>`;
+      }
+    }
+    return;
+  }
+
+  /* ── NOTES ── */
+  if (sessionActiveTab === 'notes') {
+    const notesKey = 'judohub_session_notes_' + sessionActiveCat;
+    const saved    = localStorage.getItem(notesKey) || '';
+    el.innerHTML = `<div style="padding:16px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#888;margin-bottom:10px">SESSION NOTES</div>
+      <textarea id="session-notes-ta"
+        placeholder="What worked?\nWhat needs work?\nPersonal cues and reminders…"
+        style="width:100%;min-height:200px;background:#13131c;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#f0f4ff;font-size:14px;padding:14px;resize:vertical;font-family:inherit;line-height:1.55;box-sizing:border-box"
+        oninput="localStorage.setItem('${notesKey}',this.value)">${saved}</textarea>
+    </div>`;
+  }
+}
+
+function spIPracticed() {
+  if (!sessionVideoTech) { switchSessionTab('checklist'); return; }
+  const { catId, itemIdx } = sessionVideoTech;
+  const key = tmMode + '_' + catId + '_' + itemIdx;
+  tmDone[key] = true;
+  localStorage.setItem('judohub_tm_done', JSON.stringify(tmDone));
+  sessionVideoTech = null;
+  switchSessionTab('checklist');
+  renderSessionBody();
+}
+
+function completeTrainSession() {
+  if (!sessionActiveCat) return;
+  const btn = document.getElementById('tsp-complete-btn');
+  if (btn && btn.disabled) return;
+  if (btn) { btn.innerHTML = '&#10003; Session Complete!'; btn.classList.add('done'); btn.disabled = true; }
+
+  // Award XP
+  const cat    = HUB_CATS.find(c => c.id === sessionActiveCat) || {};
+  const xpGain = cat.xp || 30;
+  const curXP  = parseInt(localStorage.getItem('judohub_xp') || '0');
+  localStorage.setItem('judohub_xp', curXP + xpGain);
+
+  // Session log
+  const log = JSON.parse(localStorage.getItem('judohub_sessions_log') || '[]');
+  log.push({ date: new Date().toISOString().slice(0,10), cat: sessionActiveCat, duration: 20, xp: xpGain });
+  localStorage.setItem('judohub_sessions_log', JSON.stringify(log));
+
+  // Streak
+  const todayStr   = new Date().toISOString().slice(0,10);
+  const yesterday  = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  const lastDay    = localStorage.getItem('judohub_streak_date');
+  let streak       = parseInt(localStorage.getItem('judohub_streak') || '0');
+  if (lastDay !== todayStr) {
+    streak = (lastDay === yesterday) ? streak + 1 : 1;
+    localStorage.setItem('judohub_streak', streak);
+    localStorage.setItem('judohub_streak_date', todayStr);
+  }
+
+  // XP flash animation
+  const flash = document.createElement('div');
+  flash.className = 'xp-flash';
+  flash.textContent = '+' + xpGain + ' XP';
+  document.body.appendChild(flash);
+  setTimeout(() => { try { flash.remove(); } catch(e){} }, 1600);
+
+  if (typeof showToast === 'function') showToast('Session complete! +' + xpGain + ' XP 🏆');
+
+  setTimeout(() => closeTrainSession(), 1900);
+}
+
+/* ═══════════════════════════════
+   TECHNIQUES INNER TAB
+   ═══════════════════════════════ */
+function renderTrainTech() {
+  filterTrainTech();
+}
+
+function selectTrainTechBelt(el, belt) {
+  trainTechBelt = belt;
+  document.querySelectorAll('#tr-tech-chips .tbc').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  filterTrainTech();
+}
+
+function filterTrainTech() {
+  if (typeof TECHNIQUES === 'undefined') return;
+  const q    = ((document.getElementById('tr-tech-search') || {}).value || '').toLowerCase();
+  const belt = trainTechBelt;
+  let list   = TECHNIQUES.slice();
+  if (belt) list = list.filter(t => t.belt === belt || (t.belts && t.belts.includes(belt)));
+  if (q)    list = list.filter(t => (t.name + ' ' + (t.en || '')).toLowerCase().includes(q));
+
+  const countEl = document.getElementById('tr-tech-count');
+  if (countEl) countEl.textContent = list.length + ' technique' + (list.length !== 1 ? 's' : '');
+
+  const grid = document.getElementById('tr-tech-grid');
+  if (!grid) return;
+
+  if (!list.length) {
+    grid.innerHTML = '<div style="padding:40px;text-align:center;color:#666">No techniques found</div>';
+    return;
+  }
+
+  // Use same renderTechCards if available, else build cards ourselves
+  if (typeof renderTechCards === 'function') {
+    renderTechCards(list, grid);
+  } else {
+    const getVid = url => {
+      if (!url) return '';
+      const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
+      return m ? m[1] : '';
+    };
+    grid.innerHTML = list.map(t => {
+      const vid = getVid(t.url || '');
+      const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
+      return `<div class="tech-card" onclick="openGradingVideo('${(t.url||'').replace(/'/g,"\\'")}','${t.name.replace(/'/g,"\\'")}')">
+        <div class="tech-card-thumb">
+          ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.style.display='none'">` : ''}
+          <div class="tech-card-play-icon">&#9654;</div>
+        </div>
+        <div class="tech-card-info">
+          <div class="tech-card-name">${t.name}</div>
+          <div class="tech-card-en">${t.en || ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+/* ═══════════════════════════════
+   RANDORI BRAIN INNER TAB
+   ═══════════════════════════════ */
+function renderTrainRandori() {
+  const el = document.getElementById('tp-randori');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="padding:32px 20px 80px;text-align:center;color:#f0f4ff">
+      <div style="font-size:52px;margin-bottom:16px">🧠</div>
+      <div style="font-size:20px;font-weight:900;margin-bottom:8px">Randori Brain</div>
+      <div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:24px">
+        AI-powered contest strategy, situational awareness drills, and grip-battle tactics.
+      </div>
+      <button onclick="showView('randori')"
+        style="background:linear-gradient(135deg,#dc2626,#d97706);color:#fff;border:none;border-radius:12px;padding:15px 32px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.02em">
+        Open Randori Brain &#8594;
+      </button>
+    </div>`;
 }

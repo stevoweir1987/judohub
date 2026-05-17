@@ -8729,6 +8729,7 @@ body.junior-mode #main {
   font-weight: 700;
   color: #e0e0ec;
   -webkit-tap-highlight-color: transparent;
+  margin-left: auto;
 }
 .app-header-name-pill:active { background: rgba(255,255,255,.14); }
 .app-header-pill-arrow { font-size: 9px; color: #888; }

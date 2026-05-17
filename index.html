@@ -18,11 +18,11 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <title>JudoHub</title>
-  <link rel="stylesheet" href="css/main.css?v=1778980224">
+  <link rel="stylesheet" href="css/main.css?v=1779024810">
   <style>
     /* ── Train view hard overrides ── */
-    #view-train { background: #09090e !important; color: #f0f4ff !important; }
-    #view-train.active { display: block !important; background: #09090e !important; }
+    #view-train { background: #09090e !important; color: #f0f4ff !important; display: none !important; }
+    /* #view-train.active handled by inner-tab section below */
     .tm-header { background: #0d0d12 !important; padding: 14px 16px 10px !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; }
     .tm-header-top { display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 10px !important; min-height: 28px !important; }
     .tm-header-label { font-size: 11px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #888 !important; }
@@ -88,6 +88,137 @@
     .tm-quiz-wrong { border-color: #dc2626 !important; background: rgba(220,38,38,.12) !important; color: #f87171 !important; }
     .tm-quiz-correct-reveal { border-color: rgba(22,163,74,.4) !important; background: rgba(22,163,74,.07) !important; color: #555 !important; }
     .tm-quiz-explain { font-size: 12px !important; color: #888 !important; font-style: italic !important; line-height: 1.45 !important; margin-top: 9px !important; padding: 9px 12px !important; background: rgba(255,255,255,.03) !important; border-radius: 8px !important; border-left: 3px solid #d97706 !important; }
+
+    /* ── Training inner tabs ── */
+    /* view-train: hidden by default, flex column only when active */
+    #view-train.active { display: flex !important; flex-direction: column !important; overflow: hidden !important;
+      position: fixed !important; top: 54px !important; left: 0 !important; right: 0 !important; bottom: 68px !important;
+      background: #09090e !important; color: #f0f4ff !important; }
+    .train-tabs { display: flex !important; background: #0d0d12 !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; flex-shrink: 0 !important; }
+    .train-tab { flex: 1 !important; background: none !important; border: none !important; border-bottom: 2px solid transparent !important; color: #555 !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .05em !important; padding: 11px 2px !important; cursor: pointer !important; transition: color .15s, border-color .15s !important; }
+    .train-tab.active { color: #d97706 !important; border-bottom-color: #d97706 !important; }
+    .train-panel { display: none !important; }
+    .train-panel.active { display: block !important; flex: 1 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; height: 100% !important; }
+    /* Techniques panel belt chips — force 4-col grid inside train panel */
+    #tr-tech-chips { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; margin: 6px 0 4px !important; }
+    #tr-tech-chips .tbc { min-width: 0 !important; font-size: 10px !important; padding: 6px 4px !important; }
+    #tp-techniques .tech-filter-bar { padding-top: 10px !important; }
+
+    /* ── Training Hub cards ── */
+    .hub-cards-wrap { padding: 8px 0 90px !important; }
+    .hub-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; margin: 8px 14px !important; padding: 16px 14px !important; display: flex !important; align-items: center !important; gap: 12px !important; cursor: pointer !important; transition: border-color .2s !important; }
+    .hub-card:active { border-color: rgba(255,255,255,.2) !important; }
+    .hub-card-rec { border-color: rgba(217,119,6,.4) !important; background: rgba(217,119,6,.06) !important; }
+    .hub-card-icon { font-size: 26px !important; flex-shrink: 0 !important; width: 38px !important; text-align: center !important; }
+    .hub-card-body { flex: 1 !important; min-width: 0 !important; }
+    .hub-rec-badge { display: inline-block !important; background: #d97706 !important; color: #000 !important; font-size: 8px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: .05em !important; margin-bottom: 4px !important; }
+    .hub-card-title { font-size: 15px !important; font-weight: 800 !important; color: #f0f4ff !important; }
+    .hub-card-sub { font-size: 11px !important; color: #555 !important; margin-top: 2px !important; }
+    .hub-card-xp { background: rgba(217,119,6,.12) !important; border: 1px solid rgba(217,119,6,.28) !important; color: #d97706 !important; font-size: 11px !important; font-weight: 800 !important; padding: 4px 9px !important; border-radius: 20px !important; flex-shrink: 0 !important; }
+    .hub-card-arr { color: #444 !important; font-size: 20px !important; flex-shrink: 0 !important; line-height: 1 !important; }
+    .hub-streak-banner { background: #13131c !important; border: 1px solid rgba(217,119,6,.2) !important; border-radius: 14px !important; margin: 4px 14px 90px !important; padding: 14px !important; }
+    .hub-week-badge { margin-left: auto !important; font-size: 24px !important; filter: drop-shadow(0 0 6px rgba(217,119,6,.6)) !important; }
+
+    /* ── Session panel ── */
+    .train-session-panel { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: #09090e !important; z-index: 250 !important; display: flex !important; flex-direction: column !important; transform: translateY(100%) !important; transition: transform .3s cubic-bezier(.22,1,.36,1) !important; overflow: hidden !important; }
+    .train-session-panel.open { transform: translateY(0) !important; }
+
+    /* ── Body + #main background override for dark training view ── */
+    body.training-active { background: #09090e !important; }
+    body.training-active #main { background: #09090e !important; }
+    #view-train { z-index: 10 !important; }
+
+    /* ── Desktop phone-frame constraint ── */
+    @media (min-width: 640px) {
+      #view-train.active {
+        left: calc(50vw - 215px) !important;
+        right: calc(50vw - 215px) !important;
+        width: 430px !important;
+      }
+      .train-session-panel {
+        left: calc(50vw - 215px) !important;
+        right: calc(50vw - 215px) !important;
+        width: 430px !important;
+      }
+    }
+    .tsp-header { background: #0d0d12 !important; padding: 14px 16px !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; display: flex !important; align-items: center !important; gap: 12px !important; flex-shrink: 0 !important; }
+    .tsp-back { background: none !important; border: none !important; color: #888 !important; font-size: 13px !important; font-weight: 700 !important; cursor: pointer !important; flex-shrink: 0 !important; padding: 4px 0 !important; -webkit-tap-highlight-color: transparent !important; }
+    .tsp-title { flex: 1 !important; font-size: 15px !important; font-weight: 800 !important; color: #f0f4ff !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+    .tsp-xp-badge { background: rgba(217,119,6,.12) !important; border: 1px solid rgba(217,119,6,.28) !important; color: #d97706 !important; font-size: 11px !important; font-weight: 800 !important; padding: 4px 9px !important; border-radius: 20px !important; flex-shrink: 0 !important; }
+    .tsp-tabs { display: flex !important; background: #0d0d12 !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; flex-shrink: 0 !important; }
+    .tsp-tab { flex: 1 !important; background: none !important; border: none !important; border-bottom: 2px solid transparent !important; color: #555 !important; font-size: 12px !important; font-weight: 700 !important; padding: 10px 4px !important; cursor: pointer !important; letter-spacing: .04em !important; transition: color .15s, border-color .15s !important; }
+    .tsp-tab.active { color: #d97706 !important; border-bottom-color: #d97706 !important; }
+    .tsp-body { flex: 1 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
+    .tsp-footer { padding: 14px 16px calc(14px + env(safe-area-inset-bottom)) !important; background: #0d0d12 !important; border-top: 1px solid rgba(255,255,255,.07) !important; flex-shrink: 0 !important; }
+    .tsp-complete-btn { width: 100% !important; padding: 16px !important; background: linear-gradient(135deg,#dc2626,#d97706) !important; color: #fff !important; border: none !important; border-radius: 12px !important; font-size: 16px !important; font-weight: 800 !important; cursor: pointer !important; letter-spacing: .02em !important; transition: opacity .15s !important; }
+    .tsp-complete-btn:active { opacity: .85 !important; }
+    .tsp-complete-btn.done { background: #16a34a !important; }
+    @keyframes xpFlash { 0%{transform:translateX(-50%) scale(.8);opacity:0} 40%{transform:translateX(-50%) scale(1.15);opacity:1} 100%{transform:translateX(-50%) translateY(-50px) scale(1);opacity:0} }
+    .xp-flash { position: fixed !important; bottom: 110px !important; left: 50% !important; transform: translateX(-50%) !important; background: linear-gradient(135deg,#d97706,#dc2626) !important; color: #fff !important; font-size: 20px !important; font-weight: 900 !important; padding: 10px 24px !important; border-radius: 40px !important; animation: xpFlash 1.5s forwards !important; pointer-events: none !important; z-index: 300 !important; white-space: nowrap !important; }
+
+    /* ── Overview tab ── */
+    .ov-scroll { padding: 12px 14px 90px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; }
+    .ov-grade-card { background: linear-gradient(135deg,#1a0a0a,#0d0d12) !important; border: 1px solid rgba(220,38,38,.25) !important; border-radius: 16px !important; padding: 18px 16px !important; display: flex !important; align-items: center !important; gap: 16px !important; }
+    .ov-belt-img { width: 72px !important; height: 72px !important; object-fit: contain !important; }
+    .ov-grade-body { flex: 1 !important; min-width: 0 !important; }
+    .ov-grade-name { font-size: 18px !important; font-weight: 900 !important; color: #f0f4ff !important; }
+    .ov-grade-next { font-size: 11px !important; color: #888 !important; margin-top: 2px !important; }
+    .ov-grade-bar { height: 6px !important; background: rgba(255,255,255,.08) !important; border-radius: 99px !important; margin-top: 8px !important; overflow: hidden !important; }
+    .ov-grade-bar-fill { height: 100% !important; border-radius: 99px !important; background: linear-gradient(90deg,#dc2626,#d97706) !important; }
+    .ov-grade-pct { font-size: 11px !important; font-weight: 800 !important; color: #d97706 !important; margin-top: 4px !important; }
+    .ov-focus-card { background: #13131c !important; border: 1px solid rgba(217,119,6,.2) !important; border-radius: 14px !important; padding: 14px 16px !important; cursor: pointer !important; }
+    .ov-focus-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #888 !important; margin-bottom: 6px !important; }
+    .ov-focus-title { font-size: 17px !important; font-weight: 800 !important; color: #d97706 !important; }
+    .ov-focus-sub { font-size: 12px !important; color: #666 !important; margin-top: 3px !important; }
+    .ov-row { display: flex !important; gap: 10px !important; }
+    .ov-week-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; padding: 14px 10px !important; flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
+    .ov-week-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .1em !important; color: #888 !important; margin-bottom: 8px !important; }
+    .ov-week-sub { font-size: 11px !important; color: #555 !important; margin-top: 6px !important; text-align: center !important; line-height: 1.4 !important; }
+    .ov-stats { display: flex !important; flex-direction: column !important; gap: 8px !important; flex: 1 !important; }
+    .ov-stat { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 10px !important; padding: 10px 12px !important; }
+    .ov-stat-val { font-size: 16px !important; font-weight: 900 !important; color: #f0f4ff !important; }
+    .ov-stat-label { font-size: 10px !important; color: #666 !important; margin-top: 1px !important; }
+    .ov-tip-card { background: rgba(217,119,6,.06) !important; border: 1px solid rgba(217,119,6,.15) !important; border-radius: 14px !important; padding: 14px 16px !important; }
+    .ov-tip-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #d97706 !important; margin-bottom: 6px !important; }
+    .ov-tip-text { font-size: 13px !important; color: #ccc !important; line-height: 1.55 !important; font-style: italic !important; }
+
+    /* ── Randori Brain dark theme ── */
+    #view-randori { background: #09090e !important; }
+    #view-randori .view-body,
+    #view-randori #rb-body { background: #09090e !important; color: #f0f4ff !important; }
+    #view-randori .rb-stat { background: #13131c !important; border-color: rgba(255,255,255,.08) !important; }
+    #view-randori .rb-stat-val { color: #d97706 !important; }
+    #view-randori .rb-stat-lbl { color: #666 !important; }
+    #view-randori .rb-cat-card { background: #13131c !important; border-color: rgba(255,255,255,.08) !important; }
+    #view-randori .rb-cat-card:hover { border-color: rgba(217,119,6,.5) !important; background: #1a1a2e !important; }
+    #view-randori .rb-cat-all { background: rgba(220,38,38,.08) !important; border-color: rgba(220,38,38,.3) !important; }
+    #view-randori .rb-cat-name { color: #f0f4ff !important; }
+    #view-randori .rb-cat-desc { color: #666 !important; }
+    #view-randori .rb-cat-count { color: #555 !important; }
+    #view-randori .rb-cat-arr { color: #d97706 !important; }
+    #view-randori .rb-card { background: #13131c !important; border-color: rgba(255,255,255,.08) !important; }
+    #view-randori .rb-situation { color: #dde !important; }
+    #view-randori .rb-back { background: #13131c !important; border-color: rgba(255,255,255,.1) !important; color: #888 !important; }
+    #view-randori .rb-back:hover { border-color: #d97706 !important; color: #d97706 !important; }
+    #view-randori .rb-option { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.1) !important; color: #dde !important; }
+    #view-randori .rb-option:hover:not(:disabled) { border-color: #d97706 !important; background: rgba(217,119,6,.06) !important; }
+    #view-randori .rb-prog-bar { background: rgba(255,255,255,.08) !important; }
+    #view-randori .rb-prog-fill { background: #d97706 !important; }
+    #view-randori .rb-prog-lbl { color: #666 !important; }
+    #view-randori .rb-live-score { color: #f0f4ff !important; }
+
+    /* ── Session checklist items ── */
+    .sp-item { display: flex !important; align-items: flex-start !important; gap: 10px !important; padding: 12px 0 !important; border-bottom: 1px solid rgba(255,255,255,.05) !important; }
+    .sp-item:last-child { border-bottom: none !important; }
+    .sp-check { width: 22px !important; height: 22px !important; border-radius: 7px !important; border: 2px solid #d97706 !important; flex-shrink: 0 !important; margin-top: 1px !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: background .15s !important; cursor: pointer !important; }
+    .sp-item-body { flex: 1 !important; }
+    .sp-item-text { font-size: 14px !important; color: #dde !important; line-height: 1.4 !important; }
+    .sp-item-done .sp-item-text { text-decoration: line-through !important; color: #444 !important; }
+    .sp-item-meta { display: flex !important; align-items: center !important; gap: 8px !important; margin-top: 5px !important; }
+    .sp-diff-tag { font-size: 10px !important; font-weight: 700 !important; padding: 2px 7px !important; border-radius: 4px !important; }
+    .sp-play-btn { background: rgba(217,119,6,.1) !important; border: 1px solid rgba(217,119,6,.25) !important; border-radius: 50% !important; width: 30px !important; height: 30px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; cursor: pointer !important; transition: background .15s !important; margin-top: 2px !important; padding: 0 !important; }
+    .sp-play-btn:active { background: rgba(217,119,6,.3) !important; }
+    .sp-play-btn:active { color: #d97706 !important; }
   </style>
 </head>
 <body>
@@ -219,17 +350,13 @@
       <span class="bnav-icon"><img src="images/grades.png" class="bnav-icon-img" alt=""></span>
       <span class="bnav-label">Grades</span>
     </button>
-    <button class="bnav-btn" onclick="showView('techniques')" data-view="techniques">
-      <span class="bnav-icon"><img src="images/techniques.png" class="bnav-icon-img" alt=""></span>
-      <span class="bnav-label">Techniques</span>
-    </button>
     <button class="bnav-btn" onclick="showView('progress')" data-view="progress">
       <span class="bnav-icon"><img src="images/progress.png" class="bnav-icon-img" alt=""></span>
       <span class="bnav-label">Progress</span>
     </button>
     <button class="bnav-btn" id="bnav-train" onclick="showView('train')" data-view="train">
       <span class="bnav-icon"><img src="images/more.png" class="bnav-icon-img" alt=""></span>
-      <span class="bnav-label">Train</span>
+      <span class="bnav-label">Training</span>
     </button>
   </nav>
 
@@ -261,31 +388,63 @@
     </button>
   </nav>
 
-  <!-- ── MORE DRAWER ── -->
+  <!-- ── TRAINING VIEW ── -->
     <div class="view" id="view-train">
-      <!-- TODAY'S MENU header -->
-      <div class="tm-header">
-        <div class="tm-header-top">
-          <div class="tm-header-label">TODAY'S MENU</div>
-          <div class="tm-header-day" id="tm-day-label">MONDAY</div>
-
-        </div>
-        <div class="tm-progress-row">
-          <span class="tm-progress-label">DAILY PROGRESS</span>
-          <span class="tm-progress-pct" id="tm-progress-pct">0%</span>
-        </div>
-        <div class="tm-progress-track">
-          <div class="tm-progress-fill" id="tm-progress-fill" style="width:0%"></div>
-        </div>
-        <!-- Mode segmented control -->
-        <div class="tm-seg-ctrl">
-          <button class="tm-seg-btn active" id="tm-seg-adult" onclick="tmSetMode('adult')">Adult</button>
-          <button class="tm-seg-btn" id="tm-seg-junior" onclick="tmSetMode('junior')">Junior</button>
-        </div>
+      <!-- Inner tab strip -->
+      <div class="train-tabs">
+        <button class="train-tab" id="ttab-overview"   onclick="switchTrainTab('overview')">Overview</button>
+        <button class="train-tab" id="ttab-training"   onclick="switchTrainTab('training')">Training</button>
+        <button class="train-tab" id="ttab-techniques" onclick="switchTrainTab('techniques')">Techniques</button>
+        <button class="train-tab" id="ttab-randori"    onclick="switchTrainTab('randori')">Randori</button>
       </div>
-      <!-- Cards container -->
-      <div class="tm-cards" id="tm-cards-list"></div>
+      <!-- Overview panel (rendered by JS) -->
+      <div class="train-panel" id="tp-overview"></div>
+      <!-- Training Hub panel -->
+      <div class="train-panel" id="tp-training">
+        <div class="tm-seg-ctrl" style="margin:12px 16px 4px">
+          <button class="tm-seg-btn active" id="tm-seg-adult"  onclick="tmSetMode('adult')">Adult</button>
+          <button class="tm-seg-btn"        id="tm-seg-junior" onclick="tmSetMode('junior')">Junior</button>
+        </div>
+        <div id="train-hub-cards"></div>
+      </div>
+      <!-- Techniques panel -->
+      <div class="train-panel" id="tp-techniques">
+        <div class="tech-filter-bar" style="position:sticky;top:0;z-index:10;background:#09090e">
+          <input type="text" id="tr-tech-search" placeholder="Search techniques…" oninput="filterTrainTech()">
+          <div class="tech-belt-chips" id="tr-tech-chips">
+            <button class="tbc active" data-belt="" onclick="selectTrainTechBelt(this,'')">All</button>
+            <button class="tbc" data-belt="toRed"    onclick="selectTrainTechBelt(this,'toRed')"   ><img class="tbc-belt" src="images/belt-red.png">Red</button>
+            <button class="tbc" data-belt="toYellow" onclick="selectTrainTechBelt(this,'toYellow')"><img class="tbc-belt" src="images/belt-yellow.png">Yellow</button>
+            <button class="tbc" data-belt="toOrange" onclick="selectTrainTechBelt(this,'toOrange')"><img class="tbc-belt" src="images/belt-orange.png">Orange</button>
+            <button class="tbc" data-belt="toGreen"  onclick="selectTrainTechBelt(this,'toGreen')" ><img class="tbc-belt" src="images/belt-green.png">Green</button>
+            <button class="tbc" data-belt="toBlue"   onclick="selectTrainTechBelt(this,'toBlue')"  ><img class="tbc-belt" src="images/belt-blue.png">Blue</button>
+            <button class="tbc" data-belt="toBrown"  onclick="selectTrainTechBelt(this,'toBrown')" ><img class="tbc-belt" src="images/belt-brown.png">Brown</button>
+          </div>
+          <div class="tech-count-bar"><span id="tr-tech-count"></span></div>
+        </div>
+        <div class="tech-grid" id="tr-tech-grid"></div>
+      </div>
+      <!-- Randori Brain panel -->
+      <div class="train-panel" id="tp-randori"></div>
     </div>
+
+  <!-- ── TRAINING SESSION PANEL (full-screen slide-up) ── -->
+  <div id="train-session-panel" class="train-session-panel">
+    <div class="tsp-header">
+      <button class="tsp-back" onclick="closeTrainSession()">&#8592; Training</button>
+      <div class="tsp-title" id="tsp-title"></div>
+      <div class="tsp-xp-badge" id="tsp-xp">+30 XP</div>
+    </div>
+    <div class="tsp-tabs">
+      <button class="tsp-tab" id="tsp-tab-checklist" onclick="switchSessionTab('checklist')">Checklist</button>
+      <button class="tsp-tab" id="tsp-tab-video"     onclick="switchSessionTab('video')">Video</button>
+      <button class="tsp-tab" id="tsp-tab-notes"     onclick="switchSessionTab('notes')">Notes</button>
+    </div>
+    <div class="tsp-body" id="tsp-body"></div>
+    <div class="tsp-footer">
+      <button class="tsp-complete-btn" id="tsp-complete-btn" onclick="completeTrainSession()">Complete Drill &#10003;</button>
+    </div>
+  </div>
 
   <div id="more-overlay" onclick="closeMoreDrawer()"></div>
   <div id="more-drawer">
@@ -507,22 +666,22 @@
   </div>
 
 <!-- ── SCRIPTS ── -->
-<script src="js/data.js?v=1778980224"></script>
-<script src="js/tech_depth.js?v=1778980224"></script>
-<script src="js/onboarding.js?v=1778980224"></script>
-<script src="js/app.js?v=1778980224"></script>
-<script src="js/techniques.js?v=1778980224"></script>
-<script src="js/belt.js?v=1778980224"></script>
-<script src="js/grading.js?v=1778980224"></script>
-<script src="js/builder.js?v=1778980224"></script>
-<script src="js/home.js?v=1778980224"></script>
-<script src="js/pt.js?v=1778980224"></script>
-<script src="js/progress.js?v=1778980224"></script>
-<script src="js/mon.js?v=1778980224"></script>
-<script src="js/randori.js?v=1778980224"></script>
-<script src="js/junior-home.js?v=1778980224"></script>
-<script src="js/junior-grades.js?v=1778980224"></script>
-<script src="js/junior-progress.js?v=1778980224"></script>
+<script src="js/data.js?v=1779024810"></script>
+<script src="js/tech_depth.js?v=1779024810"></script>
+<script src="js/onboarding.js?v=1779024810"></script>
+<script src="js/app.js?v=1779025148"></script>
+<script src="js/techniques.js?v=1779024810"></script>
+<script src="js/belt.js?v=1779024810"></script>
+<script src="js/grading.js?v=1779024810"></script>
+<script src="js/builder.js?v=1779024810"></script>
+<script src="js/home.js?v=1779024810"></script>
+<script src="js/pt.js?v=1779024810"></script>
+<script src="js/progress.js?v=1779024810"></script>
+<script src="js/mon.js?v=1779024810"></script>
+<script src="js/randori.js?v=1779024810"></script>
+<script src="js/junior-home.js?v=1779024810"></script>
+<script src="js/junior-grades.js?v=1779024810"></script>
+<script src="js/junior-progress.js?v=1779024810"></script>
 
 <script>
   if 
