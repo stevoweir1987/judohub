@@ -49,6 +49,9 @@ function openProfile() {
 // ── NAVIGATION ─────────────────────────────────────
 function showView(name) {
   if (name === 'mon') { showView('belt'); switchBeltTab('junior'); return; }
+  // Close session panel if open when navigating away
+  const sp = document.getElementById('train-session-panel');
+  if (sp && sp.classList.contains('open')) { closeTrainSession(); }
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.bnav-btn[data-view], .dnav-btn[data-view]').forEach(n => n.classList.remove('active'));
@@ -1067,12 +1070,14 @@ function renderTrainingHub() {
 
     <div class="hub-cards-wrap">
       ${HUB_CATS.map(cat => {
-        const isRec   = cat.id === recId;
-        const count   = countMap[cat.id] || 0;
-        const lbl     = labelMap[cat.id] || 'Items';
+        const isRec    = cat.id === recId;
+        const count    = countMap[cat.id] || 0;
+        const lbl      = labelMap[cat.id] || 'Items';
         const plan_cat = plan.find(c => c.id === cat.id);
-        const vidId   = plan_cat && plan_cat.videoId;
-        const thumb   = vidId ? 'https://img.youtube.com/vi/' + vidId + '/mqdefault.jpg' : '';
+        const vidId    = plan_cat && plan_cat.videoId;
+        const thumb    = vidId ? 'https://img.youtube.com/vi/' + vidId + '/mqdefault.jpg' : '';
+        const todayStr2 = new Date().toISOString().slice(0,10);
+        const doneToday = sessLog.some(s => s.date === todayStr2 && s.cat === cat.id);
         const thumbHtml = thumb
           ? `<div style="flex-shrink:0;width:64px;height:44px;border-radius:7px;overflow:hidden;background:#000;position:relative">
               <img src="${thumb}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display='none'">
@@ -1082,32 +1087,42 @@ function renderTrainingHub() {
             </div>`
           : `<div class="hub-card-icon">${cat.icon}</div>`;
 
-        return `<div class="hub-card${isRec ? ' hub-card-rec' : ''}" onclick="openTrainSession('${cat.id}')">
+        return `<div class="hub-card${isRec ? ' hub-card-rec' : ''}${doneToday ? ' hub-card-done' : ''}" onclick="openTrainSession('${cat.id}')">
           ${thumbHtml}
           <div class="hub-card-body">
-            ${isRec ? '<div class="hub-rec-badge">RECOMMENDED</div>' : ''}
+            ${isRec && !doneToday ? '<div class="hub-rec-badge">RECOMMENDED</div>' : ''}
+            ${doneToday ? '<div class="hub-done-badge">&#10003; Done today</div>' : ''}
             <div class="hub-card-title">${cat.title}</div>
             <div class="hub-card-sub">${count} ${lbl}</div>
           </div>
-          <div class="hub-card-xp">+${cat.xp} XP</div>
+          <div class="hub-card-xp">${doneToday ? '<span style="color:#4ade80;font-size:18px">&#10003;</span>' : '+' + cat.xp + ' XP'}</div>
           <div class="hub-card-arr">›</div>
         </div>`;
       }).join('')}
     </div>
 
-    <div class="hub-streak-banner">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <div class="hub-streak-banner" style="margin:0 14px 10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         <span style="font-size:18px">🔥</span>
-        <div>
+        <div style="flex:1">
           <div style="font-size:13px;font-weight:800;color:#f0f4ff">${streak} Day Streak</div>
           <div style="font-size:10px;color:#666">${weekDone} of ${weekGoal} sessions this week</div>
         </div>
-        ${weekBadge
-          ? `<div class="hub-week-badge" title="Weekly goal achieved!">🏆</div>`
-          : `<div style="margin-left:auto;font-size:10px;color:#555">${weekGoal - weekDone > 0 ? weekGoal - weekDone + ' to go' : ''}</div>`}
+        ${weekBadge ? '<div class="hub-week-badge" title="Weekly goal achieved!">🏆</div>' : ''}
       </div>
-      <div style="display:flex;justify-content:space-around">${dotRow}</div>
-    </div>`;
+      <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;margin-bottom:10px">
+        <div style="height:4px;border-radius:4px;background:#d97706;width:${Math.round((weekDone/weekGoal)*100)}%;max-width:100%;transition:width .4s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-around;align-items:flex-end">
+        ${dotRow}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${weekBadge?'#d97706':'rgba(255,255,255,0.07)'};border:${weekBadge?'none':'1.5px dashed rgba(255,255,255,0.2)'};display:flex;align-items:center;justify-content:center;font-size:13px">🏆</div>
+          <span style="font-size:9px;font-weight:700;color:${weekBadge?'#d97706':'#333'}">Goal</span>
+        </div>
+      </div>
+    </div>
+
+  `;
 }
 
 function _OLD_renderTrainingHub() {
@@ -1373,29 +1388,43 @@ function completeTrainSession() {
   if (btn && btn.disabled) return;
   if (btn) { btn.innerHTML = '&#10003; Session Complete!'; btn.classList.add('done'); btn.disabled = true; }
 
-  // Award XP
   const cat    = HUB_CATS.find(c => c.id === sessionActiveCat) || {};
   const xpGain = cat.xp || 30;
-  const curXP  = parseInt(localStorage.getItem('judohub_xp') || '0');
-  localStorage.setItem('judohub_xp', curXP + xpGain);
+  const today  = new Date().toISOString().slice(0,10);
 
-  // Session log
-  const log = JSON.parse(localStorage.getItem('judohub_sessions_log') || '[]');
-  log.push({ date: new Date().toISOString().slice(0,10), cat: sessionActiveCat, duration: 20, xp: xpGain });
-  localStorage.setItem('judohub_sessions_log', JSON.stringify(log));
+  // ── XP: write to canonical key (judo_xp) that Progress/Home both read ──
+  if (typeof addXP === 'function') {
+    addXP(xpGain);
+  } else {
+    const curXP = parseInt(localStorage.getItem('judo_xp') || '0');
+    localStorage.setItem('judo_xp', curXP + xpGain);
+  }
+  // Also keep judohub_xp in sync for the training hub XP display
+  const hubXP = parseInt(localStorage.getItem('judohub_xp') || '0');
+  localStorage.setItem('judohub_xp', hubXP + xpGain);
 
-  // Streak
-  const todayStr   = new Date().toISOString().slice(0,10);
-  const yesterday  = new Date(Date.now() - 86400000).toISOString().slice(0,10);
-  const lastDay    = localStorage.getItem('judohub_streak_date');
-  let streak       = parseInt(localStorage.getItem('judohub_streak') || '0');
-  if (lastDay !== todayStr) {
+  // ── Session log: write to BOTH logs so Progress + streak both update ──
+  const hubLog = JSON.parse(localStorage.getItem('judohub_sessions_log') || '[]');
+  hubLog.push({ date: today, cat: sessionActiveCat, duration: 20, xp: xpGain });
+  localStorage.setItem('judohub_sessions_log', JSON.stringify(hubLog));
+
+  // Also push to canonical judo_session_log so getStreak() / buildOverview() see it
+  const mainLog = JSON.parse(localStorage.getItem('judo_session_log') || '[]');
+  const catLabel = cat.title || sessionActiveCat;
+  mainLog.push({ date: today, category: catLabel, minutes: 20, id: today + '_' + sessionActiveCat });
+  localStorage.setItem('judo_session_log', JSON.stringify(mainLog));
+
+  // ── Streak (judohub key for hub display) ──
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  const lastDay   = localStorage.getItem('judohub_streak_date');
+  let   streak    = parseInt(localStorage.getItem('judohub_streak') || '0');
+  if (lastDay !== today) {
     streak = (lastDay === yesterday) ? streak + 1 : 1;
     localStorage.setItem('judohub_streak', streak);
-    localStorage.setItem('judohub_streak_date', todayStr);
+    localStorage.setItem('judohub_streak_date', today);
   }
 
-  // XP flash animation
+  // XP flash
   const flash = document.createElement('div');
   flash.className = 'xp-flash';
   flash.textContent = '+' + xpGain + ' XP';
@@ -1404,7 +1433,23 @@ function completeTrainSession() {
 
   if (typeof showToast === 'function') showToast('Session complete! +' + xpGain + ' XP 🏆');
 
-  setTimeout(() => closeTrainSession(), 1900);
+  // Refresh progress & home if open
+  setTimeout(() => {
+    if (typeof renderProgress === 'function') {
+      const pv = document.getElementById('view-progress');
+      if (pv && pv.classList.contains('active')) renderProgress();
+    }
+    if (typeof renderHome === 'function') {
+      const hv = document.getElementById('view-home');
+      if (hv && hv.classList.contains('active')) renderHome();
+    }
+  }, 200);
+
+  // Close session then re-render hub so card shows done-today state
+  setTimeout(() => {
+    closeTrainSession();
+    renderTrainingHub();
+  }, 1900);
 }
 
 /* ═══════════════════════════════
@@ -1420,13 +1465,19 @@ function selectTrainTechBelt(el, belt) {
   el.classList.add('active');
   filterTrainTech();
 }
+function selectTrainTechCat(el, cat) {
+  trainTechBelt = cat;
+  document.querySelectorAll('#tr-tech-chips .tbc').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  filterTrainTech();
+}
 
 function filterTrainTech() {
   if (typeof TECHNIQUES === 'undefined') return;
   const q    = ((document.getElementById('tr-tech-search') || {}).value || '').toLowerCase();
   const belt = trainTechBelt;
   let list   = TECHNIQUES.slice();
-  if (belt) list = list.filter(t => t.belt === belt || (t.belts && t.belts.includes(belt)));
+  if (belt) list = list.filter(t => t.sub === belt || t.cat === belt);
   if (q)    list = list.filter(t => (t.name + ' ' + (t.en || '')).toLowerCase().includes(q));
 
   const countEl = document.getElementById('tr-tech-count');
@@ -1440,30 +1491,36 @@ function filterTrainTech() {
     return;
   }
 
-  // Use same renderTechCards if available, else build cards ourselves
-  if (typeof renderTechCards === 'function') {
-    renderTechCards(list, grid);
-  } else {
-    const getVid = url => {
-      if (!url) return '';
-      const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
-      return m ? m[1] : '';
-    };
-    grid.innerHTML = list.map(t => {
-      const vid = getVid(t.url || '');
-      const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
-      return `<div class="tech-card" onclick="openGradingVideo('${(t.url||'').replace(/'/g,"\\'")}','${t.name.replace(/'/g,"\\'")}')">
-        <div class="tech-card-thumb">
-          ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.style.display='none'">` : ''}
-          <div class="tech-card-play-icon">&#9654;</div>
+  const getVid = url => {
+    if (!url) return '';
+    const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
+    return m ? m[1] : '';
+  };
+  grid.innerHTML = list.map(t => {
+    const vid   = getVid(t.url || '');
+    const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
+    const img   = t.image ? `images/${t.image}` : 'images/tech-default.svg';
+    const beltColors = {white:'#e5e5e5',red:'#e53935',yellow:'#f5c542',orange:'#f97316',green:'#22c55e',blue:'#3b82f6',brown:'#92400e'};
+    const bc = beltColors[t.belt] || '#666';
+    return `<div style="background:#13131c;border-radius:12px;overflow:hidden;cursor:pointer;border:0.5px solid rgba(255,255,255,0.07);transition:transform .15s"
+      onclick="openGradingVideo('${(t.url||'').replace(/'/g,"\\'")}','${t.name.replace(/'/g,"\\'")}')">
+      <div style="position:relative;aspect-ratio:16/9;background:#0a0a12;overflow:hidden">
+        ${thumb
+          ? `<img src="${thumb}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none'">`
+          : `<img src="${img}" loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.5;display:block" onerror="this.style.display='none'">`}
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(217,119,6,.85);display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 14 14"><polygon points="4,2 12,7 4,12" fill="#fff"/></svg>
+          </div>
         </div>
-        <div class="tech-card-info">
-          <div class="tech-card-name">${t.name}</div>
-          <div class="tech-card-en">${t.en || ''}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }
+        ${t.sub ? `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);border:0.5px solid rgba(255,255,255,.2);color:#ccc;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px">${t.sub}</div>` : ''}
+      </div>
+      <div style="padding:9px 10px 10px">
+        <div style="color:#f0f4ff;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+        <div style="color:#555;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.en || ''}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ═══════════════════════════════
@@ -1472,16 +1529,41 @@ function filterTrainTech() {
 function renderTrainRandori() {
   const el = document.getElementById('tp-randori');
   if (!el) return;
-  el.innerHTML = `
-    <div style="padding:32px 20px 80px;text-align:center;color:#f0f4ff">
-      <div style="font-size:52px;margin-bottom:16px">🧠</div>
-      <div style="font-size:20px;font-weight:900;margin-bottom:8px">Randori Brain</div>
-      <div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:24px">
-        AI-powered contest strategy, situational awareness drills, and grip-battle tactics.
-      </div>
-      <button onclick="showView('randori')"
-        style="background:linear-gradient(135deg,#dc2626,#d97706);color:#fff;border:none;border-radius:12px;padding:15px 32px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.02em">
-        Open Randori Brain &#8594;
-      </button>
-    </div>`;
+
+  const SCENARIOS = [
+    { icon:'🤜', title:'Grip Battle',         sub:'Establish dominant kumi-kata',        tags:['Attack','Kumi-kata'],  color:'#e53935' },
+    { icon:'🔄', title:'Kuzushi Drills',      sub:'Break balance before every throw',    tags:['Kuzushi','Entry'],     color:'#d97706' },
+    { icon:'🦵', title:'Leg Attack Flows',    sub:'Ashi-waza combination chains',        tags:['Ashi-waza','Combo'],   color:'#3b82f6' },
+    { icon:'🧩', title:'Combination Plays',   sub:'Feint to set up, commit to finish',   tags:['Combo','Timing'],      color:'#22c55e' },
+    { icon:'🛡', title:'Counter Strategies',  sub:'Read and counter common entries',     tags:['Counter','Defence'],   color:'#8b5cf6' },
+    { icon:'🤼', title:'Ne Waza Transitions', sub:'Seamless tachi to ground flow',       tags:['Ne-waza','Osaekomi'],  color:'#f97316' },
+    { icon:'🧠', title:'Contest Mindset',     sub:'Score management and time awareness', tags:['Mental','Contest'],    color:'#ec4899' },
+    { icon:'📐', title:'Scouting Patterns',   sub:'Read opponent tendencies early',      tags:['Tactics','Scout'],     color:'#14b8a6' },
+  ];
+
+  var cards = SCENARIOS.map(function(s) {
+    var tagHtml = s.tags.map(function(tag) {
+      return '<span style="background:'+s.color+'18;color:'+s.color+';border:0.5px solid '+s.color+'40;border-radius:5px;font-size:9px;font-weight:700;padding:2px 7px">'+tag+'</span>';
+    }).join('');
+    return '<div style="background:#13131c;border-radius:14px;padding:13px 14px;margin-bottom:9px;border:0.5px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showView(\'randori\')">'
+      + '<div style="width:42px;height:42px;border-radius:11px;background:'+s.color+'18;border:1px solid '+s.color+'40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'+s.icon+'</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="color:#f0f4ff;font-size:13px;font-weight:700;margin-bottom:3px">'+s.title+'</div>'
+      + '<div style="color:#555;font-size:11px;line-height:1.35;margin-bottom:6px">'+s.sub+'</div>'
+      + '<div style="display:flex;gap:5px">'+tagHtml+'</div>'
+      + '</div>'
+      + '<svg width="14" height="14" viewBox="0 0 16 16" style="flex-shrink:0;opacity:.25"><polyline points="5,2 11,8 5,14" fill="none" stroke="#f0f4ff" stroke-width="2.5" stroke-linecap="round"/></svg>'
+      + '</div>';
+  }).join('');
+
+  el.innerHTML = '<div style="padding:12px 14px 80px">'
+    + '<div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#666;margin-bottom:4px">RANDORI BRAIN</div>'
+    + '<div style="font-size:12px;color:#444;margin-bottom:14px">Tactical awareness &amp; contest intelligence</div>'
+    + cards
+    + '<div style="background:#1a0d04;border:0.5px solid rgba(217,119,6,.3);border-radius:14px;padding:13px 14px;margin-top:4px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showView(\'randori\')">'
+    + '<span style="font-size:22px">🧠</span>'
+    + '<div style="flex:1">'
+    + '<div style="color:#d97706;font-size:12px;font-weight:800">Open Full Randori Brain &#8594;</div>'
+    + '<div style="color:#555;font-size:10px;margin-top:2px">AI scenarios, live feedback &amp; sparring analysis</div>'
+    + '</div></div></div>';
 }

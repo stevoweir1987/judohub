@@ -1680,6 +1680,7 @@ body {
   justify-content: space-between;
   height: 56px;
   padding: 0 16px;
+  width: 100%;
 }
 .app-logo {
   font-size: 18px;
@@ -6023,7 +6024,7 @@ body.junior-mode #main {
   object-fit: contain;
   display: block;
   /* Default: dark grey tint for inactive */
-  filter: brightness(0) saturate(100%) opacity(0.45);
+  filter: brightness(0) invert(1) opacity(0.55);
   transition: filter .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
 }
 /* Active: gold tint (#F5C542) */
@@ -6035,7 +6036,7 @@ body.junior-mode #main {
 }
 /* Hover: slightly more visible */
 .bnav-btn:hover .bnav-icon-img {
-  filter: brightness(0) saturate(100%) opacity(0.7);
+  filter: brightness(0) invert(1) opacity(0.85);
 }
 
 
@@ -8686,6 +8687,7 @@ body.junior-mode #main {
   justify-content: space-between;
   height: 54px;
   padding: 0 16px;
+  width: 100%;
 }
 .app-header-logo {
   display: flex;
@@ -8729,7 +8731,6 @@ body.junior-mode #main {
   font-weight: 700;
   color: #e0e0ec;
   -webkit-tap-highlight-color: transparent;
-  margin-left: auto;
 }
 .app-header-name-pill:active { background: rgba(255,255,255,.14); }
 .app-header-pill-arrow { font-size: 9px; color: #888; }

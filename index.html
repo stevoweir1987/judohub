@@ -18,7 +18,7 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <title>JudoHub</title>
-  <link rel="stylesheet" href="css/main.css?v=1779024810">
+  <link rel="stylesheet" href="css/main.css?v=1779056067">
   <style>
     /* ── Train view hard overrides ── */
     #view-train { background: #09090e !important; color: #f0f4ff !important; display: none !important; }
@@ -82,7 +82,7 @@
     .tm-quiz-q:last-child { margin-bottom: 0 !important; }
     .tm-quiz-scenario { font-size: 13px !important; font-weight: 600 !important; color: #dde !important; line-height: 1.4 !important; margin-bottom: 10px !important; padding-top: 10px !important; }
     .tm-quiz-options { display: flex !important; flex-direction: column !important; gap: 7px !important; }
-    .tm-quiz-opt { background: rgba(255,255,255,.05) !important; border: 1.5px solid rgba(255,255,255,.1) !important; border-radius: 8px !important; color: #ccc !important; font-size: 12px !important; font-weight: 600 !important; padding: 9px 12px !important; text-align: left !important; cursor: pointer !important; transition: border-color .18s, background .18s !important; line-height: 1.35 !important; }
+    .tm-quiz-opt { background: rgba(255,255,255,.05) !important; border: 1.5px solid rgba(255,255,255,.1) !important; border-radius: 8px !important; color: #f0f4ff !important; font-size: 12px !important; font-weight: 600 !important; padding: 9px 12px !important; text-align: left !important; cursor: pointer !important; transition: border-color .18s, background .18s !important; line-height: 1.35 !important; }
     .tm-quiz-opt:active { opacity: .8 !important; }
     .tm-quiz-correct { border-color: #16a34a !important; background: rgba(22,163,74,.15) !important; color: #4ade80 !important; }
     .tm-quiz-wrong { border-color: #dc2626 !important; background: rgba(220,38,38,.12) !important; color: #f87171 !important; }
@@ -109,6 +109,8 @@
     .hub-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; margin: 8px 14px !important; padding: 16px 14px !important; display: flex !important; align-items: center !important; gap: 12px !important; cursor: pointer !important; transition: border-color .2s !important; }
     .hub-card:active { border-color: rgba(255,255,255,.2) !important; }
     .hub-card-rec { border-color: rgba(217,119,6,.4) !important; background: rgba(217,119,6,.06) !important; }
+    .hub-card-done { border-color: rgba(74,222,128,.3) !important; background: rgba(74,222,128,.04) !important; opacity: 0.8 !important; }
+    .hub-done-badge { display: inline-block !important; background: rgba(74,222,128,.15) !important; color: #4ade80 !important; font-size: 8px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: .05em !important; margin-bottom: 4px !important; }
     .hub-card-icon { font-size: 26px !important; flex-shrink: 0 !important; width: 38px !important; text-align: center !important; }
     .hub-card-body { flex: 1 !important; min-width: 0 !important; }
     .hub-rec-badge { display: inline-block !important; background: #d97706 !important; color: #000 !important; font-size: 8px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: .05em !important; margin-bottom: 4px !important; }
@@ -120,12 +122,14 @@
     .hub-week-badge { margin-left: auto !important; font-size: 24px !important; filter: drop-shadow(0 0 6px rgba(217,119,6,.6)) !important; }
 
     /* ── Session panel ── */
-    .train-session-panel { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: #09090e !important; z-index: 250 !important; display: flex !important; flex-direction: column !important; transform: translateY(100%) !important; transition: transform .3s cubic-bezier(.22,1,.36,1) !important; overflow: hidden !important; }
+    .train-session-panel { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: #09090e !important; z-index: 1100 !important; display: flex !important; flex-direction: column !important; transform: translateY(100%) !important; transition: transform .3s cubic-bezier(.22,1,.36,1) !important; overflow: hidden !important; }
     .train-session-panel.open { transform: translateY(0) !important; }
 
     /* ── Body + #main background override for dark training view ── */
     body.training-active { background: #09090e !important; }
     body.training-active #main { background: #09090e !important; }
+
+    /* Header: name pill stays right on all pages (default margin-left:auto) */
     #view-train { z-index: 10 !important; }
 
     /* ── Desktop phone-frame constraint ── */
@@ -219,6 +223,25 @@
     .sp-play-btn { background: rgba(217,119,6,.1) !important; border: 1px solid rgba(217,119,6,.25) !important; border-radius: 50% !important; width: 30px !important; height: 30px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; cursor: pointer !important; transition: background .15s !important; margin-top: 2px !important; padding: 0 !important; }
     .sp-play-btn:active { background: rgba(217,119,6,.3) !important; }
     .sp-play-btn:active { color: #d97706 !important; }
+/* ── Progress redesign ── */
+.prog-seg-btn{flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
+.prog-seg-btn.active{background:#e53935;color:#fff}
+.prog-seg-btn:not(.active){background:transparent;color:#555}
+.prog-sub-btn{flex:1;padding:7px 4px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
+.prog-sub-btn.active{background:#e53935;color:#fff}
+.prog-sub-btn:not(.active){background:transparent;color:#555}
+.p-card{background:#13131c;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:0.5px solid rgba(255,255,255,.06)}
+.p-label{color:#666;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;display:block}
+.p-pbar-bg{background:rgba(255,255,255,.07);border-radius:4px;height:5px}
+.p-pbar-fill{height:5px;border-radius:4px}
+.p-stat{background:#0f0f1a;border-radius:12px;padding:12px;border:0.5px solid rgba(255,255,255,.05)}
+.p-chip{padding:5px 10px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:0.5px solid rgba(255,255,255,.08);color:#666;background:#0f0f1a;white-space:nowrap}
+.p-chip.on{background:#e53935;color:#fff;border-color:#e53935}
+.p-req-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,.04)}
+.p-cta{background:#e53935;color:#fff;border:none;border-radius:9px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-top:10px;display:block;text-align:center}
+.p-cta-ghost{background:transparent;color:#e53935;border:0.5px solid #e53935;border-radius:9px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;display:block;text-align:center}
+#view-progress{background:#09090e !important}
+#progress-body{background:#09090e !important;padding:0 !important}
   </style>
 </head>
 <body>
@@ -240,7 +263,7 @@
           <span class="app-header-logo-sub">TRAINING</span>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
         <div class="app-header-name-pill" onclick="showTypePicker()">
           <img id="app-header-belt-img" class="app-header-belt-img" src="images/belt-white.png" alt="">
           <span id="app-header-name-text">Judoka</span>
@@ -412,17 +435,17 @@
         <div class="tech-filter-bar" style="position:sticky;top:0;z-index:10;background:#09090e">
           <input type="text" id="tr-tech-search" placeholder="Search techniques…" oninput="filterTrainTech()">
           <div class="tech-belt-chips" id="tr-tech-chips">
-            <button class="tbc active" data-belt="" onclick="selectTrainTechBelt(this,'')">All</button>
-            <button class="tbc" data-belt="toRed"    onclick="selectTrainTechBelt(this,'toRed')"   ><img class="tbc-belt" src="images/belt-red.png">Red</button>
-            <button class="tbc" data-belt="toYellow" onclick="selectTrainTechBelt(this,'toYellow')"><img class="tbc-belt" src="images/belt-yellow.png">Yellow</button>
-            <button class="tbc" data-belt="toOrange" onclick="selectTrainTechBelt(this,'toOrange')"><img class="tbc-belt" src="images/belt-orange.png">Orange</button>
-            <button class="tbc" data-belt="toGreen"  onclick="selectTrainTechBelt(this,'toGreen')" ><img class="tbc-belt" src="images/belt-green.png">Green</button>
-            <button class="tbc" data-belt="toBlue"   onclick="selectTrainTechBelt(this,'toBlue')"  ><img class="tbc-belt" src="images/belt-blue.png">Blue</button>
-            <button class="tbc" data-belt="toBrown"  onclick="selectTrainTechBelt(this,'toBrown')" ><img class="tbc-belt" src="images/belt-brown.png">Brown</button>
+            <button class="tbc active" data-cat="" onclick="selectTrainTechCat(this,'')">All</button>
+            <button class="tbc" data-cat="Te-waza"        onclick="selectTrainTechCat(this,'Te-waza')">Te-waza</button>
+            <button class="tbc" data-cat="Koshi-waza"     onclick="selectTrainTechCat(this,'Koshi-waza')">Koshi-waza</button>
+            <button class="tbc" data-cat="Ashi-waza"      onclick="selectTrainTechCat(this,'Ashi-waza')">Ashi-waza</button>
+            <button class="tbc" data-cat="Ne-waza"        onclick="selectTrainTechCat(this,'Ne-waza')">Ne-waza</button>
+            <button class="tbc" data-cat="Katame-waza"    onclick="selectTrainTechCat(this,'Katame-waza')">Katame</button>
+            <button class="tbc" data-cat="Ma-sutemi-waza" onclick="selectTrainTechCat(this,'Ma-sutemi-waza')">Sutemi</button>
           </div>
           <div class="tech-count-bar"><span id="tr-tech-count"></span></div>
         </div>
-        <div class="tech-grid" id="tr-tech-grid"></div>
+        <div id="tr-tech-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px 14px 80px"></div>
       </div>
       <!-- Randori Brain panel -->
       <div class="train-panel" id="tp-randori"></div>
@@ -666,22 +689,21 @@
   </div>
 
 <!-- ── SCRIPTS ── -->
-<script src="js/data.js?v=1779024810"></script>
-<script src="js/tech_depth.js?v=1779024810"></script>
-<script src="js/onboarding.js?v=1779024810"></script>
-<script src="js/app.js?v=1779025148"></script>
-<script src="js/techniques.js?v=1779024810"></script>
-<script src="js/belt.js?v=1779024810"></script>
-<script src="js/grading.js?v=1779024810"></script>
-<script src="js/builder.js?v=1779024810"></script>
-<script src="js/home.js?v=1779024810"></script>
-<script src="js/pt.js?v=1779024810"></script>
-<script src="js/progress.js?v=1779024810"></script>
-<script src="js/mon.js?v=1779024810"></script>
-<script src="js/randori.js?v=1779024810"></script>
-<script src="js/junior-home.js?v=1779024810"></script>
-<script src="js/junior-grades.js?v=1779024810"></script>
-<script src="js/junior-progress.js?v=1779024810"></script>
-
-<script>
-  if 
+<script src="js/data.js?v=1779056067"></script>
+<script src="js/tech_depth.js?v=1779056067"></script>
+<script src="js/onboarding.js?v=1779056067"></script>
+<script src="js/app.js?v=1779056067"></script>
+<script src="js/techniques.js?v=1779056067"></script>
+<script src="js/belt.js?v=1779056067"></script>
+<script src="js/grading.js?v=1779056067"></script>
+<script src="js/builder.js?v=1779056067"></script>
+<script src="js/home.js?v=1779056067"></script>
+<script src="js/mon.js?v=1779056067"></script>
+<script src="js/junior-grades.js?v=1779056067"></script>
+<script src="js/junior-home.js?v=1779056067"></script>
+<script src="js/junior-progress.js?v=1779056067"></script>
+<script src="js/progress.js?v=1779056067"></script>
+<script src="js/pt.js?v=1779056067"></script>
+<script src="js/randori.js?v=1779056067"></script>
+</body>
+</html>

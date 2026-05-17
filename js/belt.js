@@ -632,7 +632,11 @@ function closeFullRequirements() {
   const ov = document.getElementById('gr-full-overlay');
   if (!ov) return;
   ov.classList.remove('gr-full-open');
-  setTimeout(() => ov.remove(), 300);
+  setTimeout(() => {
+    ov.remove();
+    // Re-render main belt page so group pills, mini-bars and hero all reflect latest ticks
+    if (typeof renderBelt === 'function') renderBelt();
+  }, 300);
 }
 
 
@@ -654,12 +658,27 @@ function toggleAdultReq(beltId, item, el) {
     const all  = b.groups.flatMap(g => g.items);
     const done = all.filter(i => beltProgress[beltId + '_' + i]).length;
     const pct  = all.length ? Math.round(done / all.length * 100) : 0;
-    const cnt  = document.querySelector('.ios-reqs-badge');
-    const bar  = document.querySelector('.ab-prog-fill');
-    const pctEl = document.querySelector('.ab-hero-pct');
-    if (cnt)   cnt.textContent  = done + ' / ' + all.length;
-    if (bar)   bar.style.width  = pct + '%';
-    if (pctEl) pctEl.innerHTML  = pct + '<span class="ab-hero-pct-sym">%</span>';
+    const pctColor = pct >= 80 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#e63946';
+    const root  = document.getElementById('belt-tab-content') || document;
+    const cnt   = root.querySelector('.ios-reqs-badge');
+    const bar   = root.querySelector('.ab-prog-fill');
+    const pctEl = root.querySelector('.ab-arrow-pct');
+    if (cnt)   cnt.textContent = done + ' / ' + all.length;
+    if (bar)  { bar.style.width = pct + '%'; bar.style.background = pctColor; }
+    if (pctEl){ pctEl.textContent = pct + '%'; pctEl.style.color = pctColor; }
+    // also update View-All overlay's own progress bar if it's open
+    const ov = document.getElementById('gr-full-overlay');
+    if (ov) {
+      const ovFill = ov.querySelector('.gr-full-bar-fill');
+      const ovSub  = ov.querySelector('.gr-full-sub');
+      if (ovFill) ovFill.style.width = pct + '%';
+      if (ovSub)  ovSub.textContent  = done + ' of ' + all.length + ' requirements complete';
+    }
+    // sync progress view if open
+    if (typeof renderProgress === 'function') {
+      const pv = document.getElementById('view-progress');
+      if (pv && pv.classList.contains('active')) setTimeout(() => renderProgress(), 50);
+    }
   }
   showToast(beltProgress[key] ? '✓ Done!' : 'Unticked');
 }
