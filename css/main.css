@@ -3191,10 +3191,7 @@ body.junior-mode #main {
   padding-bottom: 0 !important;
   top: 54px !important;
 }
-/* On home screen the global header is hidden, so #main fills from top */
-body.home-active #main {
-  top: 0 !important;
-}
+/* [PHASE1] home #main top removed — same 54px offset as all other screens */
 .view {
   position: absolute !important;
   inset: 0 !important;
@@ -8925,7 +8922,7 @@ body.junior-mode #main {
   flex-shrink: 0 !important;
 }
 /* JS adds home-active class to body to hide on home */
-body.home-active #app-header { display: none !important; }
+/* [PHASE1] app-header now shown on all screens including home */
 
 /* Breathing room under global header for all non-home views */
 #view-progress .view-header,

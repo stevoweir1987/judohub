@@ -614,50 +614,50 @@ function renderHome() {
   document.getElementById('home-body').innerHTML =
   '<style>' +
   /* ── Layout foundation ── */
-  '.hf-wrap{display:flex;flex-direction:column;min-height:100%;padding:0 0 96px;box-sizing:border-box}' +
+  '.hf-wrap{display:flex;flex-direction:column;min-height:100%;padding:0 0 80px;box-sizing:border-box}' +
   /* ── Header ── */
-  '.hf-header{display:flex;flex-direction:column;gap:4px;padding:0 0 10px;flex-shrink:0}' +
-  '.hf-logo-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0d0d12;position:sticky;top:0;z-index:900;border-bottom:1px solid rgba(255,255,255,.07)}' +
+  '.hf-header{display:flex;flex-direction:column;gap:2px;padding:8px 14px 6px;flex-shrink:0}' +
+  '' +
   '.hf-logo{display:flex;align-items:center;gap:9px}' +
   '.hf-logo-icon{width:32px;height:32px;flex-shrink:0}' +
   '.hf-logo-text{display:flex;flex-direction:column;gap:0}' +
   '.hf-logo-name{font-size:16px;font-weight:800;color:#f4f4f8;letter-spacing:-.3px;line-height:1}' +
-  '.hf-logo-sub{font-size:8px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:2px;text-transform:uppercase;margin-top:1px}' +
+  '.hf-logo-sub{font-size:8px;font-weight:700;color:#d97706;letter-spacing:2px;text-transform:uppercase;margin-top:1px}' +
   '.hf-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}' +
   '.hf-name-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 10px 5px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#f4f4f8;-webkit-tap-highlight-color:transparent}' +
   '.hf-pill-arrow{font-size:9px;color:rgba(255,255,255,.35);margin-left:1px}' +
   '.hf-envelope-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}' +
   /* ── Greeting + identity ── */
-  '.hf-greeting{font-size:26px;font-weight:800;color:#f0f0f5;letter-spacing:-.5px;line-height:1.15;padding:14px 14px 0}' +
-  '.hf-identity-row{display:flex;align-items:center;gap:5px;margin-top:3px;padding:0 14px 10px}' +
+  '.hf-greeting{font-size:22px;font-weight:800;color:#f0f0f5;letter-spacing:-.5px;line-height:1.15}' +
+  '.hf-identity-row{display:flex;align-items:center;gap:5px;margin-top:1px}' +
   '.hf-belt-colordot{display:inline-block;border-radius:50%;flex-shrink:0}' +
   '.hf-belt-label{font-size:12px;color:#ccc;font-weight:500}' +
   '.hf-identity-sep{color:#444;font-size:11px}' +
   '.hf-streak-fire{font-size:12px}' +
   '.hf-streak-num{font-size:12px;color:#ccc}' +
   /* ── Adaptive tip ── */
-  '.nh-adapt-box{border-radius:12px;padding:11px 13px;margin:0 14px 10px;border:1px solid}' +
+  '.nh-adapt-box{border-radius:12px;padding:8px 12px;margin:0 14px 8px;border:1px solid}@media(max-height:680px){.nh-adapt-box{display:none!important}}' +
   '.nh-adapt-tag{display:inline-block;border-radius:5px;border:1px solid;padding:2px 8px;font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px}' +
   '.nh-adapt-title{font-size:12px;font-weight:700;margin-bottom:2px}' +
   '.nh-adapt-body{font-size:11px;color:#999;line-height:1.45}' +
   /* ── Today training card ── */
-  '.nh-today-card{background:#14090a;border:1px solid #3d1015;border-radius:14px;padding:14px 14px 12px;margin:0 14px 10px}' +
-  '.nh-belt-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;padding:3px 9px;font-size:9px;font-weight:700;color:#999;margin-bottom:9px;text-transform:uppercase;letter-spacing:.4px}' +
+  '.nh-today-card{background:#14090a;border:1px solid #3d1015;border-radius:14px;padding:10px 14px 8px;margin:0 14px 8px}' +
+  '.nh-belt-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;padding:3px 9px;font-size:9px;font-weight:700;color:#999;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}' +
   '.nh-belt-dot-sm{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}' +
   '.nh-tech-name{font-size:21px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:2px;letter-spacing:-.4px}' +
-  '.nh-tech-sub{font-size:11px;color:#666;margin-bottom:10px}' +
-  '.nh-meta-row{display:flex;align-items:center;gap:7px;margin-bottom:11px;flex-wrap:wrap}' +
+  '.nh-tech-sub{font-size:11px;color:#666;margin-bottom:6px}' +
+  '.nh-meta-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}' +
   '.nh-meta-chip{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:3px 8px;font-size:10px;font-weight:600;color:#999}' +
   '.nh-meta-done{color:#4ade80!important;background:rgba(74,222,128,.09)!important;border-color:rgba(74,222,128,.18)!important}' +
   '.nh-meta-focus{color:#f97316!important;background:rgba(249,115,22,.09)!important;border-color:rgba(249,115,22,.18)!important}' +
   /* ── Video thumbnail ── */
-  '.nh-video-thumb{width:100%;height:160px;object-fit:cover;object-position:center top;border-radius:10px;margin-bottom:12px;background:#0d0d12;display:block}' +
+  '.nh-video-thumb{width:100%;height:130px;object-fit:cover;object-position:center center;border-radius:10px;margin-bottom:12px;background:#0d0d12;display:block}' +
   /* ── CTA buttons ── */
-  '.nh-hero-btn{width:100%;border:none;border-radius:11px;padding:13px 14px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:5px;letter-spacing:.1px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}' +
+  '.nh-hero-btn{width:100%;border:none;border-radius:11px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:5px;letter-spacing:.1px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}' +
   '.nh-btn-icon{font-size:11px}' +
   '.nh-sec-btn{width:100%;background:transparent;border:none;color:#e63946;font-size:11px;font-weight:600;padding:5px;cursor:pointer;opacity:.75;-webkit-tap-highlight-color:transparent}' +
   /* ── Week streak ── */
-  '.nh-streak-section{margin:0 14px 10px;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:12px 13px}' +
+  '.nh-streak-section{margin:0 14px 8px;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:10px 13px}' +
   '.nh-streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}' +
   '.nh-section-lbl{font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.8px}' +
   '.nh-streak-count{font-size:11px;font-weight:700;color:#f59e0b}' +
@@ -667,31 +667,14 @@ function renderHome() {
   '.nh-sd-today{background:transparent;border:1.5px dashed #e63946;color:#e63946}' +
   '.nh-sd-rest{background:rgba(255,255,255,.04);color:#3a3a48}' +
   /* ── Stats row ── */
-  '.nh-stats-row{display:flex;gap:8px;margin:0 14px 10px}' +
+  '.nh-stats-row{display:flex;gap:8px;margin:0 14px 8px}' +
   '.nh-stat-card{flex:1;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:11px 8px;text-align:center}' +
   '.nh-stat-val{font-size:19px;font-weight:800;line-height:1}' +
   '.nh-stat-lbl{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}' +
 '</style>' +
   '<div class="hf-wrap">' +
 
-    '<!-- HEADER -->' +
     '<div class="hf-header">' +
-      '<div class="hf-logo-row">' +
-        '<div class="hf-logo">' +
-          '<div class="hf-logo-icon"><img src="images/homeicon.png" class="hf-logo-img" style="width:32px;height:32px;object-fit:contain;border-radius:8px" onerror="this.style.display=\'none\'"></div>' +
-          '<div class="hf-logo-text"><span class="hf-logo-name">JudoHub</span><span class="hf-logo-sub">TRAINING</span></div>' +
-        '</div>' +
-        '<div class="hf-header-right">' +
-          '<div class="hf-name-pill" onclick="showTypePicker()">' +
-            '<span class="hf-belt-colordot" style="background:' + fromHex + ';width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0"></span>' +
-            '<span>' + firstName + '</span>' +
-            '<span class="hf-pill-arrow">&#9662;</span>' +
-          '</div>' +
-          '<button class="hf-envelope-btn" onclick="openFeedbackModal()" title="Send Feedback">' +
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
-          '</button>' +
-        '</div>' +
-      '</div>' +
       '<div class="hf-greeting">Good ' + getTimeOfDay() + ', ' + firstName + '</div>' +
       '<div class="hf-identity-row">' +
         '<span class="hf-belt-colordot" style="background:' + fromHex + '"></span>' +

@@ -854,14 +854,22 @@ function submitFeedback() {
    GLOBAL HEADER SYNC
    ───────────────────────────────────────────── */
 function syncAppHeader(viewName) {
-  // home has its own built-in header — hide global one
   document.body.classList.toggle('home-active', viewName === 'home');
-  // Update name pill text
+  const p = (typeof getProfile === 'function') ? getProfile() : null;
+  // Update name text
   const nameEl = document.getElementById('app-header-name-text');
   if (nameEl) {
-    const p = (typeof getProfile === 'function') ? getProfile() : null;
-    const firstName = p && p.name ? p.name.split(' ')[0] : 'Judoka';
-    nameEl.textContent = firstName;
+    nameEl.textContent = p && p.name ? p.name.split(' ')[0] : 'Judoka';
+  }
+  // Update belt dot colour
+  const dotEl = document.getElementById('app-header-belt-dot');
+  if (dotEl) {
+    const beltKey = (p && p.belt) ? p.belt : 'white';
+    const beltColors = {
+      white:'#e8e8e8', red:'#e74c3c', yellow:'#f1c40f', orange:'#e67e22',
+      green:'#27ae60', blue:'#2980b9', brown:'#795548', black:'#1a1a1a'
+    };
+    dotEl.style.background = beltColors[beltKey] || '#e8e8e8';
   }
 }
 
