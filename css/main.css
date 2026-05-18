@@ -7303,10 +7303,7 @@ body.junior-mode #main {
   padding: 0 !important;
   overflow-y: auto !important;
   display: block !important;
-  background:
-    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(180,20,30,.18) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 30% at 20% 100%, rgba(80,10,10,.25) 0%, transparent 60%),
-    #09090e !important;
+  background: #0d0d12 !important;
 }
 
 /* Tatami-grid texture overlay via pseudo-element on hf-wrap */

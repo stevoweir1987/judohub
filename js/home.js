@@ -616,7 +616,7 @@ function renderHome() {
   /* ── Layout foundation ── */
   '.hf-wrap{display:flex;flex-direction:column;min-height:100%;padding:0 0 96px;box-sizing:border-box}' +
   /* ── Header ── */
-  '.hf-header{display:flex;flex-direction:column;gap:4px;padding:14px 14px 10px;flex-shrink:0;background:#09090e;position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(255,255,255,.07)}' +
+  '.hf-header{display:flex;flex-direction:column;gap:4px;padding:14px 14px 10px;flex-shrink:0;background:#0d0d12;position:sticky;top:0;z-index:900;border-bottom:1px solid rgba(255,255,255,.07)}' +
   '.hf-logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}' +
   '.hf-logo{display:flex;align-items:center;gap:9px}' +
   '.hf-logo-icon{width:32px;height:32px;flex-shrink:0}' +
