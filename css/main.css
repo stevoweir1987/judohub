@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
@@ -20,6 +21,43 @@
   --sb-text:       #9ab8d8;
   --sb-text-hover: #eef2ff;
   --sb-surface:    rgba(255,255,255,.06);
+}
+
+/* ═══════════════════════════════════════════════════════
+   JUDOHUB DESIGN TOKENS  (Phase 1 — 2026)
+   Single source of truth for colours, spacing, type.
+   ═══════════════════════════════════════════════════════ */
+:root {
+  /* Colour palette */
+  --jh-bg:        #09090e;
+  --jh-surface:   #14141a;
+  --jh-card:      #0f0f14;
+  --jh-border:    #2a2a36;
+  --jh-border-lt: #1e1e28;
+  --jh-accent:    #e63946;
+  --jh-accent-dk: #c0303c;
+  --jh-amber:     #f59e0b;
+  --jh-green:     #4ade80;
+  --jh-blue:      #60a5fa;
+  --jh-text:      #f0f0f5;
+  --jh-text-sub:  #aaaaaa;
+  --jh-text-dim:  #666666;
+  --jh-text-faint:#3a3a48;
+
+  /* Spacing */
+  --jh-card-mx:   14px;   /* horizontal margin for all cards */
+  --jh-card-px:   16px;   /* internal card padding x */
+  --jh-card-py:   16px;   /* internal card padding y */
+  --jh-card-r:    14px;   /* card border-radius */
+  --jh-card-gap:  12px;   /* gap between stacked cards */
+
+  /* Typography scale */
+  --jh-t-hero:    24px;   /* screen title, greeting */
+  --jh-t-title:   18px;   /* card title, technique name */
+  --jh-t-body:    13px;   /* body text */
+  --jh-t-small:   11px;   /* secondary text */
+  --jh-t-label:   10px;   /* chips, uppercase labels */
+  --jh-t-micro:   9px;    /* timestamps, metadata */
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; display: flex; height: 100vh; overflow: hidden; }
@@ -378,7 +416,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', 'Segoe U
 .timer-finish-skip:hover { color: #f0f4ff; }
 
 
-.home-view-body { padding: 20px 28px; max-width: 720px; margin: 0 auto; width: 100%; }
+/* [PHASE1] .home-view-body base rule moved to line 7271 block */
 
 /* ── HOME INTRO VIDEO ── */
 .home-intro-video-wrap {
@@ -1737,9 +1775,7 @@ body {
   padding: 16px 16px 96px;
   min-height: 100%;
 }
-.home-view-body {
-  padding: 0 0 88px;
-}
+/* [PHASE1] .home-view-body padding consolidated */
 .pt-view-body {
   padding: 12px 12px 24px;
   height: 100%;
@@ -4186,7 +4222,7 @@ body.junior-mode #main {
    ═══════════════════════════════════════════════════ */
 
 /* Override app background to warm light grey */
-.home-view-body { background: #f1f5f9 !important; }
+/* [PHASE1] REMOVED: light-theme background that broke dark mode */
 
 /* ── Greeting bar ── */
 .hd-greeting-bar {
@@ -5500,10 +5536,7 @@ body.junior-mode #main {
 .hd-grade-passed-link:hover { color: rgba(255,255,255,.65) !important; }
 
 /* ⑦ Main content area: accounts for rounded margin card (item 11) */
-.home-view-body {
-  padding: 0 0 100px !important;
-  background: #0a1628;
-}
+/* [PHASE1] .home-view-body old bg #0a1628 removed — see line 7271 */
 .hd-scroll-body {
   padding: 18px 16px 96px !important;
 }
@@ -7257,9 +7290,7 @@ body.junior-mode #main {
   padding-bottom: 100px !important;
 }
 /* home uses its own flex layout — no extra padding needed */
-.home-view-body {
-  padding-bottom: 0 !important;
-}
+/* [PHASE1] padding-bottom:0 consolidated into main rule below */
 
 
 /* =======================================================
@@ -9094,9 +9125,7 @@ body.home-active #app-header { display: none !important; }
 /* ── Comprehensive fixes ─────────────────────────────────────────── */
 
 /* Fix home-view-body light background override */
-.home-view-body {
-  background: #09090e !important;
-}
+/* [PHASE1] background consolidated into main .home-view-body rule above */
 
 /* Belt image inside home name pill */
 .hf-name-pill-belt {
