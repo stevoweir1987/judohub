@@ -1,3 +1,5 @@
+/* home.js v_TEST_2024 */
+
 // ── DAILY THEMES (index = day of week, 0=Sun) ──────
 const DAILY_THEMES = [
   { name: 'Recovery',      tag: 'recovery',     emoji: '🧘', color: '#27ae60' },
@@ -46,6 +48,13 @@ const ORANGE_BELT_TECHS = [
 ];
 
 function getTOTD() {
+  // Belt-aware: prioritise first uncompleted technique from active belt
+  const ab = getActiveBeltInfo();
+  if (ab && ab.nextItems && ab.nextItems.length) {
+    const found = TECHNIQUES.find(t => t.name === ab.nextItems[0]);
+    if (found) return found;
+  }
+  // Fallback: day-of-year rotation through orange belt techs
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const name = ORANGE_BELT_TECHS[dayOfYear % ORANGE_BELT_TECHS.length];
   return TECHNIQUES.find(t => t.name === name) || TECHNIQUES[0];
@@ -98,6 +107,51 @@ function getStreak() {
   let streak = 0, d = hasDay(today) ? 0 : -1;
   while (hasDay(dateStr(d))) { streak++; d--; }
   return streak;
+}
+
+function getMatHours() {
+  const log = getSessionLog();
+  const totalMins = log.reduce(function(sum, s){ return sum + (parseInt(s.minutes) || 0); }, 0);
+  if (totalMins === 0) return '0h';
+  if (totalMins < 60) return totalMins + 'm';
+  var h = (totalMins / 60);
+  return (h % 1 === 0 ? h : h.toFixed(1)) + 'h';
+}
+
+function getDaysSinceLast() {
+  var log = getSessionLog();
+  if (!log.length) return 999;
+  var dates = log.map(function(s){ return _sessionDate(s); }).filter(Boolean).sort();
+  var last = dates[dates.length - 1];
+  var diff = (new Date(todayStr()) - new Date(last)) / 86400000;
+  return Math.max(0, Math.round(diff));
+}
+
+function getAdaptiveTip(activeBelt, streak) {
+  var days = getDaysSinceLast();
+  if (days >= 5) {
+    return { cls: 'nh-adapt-returning', tag: days + ' days since last session', title: 'Welcome back', body: 'A short session is better than none. Start easy — 8 minutes is enough to rebuild momentum.' };
+  }
+  if (activeBelt && activeBelt.nextItems && activeBelt.nextItems.length) {
+    var remaining = activeBelt.total - activeBelt.done;
+    return { cls: 'nh-adapt-belt', tag: activeBelt.belt.to + ' Belt · ' + activeBelt.pct + '% complete', title: "Today’s focus", body: remaining + ' technique' + (remaining !== 1 ? 's' : '') + ' left for grading. Work on ' + activeBelt.nextItems[0] + ' today.' };
+  }
+  if (streak >= 3) {
+    return { cls: 'nh-adapt-belt', tag: streak + ' day streak 🔥', title: 'Keep the momentum', body: 'Consistency is the foundation of judo. Show up again today.' };
+  }
+  return null;
+}
+
+function getWeekDaysDone() {
+  var log = getSessionLog();
+  var today = new Date();
+  var jsDay = today.getDay();
+  var monOffset = (jsDay === 0) ? -6 : 1 - jsDay;
+  return [0,1,2,3,4,5,6].map(function(i){
+    var offset = monOffset + i;
+    var d = dateStr(offset);
+    return log.some(function(s){ return _sessionDate(s) === d; });
+  });
 }
 
 function getSessionsThisWeek() {
@@ -476,200 +530,222 @@ function beltImg(colorClass) {
 
 // ── HOME RENDER ────────────────────────────────────
 function renderHome() {
-  const activeBelt = getActiveBeltInfo();
-  const profile    = getProfile();
-  const firstName  = profile && profile.name ? profile.name.split(' ')[0] : 'Judoka';
-  const streak     = getStreak();
-  const totd       = getTOTD();
-  const iq         = getTodayIQ();
-  const theme      = DAILY_THEMES[new Date().getDay()];
-  const days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const dayName    = days[new Date().getDay()];
+  try {
+  var activeBelt = getActiveBeltInfo();
+  var profile    = getProfile ? getProfile() : null;
+  var firstName  = (profile && profile.name) ? profile.name.split(' ')[0] : 'Judoka';
+  var streak     = getStreak();
+  var totd       = getTOTD();
+  var matHours   = getMatHours();
+  var pct        = activeBelt ? activeBelt.pct : 0;
+  var beltName   = activeBelt ? activeBelt.belt.from + ' Belt' : 'Judoka';
+  var targetBeltName = activeBelt ? activeBelt.belt.to + ' Belt' : '';
+  var fromHex    = activeBelt ? (BELT_HEX[activeBelt.belt.fromColor] || '#e8e8e8') : '#e8e8e8';
+  var toBeltColor = activeBelt ? (BELT_HEX[activeBelt.belt.toColor] || '#888') : '#888';
+  var toBeltFile  = activeBelt ? (BELT_IMG_MAP[activeBelt.belt.toColor] || 'belt-red.png') : 'belt-red.png';
 
-  const fromHex  = activeBelt ? (BELT_HEX[activeBelt.belt.fromColor] || '#e8e8e8') : '#e8e8e8';
-  const pct      = activeBelt ? activeBelt.pct : 0;
-  const beltName = activeBelt ? activeBelt.belt.from + ' Belt' : 'Judoka';
-  const targetBeltName = activeBelt ? activeBelt.belt.to + ' Belt' : '';
-  const toBeltColor    = activeBelt ? (BELT_HEX[activeBelt.belt.toColor] || '#888') : '#888';
-  const toBeltFile     = activeBelt ? (BELT_IMG_MAP[activeBelt.belt.toColor] || 'belt-red.png') : 'belt-red.png';
+  // Adaptive tip
+  var tip = getAdaptiveTip(activeBelt, streak);
 
-  // Technique of the day
-  const totdVid   = totd ? getVideoId(totd.url) : null;
-  const totdThumb = totdVid ? `https://img.youtube.com/vi/${totdVid}/mqdefault.jpg` : null;
+  // Today's technique
+  var totdVid   = totd ? getVideoId(totd.url) : null;
+  var totdThumb = totdVid ? ('https://img.youtube.com/vi/' + totdVid + '/mqdefault.jpg') : null;
+  var techName  = totd ? totd.name : 'Judo Training';
+  var techEn    = totd ? (totd.english || totd.translation || '') : '';
+  var techCat   = totd ? (totd.subcategory || totd.category || '') : '';
+  var techSub   = [techEn, techCat].filter(Boolean).join(' · ');
 
-  // Today's Word — pick from TERMS_EN keys based on day of year
-  const termKeys = (typeof TERMS_EN !== 'undefined') ? Object.keys(TERMS_EN) : [];
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const todayTermKey = termKeys.length ? termKeys[dayOfYear % termKeys.length] : null;
-  const todayTermVal = todayTermKey ? TERMS_EN[todayTermKey] : null;
+  // Dynamic CTA
+  var hasActive = (typeof currentSession !== 'undefined' && currentSession &&
+                   typeof timerInterval !== 'undefined' && timerInterval !== null);
+  var donedToday = getSessionLog().some(function(s){ return _sessionDate(s) === todayStr(); });
 
-  // Progress bar colour
-  const pctCol = pct >= 80 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#e63946';
+  // Week streak dots
+  var weekDaysDone = getWeekDaysDone();
+  var today = new Date();
+  var todayDisplayIdx = (today.getDay() + 6) % 7;
+  var dayLetters = ['M','T','W','T','F','S','S'];
+  var streakDots = dayLetters.map(function(d, i){
+    var done = weekDaysDone[i];
+    var isToday = (i === todayDisplayIdx);
+    if (done) return '<div class="nh-sd nh-sd-done">' + d + '</div>';
+    if (isToday) return '<div class="nh-sd nh-sd-today">' + d + '</div>';
+    return '<div class="nh-sd nh-sd-rest">' + d + '</div>';
+  }).join('');
 
-  // CTA label
-  const hasActiveSession = (typeof currentSession !== 'undefined' && currentSession && typeof timerInterval !== 'undefined' && timerInterval !== null);
-  const ctaLabel  = hasActiveSession ? 'Resume Session →' : "Start Today’s Training →";
-  const ctaAction = hasActiveSession ? "showView('train')" : "onStartFocused()";
+  // Belt tag label
+  var beltTagLabel = targetBeltName
+    ? (targetBeltName + ' &nbsp;·&nbsp; ' + (activeBelt && activeBelt.nextItems && activeBelt.nextItems.length ? 'Required' : 'Recommended'))
+    : 'Recommended';
 
-  document.getElementById('home-body').innerHTML = `
-  <div class="hf-wrap">
+  // Tip HTML
+  var tipHtml = '';
+  if (tip) {
+    var tipBg    = (tip.cls === 'nh-adapt-returning') ? '#0a1420' : '#0f1a0f';
+    var tipBord  = (tip.cls === 'nh-adapt-returning') ? '#1a3060' : '#1a4a1a';
+    var tipCol   = (tip.cls === 'nh-adapt-returning') ? '#60a5fa' : '#4ade80';
+    var tagBg    = (tip.cls === 'nh-adapt-returning') ? 'rgba(59,130,246,.12)' : 'rgba(74,222,128,.12)';
+    var tagBord  = (tip.cls === 'nh-adapt-returning') ? 'rgba(59,130,246,.25)' : 'rgba(74,222,128,.25)';
+    tipHtml = '<div class="nh-adapt-box" style="background:' + tipBg + ';border-color:' + tipBord + '">' +
+      '<div class="nh-adapt-tag" style="background:' + tagBg + ';border-color:' + tagBord + ';color:' + tipCol + '">' + tip.tag + '</div>' +
+      '<div class="nh-adapt-title" style="color:' + tipCol + '">' + tip.title + '</div>' +
+      '<div class="nh-adapt-body">' + tip.body + '</div>' +
+      '</div>';
+  }
 
-    <!-- ① HEADER -->
-    <div class="hf-header">
-      <div class="hf-logo-row">
-        <div class="hf-logo">
-          <img src="images/homeicon.png" class="hf-logo-img" alt="JudoHub"
-               onerror="this.style.display='none'">
-          <div class="hf-logo-text">
-            <span class="hf-logo-name">JudoHub</span>
-            <span class="hf-logo-sub">TRAINING</span>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="hf-name-pill" onclick="showTypePicker()">
-            ${activeBelt ? `<img src="images/${BELT_IMG_MAP[activeBelt.belt.fromColor]||'belt-white.png'}" class="hf-name-pill-belt" alt="">` : ''}
-            <span class="hf-name-pill-text">${firstName}</span>
-            <span class="hf-name-pill-arrow">▾</span>
-          </div>
-          <button class="hf-feedback-btn" onclick="openFeedbackModal()" title="Send Feedback">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="hf-greeting">Good ${getTimeOfDay()}, ${firstName}</div>
-      <div class="hf-identity-row">
-        <div class="hf-belt-info">
-          <span class="hf-belt-dot" style="background:${fromHex}"></span>
-          <span class="hf-belt-label">${beltName}</span>
-        </div>
-        <span class="hf-identity-sep">·</span>
-        <div class="hf-streak-info" onclick="showView('progress')">
-          <span class="hf-streak-fire">🔥</span>
-          <span class="hf-streak-label">${streak || 0} Day Streak</span>
-        </div>
-      </div>
-    </div>
+  // Thumb HTML
+  var thumbHtml = totdThumb
+    ? '<img src="' + totdThumb + '" class="nh-video-thumb" onerror="this.style.display=\'none\'" alt="Technique demo">'
+    : '';
 
-    <!-- ② TODAY CARD -->
-    <div class="hf-today-card">
+  // CTA HTML
+  var ctaHtml;
+  if (hasActive) {
+    ctaHtml = '<button class="nh-hero-btn" style="background:#f59e0b;color:#0d0d12" onclick="showView(\'train\')">' +
+      '<span class="nh-btn-icon">&#9654;</span> CONTINUE SESSION' +
+      '</button>' +
+      '<button class="nh-sec-btn" onclick="onStartFocused()">+ Start today&#39;s training instead</button>';
+  } else {
+    ctaHtml = '<button class="nh-hero-btn" style="background:#e63946;color:#fff" onclick="onStartFocused()">' +
+      '<span class="nh-btn-icon">&#9654;</span> START TODAY&#39;S TRAINING' +
+      '</button>';
+  }
 
-      <div class="hf-day-row">
-        <span class="hf-day-label">${dayName}</span>
-        <span class="hf-theme-chip">
-          <span>${theme.emoji}</span>
-          <span>${theme.name}</span>
-        </span>
-      </div>
+  document.getElementById('home-body').innerHTML =
+  '<style>' +
+  '.hf-wrap{display:flex;flex-direction:column;min-height:100%;padding:0 0 92px;box-sizing:border-box}' +
+  '.hf-header{display:flex;flex-direction:column;gap:6px;padding:14px 16px 10px;flex-shrink:0}' +
+  '.hf-logo-row{display:flex;align-items:center;justify-content:space-between}' +
+  '.hf-logo{display:flex;align-items:center;gap:10px}' +
+  '.hf-logo-icon{width:32px;height:32px;flex-shrink:0}' +
+  '.hf-logo-name{font-size:16px;font-weight:800;color:#f4f4f8;letter-spacing:-.3px;line-height:1}' +
+  '.hf-logo-sub{font-size:8px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase;margin-top:1px}' +
+  '.hf-header-right{display:flex;align-items:center;gap:8px}' +
+  '.hf-name-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:13px;font-weight:600;color:#f4f4f8}' +
+  '.hf-pill-arrow{font-size:10px;color:rgba(255,255,255,.4)}' +
+  '.hf-envelope-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px;cursor:pointer;color:#ccc;display:flex;align-items:center;justify-content:center}' +
+  '.hf-greeting{font-size:26px;font-weight:800;color:#f0f0f5;margin-top:6px;letter-spacing:-.5px}' +
+  '.hf-identity-row{display:flex;align-items:center;gap:5px;margin-top:2px}' +
+  '.hf-belt-colordot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;flex-shrink:0}' +
+  '.hf-belt-label{font-size:12px;color:#ccc}' +
+  '.hf-identity-sep{color:#555;font-size:11px}' +
+  '.hf-streak-fire{font-size:13px}' +
+  '.hf-streak-num{font-size:12px;color:#ccc}' +
+  '.nh-adapt-box{margin:0 14px 12px;border-radius:14px;padding:12px 14px;border:1px solid}' +
+  '.nh-adapt-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;border-radius:5px;padding:3px 8px;border:1px solid;margin-bottom:6px}' +
+  '.nh-adapt-title{font-size:13px;font-weight:700;margin-bottom:3px}' +
+  '.nh-adapt-body{font-size:12px;color:#aaa;line-height:1.5}' +
+  '.nh-today-card{background:#14090a;border:1px solid #3d1015;border-radius:16px;padding:16px;margin:0 14px 12px}' +
+  '.nh-belt-tag{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#aaa;margin-bottom:8px}' +
+  '.nh-belt-dot-sm{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}' +
+  '.nh-tech-name{font-size:22px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:3px;letter-spacing:-.3px}' +
+  '.nh-tech-sub{font-size:12px;color:#888;margin-bottom:10px}' +
+  '.nh-meta-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}' +
+  '.nh-meta-chip{font-size:11px;font-weight:600;color:#aaa;background:rgba(255,255,255,.06);border-radius:6px;padding:3px 8px}' +
+  '.nh-meta-done{color:#4ade80;background:rgba(74,222,128,.1)}' +
+  '.nh-meta-focus{color:#f97316;background:rgba(249,115,22,.1)}' +
+  '.nh-video-thumb{width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:14px;background:#0d0d12;display:block}' +
+  '.nh-hero-btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:6px;letter-spacing:.2px}' +
+  '.nh-sec-btn{width:100%;background:transparent;border:none;color:#e63946;font-size:12px;font-weight:600;padding:6px;cursor:pointer;opacity:.8}' +
+  '.nh-btn-icon{margin-right:4px}' +
+  '.nh-streak-section{margin:0 14px 12px;background:#0f0f14;border:1px solid #222;border-radius:14px;padding:14px}' +
+  '.nh-streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}' +
+  '.nh-section-lbl{font-size:10px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.8px}' +
+  '.nh-streak-count{font-size:12px;font-weight:700;color:#f59e0b}' +
+  '.nh-streak-row{display:flex;gap:6px;justify-content:space-between}' +
+  '.nh-sd{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}' +
+  '.nh-sd-done{background:#e63946;color:#fff}' +
+  '.nh-sd-today{background:transparent;border:1.5px dashed #e63946;color:#e63946}' +
+  '.nh-sd-rest{background:rgba(255,255,255,.05);color:#444}' +
+  '.nh-stats-row{display:flex;gap:10px;margin:0 14px 12px}' +
+  '.nh-stat-card{flex:1;background:#0f0f14;border:1px solid #222;border-radius:14px;padding:12px;text-align:center}' +
+  '.nh-stat-val{font-size:20px;font-weight:800;color:#e63946;line-height:1}' +
+  '.nh-stat-lbl{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}' +
+  '</style>' +
+  '<div class="hf-wrap">' +
 
-      <div class="hf-card-title">Today's Training</div>
+    '<!-- HEADER -->' +
+    '<div class="hf-header">' +
+      '<div class="hf-logo-row">' +
+        '<div class="hf-logo">' +
+          '<div class="hf-logo-icon"><img src="images/homeicon.png" class="hf-logo-img" style="width:32px;height:32px;object-fit:contain;border-radius:8px" onerror="this.style.display=\'none\'"></div>' +
+          '<div class="hf-logo-text"><span class="hf-logo-name">JudoHub</span><span class="hf-logo-sub">TRAINING</span></div>' +
+        '</div>' +
+        '<div class="hf-header-right">' +
+          '<div class="hf-name-pill" onclick="showTypePicker()">' +
+            '<span class="hf-belt-colordot" style="background:' + fromHex + ';width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0"></span>' +
+            '<span>' + firstName + '</span>' +
+            '<span class="hf-pill-arrow">&#9662;</span>' +
+          '</div>' +
+          '<button class="hf-envelope-btn" onclick="openFeedbackModal()" title="Send Feedback">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hf-greeting">Good ' + getTimeOfDay() + ', ' + firstName + '</div>' +
+      '<div class="hf-identity-row">' +
+        '<span class="hf-belt-colordot" style="background:' + fromHex + '"></span>' +
+        '<span class="hf-belt-label">' + beltName + '</span>' +
+        '<span class="hf-identity-sep">&nbsp;·&nbsp;</span>' +
+        '<span class="hf-streak-fire">🔥</span>' +
+        '<span class="hf-streak-num">' + streak + ' day streak</span>' +
+      '</div>' +
+    '</div>' +
 
-      <div class="hf-items">
+    '<!-- ADAPTIVE TIP -->' +
+    tipHtml +
 
-        <!-- Technique of the day -->
-        <div class="hf-item" onclick="${totd ? `openModal('${(totd.name||'').replace(/'/g,"\'")}')` : "showView('belt')"}">
-          <div class="hf-item-thumb">
-            ${totdThumb ? `<img src="${totdThumb}" class="hf-thumb-img" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'">` : ''}
-            <div class="hf-thumb-ph"${totdThumb ? ' style="display:none"' : ''}>
-              <svg viewBox="0 0 40 30" width="32" height="24"><rect width="40" height="30" rx="4" fill="#2a2a36"/><polygon points="16,9 28,15 16,21" fill="#555"/></svg>
-            </div>
-          </div>
-          <div class="hf-item-body">
-            <div class="hf-item-label">TECHNIQUE</div>
-            <div class="hf-item-name">${totd ? totd.name : 'O-soto-gari'}</div>
-            <div class="hf-item-sub">${totd && totd.en ? totd.en : 'Major outer reap'}</div>
-          </div>
-          <div class="hf-item-arrow">›</div>
-        </div>
+    '<!-- TODAYS TRAINING -->' +
+    '<div class="nh-today-card">' +
+      '<div class="nh-belt-tag">' +
+        '<span class="nh-belt-dot-sm" style="background:' + toBeltColor + '"></span>' +
+        beltTagLabel +
+      '</div>' +
+      '<div class="nh-tech-name">' + techName + '</div>' +
+      '<div class="nh-tech-sub">' + techSub + '</div>' +
+      '<div class="nh-meta-row">' +
+        '<span class="nh-meta-chip"><span>&#9200;</span> 12 min</span>' +
+        (donedToday
+          ? '<span class="nh-meta-chip nh-meta-done">&#10003; Done today</span>'
+          : '<span class="nh-meta-chip nh-meta-focus">&#128293; Today&#39;s focus</span>') +
+      '</div>' +
+      thumbHtml +
+      ctaHtml +
+    '</div>' +
 
-        <div class="hf-divider"></div>
+    '<!-- WEEK STREAK -->' +
+    '<div class="nh-streak-section">' +
+      '<div class="nh-streak-top">' +
+        '<span class="nh-section-lbl">THIS WEEK</span>' +
+        '<span class="nh-streak-count">&#128293; ' + streak + ' day streak</span>' +
+      '</div>' +
+      '<div class="nh-streak-row">' + streakDots + '</div>' +
+    '</div>' +
 
-        <!-- Judo IQ -->
-        <div class="hf-item" onclick="revealIQCard()">
-          <div class="hf-item-thumb hf-thumb-icon" style="background:rgba(59,130,246,.12)">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="#3b82f6" stroke-width="1.8"/>
-              <path d="M12 8v1M12 11v5" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="hf-item-body">
-            <div class="hf-item-label">JUDO IQ</div>
-            <div class="hf-item-name">${iq ? iq.q : 'What is Kuzushi?'}</div>
-            <div class="hf-item-sub" id="hf-iq-sub" style="display:none">${iq ? iq.a : ''}</div>
-            <div class="hf-item-sub" id="hf-iq-tap">Tap to reveal</div>
-          </div>
-          <div class="hf-item-arrow">›</div>
-        </div>
+    '<!-- QUICK STATS -->' +
+    '<div class="nh-stats-row">' +
+      '<div class="nh-stat-card">' +
+        '<div class="nh-stat-val">' + streak + '</div>' +
+        '<div class="nh-stat-lbl">Day streak</div>' +
+      '</div>' +
+      '<div class="nh-stat-card">' +
+        '<div class="nh-stat-val" style="font-size:15px;color:#f59e0b">' + matHours + '</div>' +
+        '<div class="nh-stat-lbl">Mat hours</div>' +
+      '</div>' +
+      '<div class="nh-stat-card">' +
+        '<div class="nh-stat-val" style="font-size:15px;color:#4ade80">' + pct + '%</div>' +
+        '<div class="nh-stat-lbl">Belt done</div>' +
+      '</div>' +
+    '</div>' +
 
-        <div class="hf-divider"></div>
-
-        <!-- Physical / theme -->
-        <div class="hf-item" onclick="showView('train')">
-          <div class="hf-item-thumb hf-thumb-icon" style="background:rgba(255,255,255,.04);overflow:visible;">
-            ${activeBelt
-              ? `<img src="images/${toBeltFile}" style="height:32px;width:auto;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))">`
-              : `<span style="font-size:20px">${theme.emoji}</span>`}
-          </div>
-          <div class="hf-item-body">
-            <div class="hf-item-label">PHYSICAL</div>
-            <div class="hf-item-name">${theme.name} Session</div>
-            <div class="hf-item-sub">Tap to open training</div>
-          </div>
-          <div class="hf-item-arrow">›</div>
-        </div>
-
-        <div class="hf-divider"></div>
-
-        <!-- Today's Word -->
-        ${todayTermKey ? `
-        <div class="hf-item hf-item-word" onclick="showView('techniques')">
-          <div class="hf-item-thumb hf-thumb-icon" style="background:rgba(245,197,66,.08)">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-              <path d="M4 6h16M4 10h10M4 14h12M4 18h8" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="hf-item-body">
-            <div class="hf-item-label">TODAY'S WORD</div>
-            <div class="hf-item-name">${todayTermKey}</div>
-            <div class="hf-item-sub">${todayTermVal}</div>
-          </div>
-          <div class="hf-item-arrow">›</div>
-        </div>` : ''}
-
-      </div><!-- /hf-items -->
-
-      <!-- Grade progress strip -->
-      ${activeBelt ? `
-      <div class="hf-grade-strip" onclick="showView('belt')">
-        <div class="hf-grade-strip-top">
-          <span class="hf-grade-strip-label">Grading for ${targetBeltName}</span>
-          <span class="hf-grade-strip-pct" style="color:${pctCol}">${pct}%</span>
-        </div>
-        <div class="hf-grade-bar-bg">
-          <div class="hf-grade-bar-fill" style="width:${pct}%;background:${pctCol}"></div>
-        </div>
-      </div>` : ''}
-
-    </div><!-- /hf-today-card -->
-
-    <!-- ③ CTA -->
-    <button class="hf-cta-btn" onclick="${ctaAction}">${ctaLabel}</button>
-
-    <!-- ④ PROGRESSION CONTEXT -->
-    ${activeBelt ? `
-    <div class="hf-progress-context" onclick="showView('belt')">
-      <div class="hf-pc-line1">${targetBeltName} Grading &nbsp;·&nbsp; ${pct}%</div>
-      <div class="hf-pc-line2">${activeBelt.total - activeBelt.done} technique${(activeBelt.total - activeBelt.done) !== 1 ? 's' : ''} remaining</div>
-    </div>` : ''}
-
-  </div><!-- /hf-wrap -->
-  `;
+  '</div>';
+  } catch(e) {
+    var el=document.getElementById('home-body');
+    if(el) el.innerHTML='<div style="padding:20px;color:#e63946;font-size:12px;background:#14090a;margin:14px;border-radius:12px;border:1px solid #3d1015"><b>JS Error:</b><br>'+e.message+'<br><small style="color:#888">'+e.stack+'</small></div>';
+  }
 }
 
 
-// Helper used by new home screen IQ reveal
 function revealIQCard() {
   const sub = document.getElementById('hf-iq-sub');
   const tap = document.getElementById('hf-iq-tap');

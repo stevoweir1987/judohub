@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyProfile(profile);
   }
   // Always init renders
-  try { renderHome(); }        catch(e) { console.error('renderHome failed:', e); }
+  try { renderHome(); } catch(e) { console.error('renderHome failed:', e); }
   try { syncAppHeader('home'); } catch(e) {}
   try { renderTechGrid(); }    catch(e) { console.error('renderTechGrid:', e); }
   try { renderBelt(); }        catch(e) { console.error('renderBelt:', e); }
