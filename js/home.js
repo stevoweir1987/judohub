@@ -127,14 +127,14 @@ function getDaysSinceLast() {
   return Math.max(0, Math.round(diff));
 }
 
-function getAdaptiveTip(activeBelt, streak) {
+function getAdaptiveTip(activeBelt, streak, totdName) {
   var days = getDaysSinceLast();
   if (days >= 5) {
     return { cls: 'nh-adapt-returning', tag: days + ' days since last session', title: 'Welcome back', body: 'A short session is better than none. Start easy — 8 minutes is enough to rebuild momentum.' };
   }
   if (activeBelt && activeBelt.nextItems && activeBelt.nextItems.length) {
     var remaining = activeBelt.total - activeBelt.done;
-    return { cls: 'nh-adapt-belt', tag: activeBelt.belt.to + ' Belt · ' + activeBelt.pct + '% complete', title: "Today’s focus", body: remaining + ' technique' + (remaining !== 1 ? 's' : '') + ' left for grading. Work on ' + activeBelt.nextItems[0] + ' today.' };
+    return { cls: 'nh-adapt-belt', tag: activeBelt.belt.to + ' Belt · ' + activeBelt.pct + '% complete', title: "Today’s focus", body: remaining + ' technique' + (remaining !== 1 ? 's' : '') + ' left for grading. Work on ' + (totdName || activeBelt.nextItems[0]) + ' today.' };
   }
   if (streak >= 3) {
     return { cls: 'nh-adapt-belt', tag: streak + ' day streak 🔥', title: 'Keep the momentum', body: 'Consistency is the foundation of judo. Show up again today.' };
@@ -545,7 +545,7 @@ function renderHome() {
   var toBeltFile  = activeBelt ? (BELT_IMG_MAP[activeBelt.belt.toColor] || 'belt-red.png') : 'belt-red.png';
 
   // Adaptive tip
-  var tip = getAdaptiveTip(activeBelt, streak);
+  var tip = getAdaptiveTip(activeBelt, streak, totd ? totd.name : null);
 
   // Today's technique
   var totdVid   = totd ? getVideoId(totd.url) : null;
@@ -616,8 +616,8 @@ function renderHome() {
   /* ── Layout foundation ── */
   '.hf-wrap{display:flex;flex-direction:column;min-height:100%;padding:0 0 96px;box-sizing:border-box}' +
   /* ── Header ── */
-  '.hf-header{display:flex;flex-direction:column;gap:4px;padding:14px 14px 10px;flex-shrink:0;background:#0d0d12;position:sticky;top:0;z-index:900;border-bottom:1px solid rgba(255,255,255,.07)}' +
-  '.hf-logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}' +
+  '.hf-header{display:flex;flex-direction:column;gap:4px;padding:0 0 10px;flex-shrink:0}' +
+  '.hf-logo-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0d0d12;position:sticky;top:0;z-index:900;border-bottom:1px solid rgba(255,255,255,.07)}' +
   '.hf-logo{display:flex;align-items:center;gap:9px}' +
   '.hf-logo-icon{width:32px;height:32px;flex-shrink:0}' +
   '.hf-logo-text{display:flex;flex-direction:column;gap:0}' +
@@ -628,8 +628,8 @@ function renderHome() {
   '.hf-pill-arrow{font-size:9px;color:rgba(255,255,255,.35);margin-left:1px}' +
   '.hf-envelope-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}' +
   /* ── Greeting + identity ── */
-  '.hf-greeting{font-size:26px;font-weight:800;color:#f0f0f5;letter-spacing:-.5px;line-height:1.15}' +
-  '.hf-identity-row{display:flex;align-items:center;gap:5px;margin-top:3px}' +
+  '.hf-greeting{font-size:26px;font-weight:800;color:#f0f0f5;letter-spacing:-.5px;line-height:1.15;padding:14px 14px 0}' +
+  '.hf-identity-row{display:flex;align-items:center;gap:5px;margin-top:3px;padding:0 14px 10px}' +
   '.hf-belt-colordot{display:inline-block;border-radius:50%;flex-shrink:0}' +
   '.hf-belt-label{font-size:12px;color:#ccc;font-weight:500}' +
   '.hf-identity-sep{color:#444;font-size:11px}' +
