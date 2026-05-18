@@ -71,157 +71,165 @@ function renderProgTab() {
 function buildOverview() {
   var log       = getSessionLog();
   var streak    = getStreak();
-  var xp        = getXP();
   var goal      = getWeeklyGoal();
   var weekSes   = getSessionsThisWeek();
   var totalMins = log.reduce(function(s,l){ return s+(l.minutes||0); }, 0);
+  var matHours  = totalMins >= 60 ? (totalMins/60).toFixed(1)+'h' : totalMins+'m';
 
-  var milestones = [0,50,150,300,500,750,1000];
-  var nextMs = milestones.find(function(m){ return m > xp; }) || Math.ceil(xp/250+1)*250;
-  var prevMs = 0;
-  for (var i = milestones.length-1; i >= 0; i--) { if (milestones[i] <= xp) { prevMs = milestones[i]; break; } }
-  var xpPct = nextMs > prevMs ? Math.round((xp-prevMs)/(nextMs-prevMs)*100) : 100;
-
-  // Week dots
-  var today = new Date();
-  var dow = (today.getDay()+6)%7;
-  var weekDates = [];
-  for (var d=0; d<7; d++) { var dd = new Date(today); dd.setDate(today.getDate()-dow+d); weekDates.push(dd.toISOString().slice(0,10)); }
-  var todayStr2 = today.toISOString().slice(0,10);
-  var doneDates = new Set(log.map(function(l){ return l.date||''; }));
-  var dayLabels = ['M','T','W','T','F','S','S'];
-  var weekMinsDone = log.filter(function(l){
-    var mon = new Date(today); mon.setDate(today.getDate()-dow); mon.setHours(0,0,0,0);
-    return l.date && new Date(l.date) >= mon;
-  }).reduce(function(s,l){ return s+(l.minutes||0); }, 0);
-
-  // Belt info
+  // Profile
   var p = (typeof getProfile === 'function') ? getProfile() : null;
   var userBeltKey = (p && p.belt) ? p.belt : 'white';
-  var beltColorMap = {white:'#e5e5e5',red:'#dc2626',yellow:'#f5c542',orange:'#f97316',green:'#22c55e',blue:'#3b82f6',brown:'#92400e'};
-  var beltLabelMap = {white:'White Belt',red:'Red Belt',yellow:'Yellow Belt',orange:'Orange Belt',green:'Green Belt',blue:'Blue Belt',brown:'Brown Belt'};
-  var beltColor = beltColorMap[userBeltKey] || '#e5e5e5';
-  var beltLabel = beltLabelMap[userBeltKey] || 'White Belt';
 
-  var activeBelt = (typeof getActiveBelt === 'function') ? getActiveBelt() : null;
-  var beltTotal = activeBelt ? activeBelt.groups.reduce(function(s,g){ return s+g.items.length; },0) : 1;
-  var beltDone  = activeBelt ? activeBelt.groups.reduce(function(s,g){ return s+g.items.filter(function(i){ return !!beltProgress[activeBelt.id+'_'+i]; }).length; },0) : 0;
-  var beltPct   = beltTotal ? Math.round(beltDone/beltTotal*100) : 0;
-  var beltRem   = beltTotal - beltDone;
-
-  // Week ring SVG
-  var ringR = 27; var ringC = 2*Math.PI*ringR;
-  var sesRatio = Math.min(1, weekSes/(goal.sessions||5));
-  var ringOffset = ringC*(1-sesRatio);
-  var minRatio = Math.min(1, weekMinsDone/(goal.minutes||60));
-
-  // Recent activity
-  var recent = log.slice().reverse().slice(0,2);
-
-  // Build dot row
-  var dotsHtml = '';
-  for (var di=0; di<7; di++) {
-    var isDone = doneDates.has(weekDates[di]);
-    var isToday = weekDates[di] === todayStr2;
-    var dotBg = isDone ? '#22c55e' : 'rgba(255,255,255,.07)';
-    var dotBorder = isToday && !isDone ? '2px solid #d97706' : 'none';
-    dotsHtml += '<div style="text-align:center">'
-      + '<div style="width:20px;height:20px;border-radius:50%;background:'+dotBg+';border:'+dotBorder+';margin:0 auto 3px"></div>'
-      + '<div style="color:#444;font-size:9px">'+dayLabels[di]+'</div>'
-      + '</div>';
+  // ── Overall mastery (all belt requirements combined) ──────
+  var totalItems = 0, doneItems = 0;
+  if (typeof BELT_DATA !== 'undefined') {
+    BELT_DATA.forEach(function(b) {
+      b.groups.forEach(function(g) {
+        g.items.forEach(function(item) {
+          totalItems++;
+          if (beltProgress && beltProgress[b.id+'_'+item]) doneItems++;
+        });
+      });
+    });
   }
+  var masteryPct = totalItems ? Math.round(doneItems/totalItems*100) : 0;
 
-  // Recent rows
-  var recentHtml = '';
-  if (!recent.length) {
-    recentHtml = '<div style="color:#555;font-size:12px;padding:12px 0">No sessions yet — complete a training session to see history.</div>';
-  } else {
-    recent.forEach(function(s) {
-      var when = s.date === todayStr2 ? 'Today' : (s.date === weekDates[Math.max(0,dow-1)] ? 'Yesterday' : (s.date||''));
-      recentHtml += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid rgba(255,255,255,.04)">'
-        + '<div style="width:36px;height:36px;border-radius:8px;background:#1e2030;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🥋</div>'
-        + '<div style="flex:1"><div style="color:#f0f4ff;font-size:12px;font-weight:600">'+(s.category||'Training Session')+'</div>'
-        + '<div style="color:#555;font-size:10px">'+(s.minutes||0)+' min</div></div>'
-        + '<div style="color:#444;font-size:10px">'+when+'</div>'
-        + '</div>';
+  // Mastery donut ring
+  var ringR = 52; var ringC = 2*Math.PI*ringR;
+  var ringDone   = ringC * (masteryPct/100);
+  var ringRemain = ringC - ringDone;
+
+  // ── Weekly consistency bars ───────────────────────────────
+  var today = new Date();
+  var dow = (today.getDay()+6)%7;
+  var dayLabels = ['M','T','W','T','F','S','S'];
+  var weekDates = [];
+  for (var d=0; d<7; d++) {
+    var dd = new Date(today); dd.setDate(today.getDate()-dow+d);
+    weekDates.push(dd.toISOString().slice(0,10));
+  }
+  var todayStr2 = today.toISOString().slice(0,10);
+  var minutesByDay = {};
+  weekDates.forEach(function(dt){ minutesByDay[dt] = 0; });
+  log.forEach(function(s){ if (minutesByDay.hasOwnProperty(s.date)) minutesByDay[s.date] += (s.minutes||20); });
+  var maxMins = Math.max(60, Math.max.apply(null, weekDates.map(function(d){ return minutesByDay[d]; })));
+  var weekMinsDone = weekDates.reduce(function(s,d){ return s+(minutesByDay[d]||0); }, 0);
+  var weekPct  = goal.minutes ? Math.min(100, Math.round(weekMinsDone/(goal.minutes*goal.sessions||240)*100)) : 0;
+  var weekMatH = weekMinsDone >= 60 ? (weekMinsDone/60).toFixed(1)+'h' : weekMinsDone+'m';
+
+  // ── Belt roadmap ──────────────────────────────────────────
+  var beltColorMap = {red:'#dc2626',yellow:'#f5c542',orange:'#f97316',green:'#22c55e',blue:'#3b82f6',brown:'#92400e',black:'#2a2a2a'};
+  var activeBelt = (typeof getActiveBelt === 'function') ? getActiveBelt() : null;
+  var roadmapHtml = '';
+  if (typeof BELT_DATA !== 'undefined') {
+    BELT_DATA.forEach(function(b) {
+      var allItems = b.groups.reduce(function(a,g){ return a.concat(g.items); }, []);
+      var bDone  = allItems.filter(function(i){ return beltProgress && !!beltProgress[b.id+'_'+i]; }).length;
+      var bTotal = allItems.length;
+      var bPct   = bTotal ? Math.round(bDone/bTotal*100) : 0;
+      var bColor = beltColorMap[(b.to||'').toLowerCase()] || '#888';
+      var isActive = activeBelt && activeBelt.id === b.id;
+      roadmapHtml +=
+        '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;'+(isActive?'':'opacity:.75')+'">' +
+          '<div style="width:10px;height:10px;border-radius:50%;background:'+bColor+';flex-shrink:0'+(isActive?';box-shadow:0 0 6px '+bColor:'')+'"></div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+              '<div style="font-size:11px;font-weight:'+(isActive?'700':'600')+';color:'+(isActive?'#f0f4ff':'#888')+'">'+b.to+' Belt</div>' +
+              '<div style="font-size:11px;font-weight:700;color:'+bColor+'">'+bPct+'%</div>' +
+            '</div>' +
+            '<div style="height:4px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden">' +
+              '<div style="height:100%;width:'+bPct+'%;background:'+bColor+';border-radius:3px;transition:width .4s"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
     });
   }
 
-  return '<div class="p-card" style="display:flex;align-items:flex-start;gap:12px">'
-    // belt card left
-    + '<div style="flex:1">'
-    + '<span class="p-label">Current grade</span>'
-    + '<div style="color:#f0f4ff;font-size:22px;font-weight:800;margin-bottom:2px">'+beltLabel+'</div>'
-    + '<div style="color:#e53935;font-size:12px;font-weight:700;margin-bottom:8px">'+beltPct+'% Complete</div>'
-    + '<div class="p-pbar-bg"><div class="p-pbar-fill" style="width:'+beltPct+'%;background:#e53935"></div></div>'
-    + '<div style="color:#555;font-size:11px;margin-top:6px;margin-bottom:10px">'+beltRem+' requirement'+(beltRem!==1?'s':'')+' remaining</div>'
-    + '<button class="p-cta" onclick="setProgTab(\'grades\')">View Requirements →</button>'
-    + '</div>'
-    // belt circle right
-    + '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px">'
-    + '<img src="images/belt-'+userBeltKey+'.png" style="width:64px;height:64px;object-fit:contain" onerror="this.style.opacity=.3">'
-    + '<div style="font-size:9px;font-weight:700;color:'+beltColor+'">'+beltLabel+'</div>'
-    + '</div>'
-    + '</div>'
+  // ── Consistency bars HTML ─────────────────────────────────
+  var barsHtml = '<div style="display:flex;align-items:flex-end;gap:5px;height:52px">';
+  weekDates.forEach(function(dt, di) {
+    var mins    = minutesByDay[dt] || 0;
+    var pct     = Math.round((mins/maxMins)*100);
+    var isToday = dt === todayStr2;
+    var isFuture = dt > todayStr2;
+    var barColor = mins > 0 ? '#e63946' : (isToday ? 'rgba(230,57,70,.2)' : 'rgba(255,255,255,.06)');
+    var border   = isToday ? '1px solid rgba(230,57,70,.4)' : 'none';
+    barsHtml +=
+      '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">' +
+        '<div style="width:100%;border-radius:3px 3px 0 0;background:'+barColor+';height:'+(mins>0?Math.max(6,Math.round(pct*0.48)):4)+'px;border:'+border+';transition:height .3s;align-self:flex-end"></div>' +
+        '<div style="font-size:9px;color:'+(isToday?'#d97706':'#444')+';font-weight:'+(isToday?'700':'400')+'">'+dayLabels[di]+'</div>' +
+      '</div>';
+  });
+  barsHtml += '</div>';
 
-    // This Week
-    + '<div class="p-card">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
-    + '<div style="color:#f0f4ff;font-size:13px;font-weight:700">This Week</div>'
-    + '</div>'
-    + '<div style="display:flex;align-items:center;gap:14px">'
-    + '<div style="position:relative;width:64px;height:64px;flex-shrink:0">'
-    + '<svg width="64" height="64" viewBox="0 0 64 64">'
-    + '<circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="5"/>'
-    + '<circle cx="32" cy="32" r="27" fill="none" stroke="#22c55e" stroke-width="5"'
-    + ' stroke-dasharray="'+ringC.toFixed(1)+'" stroke-dashoffset="'+ringOffset.toFixed(1)+'"'
-    + ' stroke-linecap="round" transform="rotate(-90 32 32)"/>'
-    + '</svg>'
-    + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">'
-    + '<div style="color:#f0f4ff;font-size:17px;font-weight:800;line-height:1">'+weekSes+'</div>'
-    + '<div style="color:#444;font-size:9px">/'+goal.sessions+'</div>'
-    + '</div>'
-    + '</div>'
-    + '<div style="flex:1">'
-    + '<div style="color:#22c55e;font-size:13px;font-weight:700;margin-bottom:6px">'+weekMinsDone+' / '+goal.minutes+' min</div>'
-    + '<div class="p-pbar-bg" style="margin-bottom:10px"><div class="p-pbar-fill" style="width:'+Math.round(minRatio*100)+'%;background:#22c55e"></div></div>'
-    + '<div style="display:flex;justify-content:space-between">'+dotsHtml+'</div>'
-    + '</div></div></div>'
+  // ── Stats row ─────────────────────────────────────────────
+  var statsHtml =
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;margin-bottom:14px">' +
+    _pStat(weekMatH,   'Mat hours',  '#f0f4ff', true) +
+    _pStat(weekSes+'', 'Sessions',   '#f0f4ff', false) +
+    _pStat(log.length+'','All time',  '#f0f4ff', false) +
+    _pStat(weekPct+'%','This week',  '#e63946', false) +
+    '</div>';
 
-    // 2x2 stats
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
-    + '<div class="p-stat"><div style="font-size:18px;margin-bottom:6px">🔥</div><div style="color:#f0f4ff;font-size:20px;font-weight:800">'+streak+'</div><div style="color:#555;font-size:10px;margin-top:3px">Day Streak</div></div>'
-    + '<div class="p-stat"><div style="font-size:18px;margin-bottom:6px">⚡</div><div style="color:#d97706;font-size:20px;font-weight:800">'+xp+'</div><div style="color:#555;font-size:10px;margin-top:3px">Total XP</div></div>'
-    + '<div class="p-stat"><div style="font-size:18px;margin-bottom:6px">⏱</div><div style="color:#f0f4ff;font-size:20px;font-weight:800">'+totalMins+'m</div><div style="color:#555;font-size:10px;margin-top:3px">Total Trained</div></div>'
-    + '<div class="p-stat"><div style="font-size:18px;margin-bottom:6px">🥋</div><div style="color:#f0f4ff;font-size:20px;font-weight:800">'+log.length+'</div><div style="color:#555;font-size:10px;margin-top:3px">Sessions</div></div>'
-    + '</div>'
+  return (
+    // ── Mastery ring ─────────────────────────────────────
+    '<div class="p-card" style="text-align:center;padding:20px 16px 16px">' +
+      '<div style="font-size:9px;font-weight:700;color:#444;letter-spacing:.9px;text-transform:uppercase;margin-bottom:14px">Mastery Overall</div>' +
+      '<div style="position:relative;display:inline-block">' +
+        '<svg width="128" height="128" viewBox="0 0 128 128">' +
+          '<circle cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="10"/>' +
+          '<circle cx="64" cy="64" r="52" fill="none" stroke="#e63946" stroke-width="10"' +
+            ' stroke-dasharray="'+ringDone.toFixed(1)+' '+ringRemain.toFixed(1)+'"' +
+            ' stroke-linecap="round" transform="rotate(-90 64 64)"/>' +
+        '</svg>' +
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">' +
+          '<div style="font-size:34px;font-weight:900;color:#f0f4ff;line-height:1">'+masteryPct+'%</div>' +
+          '<div style="font-size:10px;color:#555;margin-top:2px">'+doneItems+' / '+totalItems+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:center;gap:16px;margin-top:12px">' +
+        '<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:#e63946"></div><span style="font-size:10px;color:#666">Mastered</span></div>' +
+        '<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.08)"></div><span style="font-size:10px;color:#666">Remaining</span></div>' +
+      '</div>' +
+    '</div>' +
 
-    // XP Progress
-    + '<div class="p-card" style="display:flex;align-items:center;gap:14px">'
-    + '<div style="flex:1">'
-    + '<span class="p-label">XP Progress</span>'
-    + '<div style="display:flex;align-items:baseline;gap:4px;margin:4px 0 8px">'
-    + '<div style="color:#d97706;font-size:36px;font-weight:800;line-height:1">'+xp+'</div>'
-    + '<div style="color:#d97706;font-size:14px;font-weight:700">XP</div>'
-    + '</div>'
-    + '<div class="p-pbar-bg"><div class="p-pbar-fill" style="width:'+xpPct+'%;background:#d97706"></div></div>'
-    + '<div style="display:flex;justify-content:space-between;margin-top:4px">'
-    + '<div style="color:#444;font-size:9px">'+prevMs+'</div>'
-    + '<div style="color:#666;font-size:9px">Next: '+nextMs+' XP</div>'
-    + '<div style="color:#444;font-size:9px">'+nextMs+'</div>'
-    + '</div></div>'
-    + '<div style="width:52px;height:52px;border-radius:50%;background:#1e1808;border:2px solid #d97706;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🏆</div>'
-    + '</div>'
+    // ── Stats row ─────────────────────────────────────────
+    statsHtml +
 
-    // Recent Activity
-    + '<div class="p-card">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-    + '<div style="color:#f0f4ff;font-size:13px;font-weight:700">Recent Activity</div>'
-    + '<div style="color:#e53935;font-size:11px;font-weight:600;cursor:pointer" onclick="setProgTab(\'sessions\')">View all →</div>'
-    + '</div>'
-    + recentHtml
-    + '</div>';
+    // ── Weekly consistency ────────────────────────────────
+    '<div class="p-card" style="padding:14px 14px 12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+        '<div style="font-size:11px;font-weight:700;color:#f0f4ff">Weekly Consistency</div>' +
+        '<div style="font-size:10px;color:#555">'+weekSes+' / '+goal.sessions+' sessions</div>' +
+      '</div>' +
+      barsHtml +
+    '</div>' +
+
+    // ── Belt roadmap ──────────────────────────────────────
+    '<div class="p-card">' +
+      '<div style="font-size:11px;font-weight:700;color:#f0f4ff;margin-bottom:10px">Belt Roadmap</div>' +
+      roadmapHtml +
+      '<div style="margin-top:10px">' +
+        '<button class="p-cta" onclick="setProgTab(\'grades\')">View Full Requirements →</button>' +
+      '</div>' +
+    '</div>' +
+
+    // ── Streak footer ─────────────────────────────────────
+    '<div style="display:flex;justify-content:center;align-items:center;gap:6px;padding:4px 0 8px;color:#555;font-size:12px">' +
+      '<span style="color:#e63946">🔥</span>' +
+      '<span style="font-weight:700;color:#f0f4ff">'+streak+'</span>' +
+      '<span>day streak</span>' +
+    '</div>'
+  );
 }
+
+function _pStat(val, lbl, col, hasBorder) {
+  return '<div style="padding:12px 6px;text-align:center'+(hasBorder?'':';border-left:1px solid rgba(255,255,255,.07)')+'">' +
+    '<div style="font-size:19px;font-weight:800;color:'+col+';line-height:1">'+val+'</div>' +
+    '<div style="font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">'+lbl+'</div>' +
+  '</div>';
+}
+
 
 function buildGrades() {
   return '<div style="display:flex;background:#13131c;border-radius:10px;padding:3px;gap:2px;margin-bottom:12px" id="pgrades-subtabs">'

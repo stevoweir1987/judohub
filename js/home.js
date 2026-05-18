@@ -120,7 +120,7 @@ function getMatHours() {
 
 function getDaysSinceLast() {
   var log = getSessionLog();
-  if (!log.length) return 999;
+  if (!log.length) return 0;  // New user — not 'returning', just starting
   var dates = log.map(function(s){ return _sessionDate(s); }).filter(Boolean).sort();
   var last = dates[dates.length - 1];
   var diff = (new Date(todayStr()) - new Date(last)) / 86400000;

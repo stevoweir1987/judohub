@@ -15,8 +15,46 @@ function getProfile() {
   return JSON.parse(localStorage.getItem('judo_profile') || 'null');
 }
 function saveProfile(p) {
+  var prev = getProfile();
   localStorage.setItem('judo_profile', JSON.stringify(p));
+  // Auto-complete past belts when belt changes
+  if (p && p.belt && (!prev || prev.belt !== p.belt)) {
+    autoCompletePassedBelts(p.belt);
+  }
   applyProfile(p);
+}
+
+// ── AUTO-COMPLETE PAST BELT REQUIREMENTS ──────────────
+// When a user sets their belt, every grading BELOW that
+// belt is already done by definition. Mark all those items
+// complete. Clear anything above current belt.
+function autoCompletePassedBelts(currentBeltKey) {
+  if (typeof BELT_DATA === 'undefined') return;
+  var beltOrder = ['white','red','yellow','orange','green','blue','brown','black'];
+  var currentIdx = beltOrder.indexOf((currentBeltKey||'').toLowerCase());
+  if (currentIdx < 0) return;
+
+  // Reload from storage to avoid overwriting manual ticks
+  var bp = JSON.parse(localStorage.getItem('judo_belt_progress') || '{}');
+
+  BELT_DATA.forEach(function(b) {
+    var toIdx = beltOrder.indexOf((b.to||'').toLowerCase());
+    var allItems = b.groups.reduce(function(a,g){ return a.concat(g.items); }, []);
+
+    if (toIdx > 0 && toIdx <= currentIdx) {
+      // Belt already passed — mark every requirement done
+      allItems.forEach(function(item){ bp[b.id+'_'+item] = true; });
+    } else if (toIdx > currentIdx) {
+      // Future belt — clear any stale auto-ticks
+      allItems.forEach(function(item){ delete bp[b.id+'_'+item]; });
+    }
+    // toIdx === currentIdx means the CURRENT working belt — leave untouched
+  });
+
+  localStorage.setItem('judo_belt_progress', JSON.stringify(bp));
+  // Sync the in-memory global so belt.js sees the update immediately
+  Object.keys(beltProgress).forEach(function(k){ delete beltProgress[k]; });
+  Object.assign(beltProgress, bp);
 }
 function applyProfile(p) {
   if (!p) return;
@@ -768,7 +806,60 @@ function showTypePicker() {
   document.querySelectorAll('.type-picker-btn').forEach(b => b.classList.remove('active'));
   const activeBtn = document.querySelector('.type-picker-btn[onclick*="' + current + '"]');
   if (activeBtn) activeBtn.classList.add('active');
+  // Render belt grid
+  renderBeltPickerGrid();
   document.getElementById('type-picker-overlay').style.display = 'flex';
+}
+
+function renderBeltPickerGrid() {
+  var grid = document.getElementById('belt-picker-grid');
+  if (!grid) return;
+  var p = getProfile();
+  var currentBelt = (p && p.belt) ? p.belt : 'white';
+  var belts = [
+    { key:'white',  label:'White',  color:'#e5e5e5' },
+    { key:'red',    label:'Red',    color:'#e63946' },
+    { key:'yellow', label:'Yellow', color:'#f5c542' },
+    { key:'orange', label:'Orange', color:'#f97316' },
+    { key:'green',  label:'Green',  color:'#22c55e' },
+    { key:'blue',   label:'Blue',   color:'#3b82f6' },
+    { key:'brown',  label:'Brown',  color:'#92400e' },
+    { key:'black',  label:'Black',  color:'#2a2a2a' },
+  ];
+  grid.innerHTML = belts.map(function(b) {
+    var isActive = b.key === currentBelt;
+    return '<button onclick="pickBelt(\'' + b.key + '\')" style="'
+      + 'background:' + (isActive ? b.color : 'rgba(255,255,255,.05)') + ';'
+      + 'border:2px solid ' + (isActive ? b.color : 'rgba(255,255,255,.1)') + ';'
+      + 'border-radius:10px;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;'
+      + 'align-items:center;gap:5px;-webkit-tap-highlight-color:transparent;transition:all .15s">'
+      + '<div style="width:18px;height:18px;border-radius:50%;background:' + b.color + ';'
+      + (isActive ? '' : 'opacity:.7;') + 'border:1.5px solid rgba(255,255,255,.15)"></div>'
+      + '<div style="font-size:9px;font-weight:700;color:' + (isActive ? (b.key==='white'||b.key==='yellow'?'#0d0d12':'#fff') : '#888') + ';letter-spacing:.2px">'
+      + b.label + '</div>'
+      + '</button>';
+  }).join('');
+}
+
+function pickBelt(beltKey) {
+  var p = getProfile() || {};
+  p.belt = beltKey;
+  saveProfile(p);          // triggers autoCompletePassedBelts automatically
+
+  // Set the working-towards belt (next grade up)
+  var beltToTarget = {
+    white:'toRed', red:'toYellow', yellow:'toOrange',
+    orange:'toGreen', green:'toBlue', blue:'toBrown', brown:'toBrown'
+  };
+  var targetId = beltToTarget[beltKey];
+  if (targetId && typeof setCurrentTargetBeltId === 'function') {
+    setCurrentTargetBeltId(targetId);
+  }
+
+  renderBeltPickerGrid();  // refresh active state
+  syncAppHeader('home');
+  if (typeof renderHome === 'function') renderHome();
+  if (typeof renderProgress === 'function') renderProgress();
 }
 
 function closeTypePicker(e) {

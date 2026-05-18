@@ -18,7 +18,7 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <title>JudoHub</title>
-  <link rel="stylesheet" href="css/main.css?v=1779140094">
+  <link rel="stylesheet" href="css/main.css?v=1779143364">
   <style>
     /* ── Train view hard overrides ── */
     #view-train { background: #09090e !important; color: #f0f4ff !important; display: none !important; }
@@ -628,8 +628,14 @@
   <!-- Type Picker -->
   <div id="type-picker-overlay" class="type-picker-overlay" style="display:none" onclick="closeTypePicker(event)">
     <div class="type-picker-sheet" onclick="event.stopPropagation()">
-      <div class="type-picker-title">Switch Mode</div>
-      <div class="type-picker-sub">Who is training today?</div>
+      <div class="type-picker-title">Your Profile</div>
+
+      <!-- Belt selector -->
+      <div class="type-picker-sub">Current Grade</div>
+      <div id="belt-picker-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px"></div>
+
+      <!-- Mode toggle -->
+      <div class="type-picker-sub">Training Mode</div>
       <div class="type-picker-btns">
         <div class="type-picker-btn" onclick="pickType('adult')">
           <div class="type-picker-btn-icon">&#x1F94B;</div>
@@ -689,19 +695,21 @@
   </div>
 
 <!-- ── SCRIPTS ── -->
-<script src="js/data.js?v=1779140094"></script>
-<script src="js/tech_depth.js?v=1779140094"></script>
-<script src="js/onboarding.js?v=1779140094"></script>
-<script src="js/app.js?v=1779140094"></script>
-<script src="js/techniques.js?v=1779140094"></script>
-<script src="js/belt.js?v=1779140094"></script>
-<script src="js/grading.js?v=1779140094"></script>
-<script src="js/builder.js?v=1779140094"></script>
-<script src="js/home.js?v=1779140094"></script>
-<script src="js/mon.js?v=1779140094"></script>
-<script src="js/junior-grades.js?v=1779140094"></script>
-<script src="js/junior-home.js?v=1779140094"></script>
-<script src="js/junior-progress.js?v=1779140094"></script>
-<script src="js/progress.js?v=1779140094"></script>
-<script src="js/pt.js?v=1779140094"></script>
-<script src="js/randori.js?v=1779140094"></script
+<script src="js/data.js?v=1779143364"></script>
+<script src="js/tech_depth.js?v=1779143364"></script>
+<script src="js/onboarding.js?v=1779143364"></script>
+<script src="js/app.js?v=1779143364"></script>
+<script src="js/techniques.js?v=1779143364"></script>
+<script src="js/belt.js?v=1779143364"></script>
+<script src="js/grading.js?v=1779143364"></script>
+<script src="js/builder.js?v=1779143364"></script>
+<script src="js/home.js?v=1779143364"></script>
+<script src="js/mon.js?v=1779143364"></script>
+<script src="js/junior-grades.js?v=1779143364"></script>
+<script src="js/junior-home.js?v=1779143364"></script>
+<script src="js/junior-progress.js?v=1779143364"></script>
+<script src="js/progress.js?v=1779143364"></script>
+<script src="js/pt.js?v=1779143364"></script>
+<script src="js/randori.js?v=1779143364"></script>
+</body>
+</html>
