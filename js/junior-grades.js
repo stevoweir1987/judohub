@@ -131,7 +131,7 @@ function buildNextMonSection(mon) {
         <div class="jg-req-row${done ? ' done' : ''}" onclick="toggleJuniorReq('${mon.id}','${esc(r)}',this)">
           <div class="jg-req-tick">${done ? '&#10003;' : '&#9675;'}</div>
           <span class="jg-req-text">${r}</span>
-          ${vid ? `<button class="jg-req-watch" onclick="event.stopPropagation();openModal('${esc(techName)}')">&#9654;</button>` : ''}
+          ${vid ? `<button class="jg-req-watch" onclick="event.stopPropagation();openTechDetail('${esc(techName)}')">&#9654;</button>` : ''}
         </div>`;
       }).join('')}
     </div>`).join('')}
@@ -188,7 +188,7 @@ function renderTestCard() {
       <div class="jg-test-emoji">&#129300;</div>
       <div class="jg-test-label">Can you do this?</div>
       <div class="jg-test-item">${item}</div>
-      ${vid ? `<button class="jg-test-watch" onclick="openModal('${esc(techName)}')">&#9654; Watch technique</button>` : ''}
+      ${vid ? `<button class="jg-test-watch" onclick="openTechDetail('${esc(techName)}')">&#9654; Watch technique</button>` : ''}
       <div class="jg-test-actions">
         <button class="jg-test-no"  onclick="answerJuniorTest(false)">&#128517; Not yet</button>
         <button class="jg-test-yes" onclick="answerJuniorTest(true)">&#10003; Yes, I can!</button>

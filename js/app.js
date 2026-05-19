@@ -1590,6 +1590,26 @@ function filterTrainTech() {
     return;
   }
 
+  // Use the coach card renderer from techniques.js when available
+  if (typeof techCard === 'function') {
+    grid.innerHTML = list.map(t => techCard(t)).join('');
+    // Wire up notes textareas
+    list.forEach(t => {
+      const ta = document.getElementById('note-' + t.name.replace(/[^a-z0-9]/gi,'_'));
+      if (ta) {
+        ta.value = (typeof techNotes !== 'undefined' && techNotes[t.name]) || '';
+        ta.addEventListener('input', function() {
+          if (typeof techNotes !== 'undefined') {
+            techNotes[t.name] = this.value;
+            localStorage.setItem('judo_tech_notes', JSON.stringify(techNotes));
+          }
+        });
+      }
+    });
+    return;
+  }
+
+  // Fallback plain cards
   const getVid = url => {
     if (!url) return '';
     const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
@@ -1598,25 +1618,12 @@ function filterTrainTech() {
   grid.innerHTML = list.map(t => {
     const vid   = getVid(t.url || '');
     const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : '';
-    const img   = t.image ? `images/${t.image}` : 'images/tech-default.svg';
-    const beltColors = {white:'#e5e5e5',red:'#e53935',yellow:'#f5c542',orange:'#f97316',green:'#22c55e',blue:'#3b82f6',brown:'#92400e'};
-    const bc = beltColors[t.belt] || '#666';
-    return `<div style="background:#13131c;border-radius:12px;overflow:hidden;cursor:pointer;border:0.5px solid rgba(255,255,255,0.07);transition:transform .15s"
+    return `<div style="background:#13131c;border-radius:12px;overflow:hidden;cursor:pointer;border:0.5px solid rgba(255,255,255,0.07)"
       onclick="openGradingVideo('${(t.url||'').replace(/'/g,"\\'")}','${t.name.replace(/'/g,"\\'")}')">
-      <div style="position:relative;aspect-ratio:16/9;background:#0a0a12;overflow:hidden">
-        ${thumb
-          ? `<img src="${thumb}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none'">`
-          : `<img src="${img}" loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.5;display:block" onerror="this.style.display='none'">`}
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center">
-          <div style="width:36px;height:36px;border-radius:50%;background:rgba(217,119,6,.85);display:flex;align-items:center;justify-content:center">
-            <svg width="14" height="14" viewBox="0 0 14 14"><polygon points="4,2 12,7 4,12" fill="#fff"/></svg>
-          </div>
-        </div>
-        ${t.sub ? `<div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);border:0.5px solid rgba(255,255,255,.2);color:#ccc;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px">${t.sub}</div>` : ''}
-      </div>
+      ${thumb ? `<img src="${thumb}" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;display:block">` : ''}
       <div style="padding:9px 10px 10px">
-        <div style="color:#f0f4ff;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
-        <div style="color:#555;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.en || ''}</div>
+        <div style="color:#f0f4ff;font-size:12px;font-weight:700">${t.name}</div>
+        <div style="color:#555;font-size:10px;margin-top:2px">${t.en || ''}</div>
       </div>
     </div>`;
   }).join('');

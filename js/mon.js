@@ -730,7 +730,7 @@ function renderMon() {
                           ${checked ? `<span style="color:${band.textColor};font-weight:700;font-size:13px">✓</span>` : ''}
                         </div>
                         <span class="mon-item-text${checked ? ' mon-item-text-done' : ''}">${item}</span>
-                        ${watchName ? `<button class="mon-item-watch" onclick="event.stopPropagation();openModal('${safeName}')">▶ Watch</button>` : ''}
+                        ${watchName ? `<button class="mon-item-watch" onclick="event.stopPropagation();openTechDetail('${safeName}')">▶ Watch</button>` : ''}
                       </div>`;
                     }).join('')}
                   </div>

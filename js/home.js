@@ -513,22 +513,88 @@ function getActiveBeltInfo() {
   return { belt: b, done, total, pct, nextItems };
 }
 
-// ── BELT IMAGE — one file per colour ──────────────
-const BELT_IMG_MAP = {
-  'belt-color-white':  'belt-white.png',
-  'belt-color-red':    'belt-red.png',
-  'belt-color-yellow': 'belt-yellow.png',
-  'belt-color-orange': 'belt-orange.png',
-  'belt-color-green':  'belt-green.png',
-  'belt-color-blue':   'belt-blue.png',
-  'belt-color-brown':  'belt-brown.png',
-};
-function beltImg(colorClass) {
-  const file = BELT_IMG_MAP[colorClass] || 'belt-red.png';
-  return `<img src="images/${file}" class="hd-belt-img" alt="Belt" draggable="false">`;
+// ── CONTINUE LEARNING — all incomplete belt techniques with video data ──
+function getContinueLearningItems() {
+  if (typeof BELT_DATA === 'undefined' || typeof TECHNIQUES === 'undefined') return [];
+  var b = (typeof getCurrentTargetBelt === 'function') ? getCurrentTargetBelt() : null;
+  if (!b) return [];
+  var items = [];
+  for (var gi = 0; gi < b.groups.length; gi++) {
+    var g = b.groups[gi];
+    for (var ii = 0; ii < g.items.length; ii++) {
+      var itemName = g.items[ii];
+      var isDone   = !!(beltProgress && beltProgress[b.id + '_' + itemName]);
+      var tech     = TECHNIQUES.find(function(t){ return t.name === itemName; });
+      var rawUrl   = (tech && tech.url) ? tech.url
+                   : (typeof GRADING_VIDEOS !== 'undefined' && GRADING_VIDEOS[itemName]) ? GRADING_VIDEOS[itemName]
+                   : null;
+      var vid      = rawUrl ? getVideoId(rawUrl) : null;
+      items.push({
+        name:   itemName,
+        en:     tech ? (tech.en || tech.english || tech.translation || '') : '',
+        sub:    tech ? (tech.sub || tech.cat || '') : '',
+        vid:    vid,
+        thumb:  vid ? ('https://img.youtube.com/vi/' + vid + '/mqdefault.jpg') : null,
+        done:   isDone,
+        beltId: b.id,
+        key:    b.id + '_' + itemName,
+      });
+    }
+  }
+  return items;
 }
 
-// ── HOME RENDER ────────────────────────────────────
+// ── CONTINUE LEARNING section HTML ──────────────────────────────────
+var _clExpanded = false;
+
+function buildContinueLearning(activeBelt) {
+  var items = getContinueLearningItems();
+  if (!items.length) return '';
+
+  var undone = items.filter(function(i){ return !i.done; });
+  var doneN  = items.length - undone.length;
+  var total  = items.length;
+  var visible = _clExpanded ? items : undone.slice(0, 4);
+  if (!visible.length) return '';
+
+  var rows = visible.map(function(it) {
+    var safeName = it.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var thumb = it.thumb
+      ? '<img src="' + it.thumb + '" class="cl-thumb" loading="lazy" onerror="this.style.display=\'none\'">'
+      : '<div class="cl-thumb cl-thumb-ph">&#x1F94B;</div>';
+    var doneClass = it.done ? ' cl-item-done' : '';
+    var playBtn = it.vid
+      ? '<button class="cl-play" onclick="event.stopPropagation();openTechDetail(\'' + safeName + '\')">'
+          + '<svg viewBox="0 0 24 24" width="12" height="12" fill="white"><polygon points="5,3 19,12 5,21"/></svg>'
+          + '</button>'
+      : '<div style="width:36px;flex-shrink:0"></div>';
+    return '<div class="cl-item' + doneClass + '" onclick="openTechDetail(\'' + safeName + '\')">'
+      + '<div class="cl-thumb-wrap">' + thumb + '</div>'
+      + '<div class="cl-info">'
+        + '<div class="cl-name">' + (it.done ? '&#10003; ' : '') + it.name + '</div>'
+        + (it.en ? '<div class="cl-sub">' + it.en + '</div>' : '')
+      + '</div>'
+      + playBtn
+      + '</div>';
+  }).join('');
+
+  var moreCount = undone.length > 4 && !_clExpanded ? undone.length - 4 : 0;
+  var pct = total ? Math.round(doneN / total * 100) : 0;
+
+  return '<div class="cl-section">'
+    + '<div class="cl-header-row">'
+      + '<span class="cl-title">Continue Learning</span>'
+      + '<span class="cl-badge">' + doneN + ' / ' + total + '</span>'
+    + '</div>'
+    + '<div class="cl-progress-bar"><div class="cl-progress-fill" style="width:' + pct + '%"></div></div>'
+    + '<div class="cl-list">' + rows + '</div>'
+    + (moreCount > 0
+      ? '<button class="cl-view-all" onclick="_clExpanded=true;renderHome()">+ ' + moreCount + ' more techniques</button>'
+      : '')
+    + '</div>';
+}
+
+
 function renderHome() {
   try {
   var activeBelt = getActiveBeltInfo();
@@ -598,16 +664,28 @@ function renderHome() {
     ? '<img src="' + totdThumb + '" class="nh-video-thumb" onerror="this.style.display=\'none\'" alt="Technique demo">'
     : '';
 
-  // CTA HTML
+  // CTA HTML — dominant action
+  var sessionPct = 0;
+  if (hasActive && typeof getTotalItemCount === 'function' && getTotalItemCount() > 0) {
+    sessionPct = Math.min(99, Math.round((getCurrentItemNum() - 1) / getTotalItemCount() * 100));
+  }
   var ctaHtml;
   if (hasActive) {
-    ctaHtml = '<button class="nh-hero-btn" style="background:#f59e0b;color:#0d0d12" onclick="showView(\'train\')">' +
-      '<span class="nh-btn-icon">&#9654;</span> CONTINUE SESSION' +
+    ctaHtml = '<button class="nh-hero-btn nh-hero-btn-continue" onclick="showView(\'train\')">' +
+      '<span class="nh-btn-play">&#9654;</span>' +
+      '<span class="nh-btn-label">CONTINUE SESSION</span>' +
+      '<span class="nh-btn-pct">' + sessionPct + '%</span>' +
       '</button>' +
       '<button class="nh-sec-btn" onclick="onStartFocused()">+ Start today&#39;s training instead</button>';
+  } else if (donedToday) {
+    ctaHtml = '<button class="nh-hero-btn nh-hero-btn-done" onclick="onStartFocused()">' +
+      '<span class="nh-btn-play">&#10003;</span>' +
+      '<span class="nh-btn-label">SESSION DONE · TRAIN AGAIN?</span>' +
+      '</button>';
   } else {
-    ctaHtml = '<button class="nh-hero-btn" style="background:#e63946;color:#fff" onclick="onStartFocused()">' +
-      '<span class="nh-btn-icon">&#9654;</span> START TODAY&#39;S TRAINING' +
+    ctaHtml = '<button class="nh-hero-btn nh-hero-btn-start" onclick="onStartFocused()">' +
+      '<span class="nh-btn-play">&#9654;</span>' +
+      '<span class="nh-btn-label">START TODAY\'S TRAINING</span>' +
       '</button>';
   }
 
@@ -641,7 +719,7 @@ function renderHome() {
   '.nh-adapt-title{font-size:12px;font-weight:700;margin-bottom:2px}' +
   '.nh-adapt-body{font-size:11px;color:#999;line-height:1.45}' +
   /* ── Today training card ── */
-  '.nh-today-card{background:#14090a;border:1px solid #3d1015;border-radius:14px;padding:10px 14px 8px;margin:0 14px 8px}' +
+  '.nh-today-card{background:#120508;border:1.5px solid rgba(230,57,70,.3);border-radius:16px;padding:14px 14px 12px;margin:0 14px 10px;box-shadow:0 2px 20px rgba(230,57,70,.08)}' +
   '.nh-belt-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;padding:3px 9px;font-size:9px;font-weight:700;color:#999;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}' +
   '.nh-belt-dot-sm{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}' +
   '.nh-tech-name{font-size:21px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:2px;letter-spacing:-.4px}' +
@@ -651,11 +729,17 @@ function renderHome() {
   '.nh-meta-done{color:#4ade80!important;background:rgba(74,222,128,.09)!important;border-color:rgba(74,222,128,.18)!important}' +
   '.nh-meta-focus{color:#f97316!important;background:rgba(249,115,22,.09)!important;border-color:rgba(249,115,22,.18)!important}' +
   /* ── Video thumbnail ── */
-  '.nh-video-thumb{width:100%;height:130px;object-fit:cover;object-position:center center;border-radius:10px;margin-bottom:12px;background:#0d0d12;display:block}' +
+  '.nh-video-thumb{width:100%;height:130px;object-fit:cover;object-position:center center;border-radius:10px;margin-top:10px;margin-bottom:0;background:#0d0d12;display:block}' +
   /* ── CTA buttons ── */
-  '.nh-hero-btn{width:100%;border:none;border-radius:11px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:5px;letter-spacing:.1px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}' +
-  '.nh-btn-icon{font-size:11px}' +
-  '.nh-sec-btn{width:100%;background:transparent;border:none;color:#e63946;font-size:11px;font-weight:600;padding:5px;cursor:pointer;opacity:.75;-webkit-tap-highlight-color:transparent}' +
+  '.nh-hero-btn{width:100%;border:none;border-radius:14px;padding:17px 20px;font-size:16px;font-weight:900;cursor:pointer;margin-bottom:8px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:10px;-webkit-tap-highlight-color:transparent;transition:transform .1s,box-shadow .1s}' +
+  '.nh-hero-btn:active{transform:scale(.98)}' +
+  '.nh-hero-btn-start{background:#e63946;color:#fff;box-shadow:0 4px 20px rgba(230,57,70,.45)}' +
+  '.nh-hero-btn-continue{background:#f59e0b;color:#0d0d12;box-shadow:0 4px 20px rgba(245,158,11,.4)}' +
+  '.nh-hero-btn-done{background:#16a34a;color:#fff;box-shadow:0 4px 20px rgba(22,163,74,.35)}' +
+  '.nh-btn-play{font-size:13px;opacity:.85}' +
+  '.nh-btn-label{flex:1;text-align:center}' +
+  '.nh-btn-pct{font-size:13px;font-weight:700;opacity:.8;background:rgba(0,0,0,.15);padding:2px 8px;border-radius:6px}' +
+  '.nh-sec-btn{width:100%;background:transparent;border:none;color:#e63946;font-size:12px;font-weight:600;padding:6px;cursor:pointer;opacity:.7;-webkit-tap-highlight-color:transparent}' +
   /* ── Week streak ── */
   '.nh-streak-section{margin:0 14px 8px;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:10px 13px}' +
   '.nh-streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}' +
@@ -668,6 +752,25 @@ function renderHome() {
   '.nh-sd-rest{background:rgba(255,255,255,.04);color:#3a3a48}' +
   /* ── Stats row ── */
   '.nh-stats-row{display:flex;gap:8px;margin:0 14px 8px}' +
+  '.cl-section{margin:0 14px 10px}' +
+  '.cl-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}' +
+  '.cl-title{font-size:11px;font-weight:800;color:#f0f4ff;letter-spacing:.04em;text-transform:uppercase}' +
+  '.cl-badge{font-size:10px;font-weight:700;color:#6b7280;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px}' +
+  '.cl-progress-bar{height:3px;background:rgba(255,255,255,.07);border-radius:3px;margin-bottom:8px;overflow:hidden}' +
+  '.cl-progress-fill{height:100%;background:#e63946;border-radius:3px;transition:width .4s}' +
+  '.cl-list{display:flex;flex-direction:column;gap:2px}' +
+  '.cl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#13131c;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.05);-webkit-tap-highlight-color:transparent}' +
+  '.cl-item:active{background:#1a1a26}' +
+  '.cl-item-done{opacity:.45}' +
+  '.cl-thumb-wrap{width:52px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#0d0d12}' +
+  '.cl-thumb{width:52px;height:36px;object-fit:cover;display:block}' +
+  '.cl-thumb-ph{display:flex;align-items:center;justify-content:center;font-size:16px;width:52px;height:36px}' +
+  '.cl-info{flex:1;min-width:0}' +
+  '.cl-name{font-size:13px;font-weight:700;color:#f0f4ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+  '.cl-sub{font-size:10px;color:#6b7280;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+  '.cl-play{width:28px;height:28px;background:#e63946;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding-left:2px;-webkit-tap-highlight-color:transparent}' +
+  '.cl-play-empty{width:28px;height:28px;flex-shrink:0}' +
+  '.cl-view-all{width:100%;margin-top:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;color:#9ca3af;font-size:12px;font-weight:600;padding:9px;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
   '.nh-stat-card{flex:1;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:11px 8px;text-align:center}' +
   '.nh-stat-val{font-size:19px;font-weight:800;line-height:1}' +
   '.nh-stat-lbl{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}' +
@@ -702,9 +805,12 @@ function renderHome() {
           ? '<span class="nh-meta-chip nh-meta-done">&#10003; Done today</span>'
           : '<span class="nh-meta-chip nh-meta-focus">&#128293; Today&#39;s focus</span>') +
       '</div>' +
-      thumbHtml +
       ctaHtml +
+      (totdThumb ? '<div style="margin-top:10px">' + thumbHtml + '</div>' : '') +
     '</div>' +
+
+    '<!-- CONTINUE LEARNING -->' +
+    buildContinueLearning(activeBelt) +
 
     '<!-- WEEK STREAK -->' +
     '<div class="nh-streak-section">' +
@@ -718,16 +824,16 @@ function renderHome() {
     '<!-- QUICK STATS -->' +
     '<div class="nh-stats-row">' +
       '<div class="nh-stat-card">' +
-        '<div class="nh-stat-val">' + streak + '</div>' +
-        '<div class="nh-stat-lbl">Day streak</div>' +
-      '</div>' +
-      '<div class="nh-stat-card">' +
-        '<div class="nh-stat-val" style="font-size:15px;color:#f59e0b">' + matHours + '</div>' +
+        '<div class="nh-stat-val" style="color:#f59e0b">' + matHours + '</div>' +
         '<div class="nh-stat-lbl">Mat hours</div>' +
       '</div>' +
       '<div class="nh-stat-card">' +
-        '<div class="nh-stat-val" style="font-size:15px;color:#4ade80">' + pct + '%</div>' +
+        '<div class="nh-stat-val" style="color:#4ade80">' + pct + '%</div>' +
         '<div class="nh-stat-lbl">Belt done</div>' +
+      '</div>' +
+      '<div class="nh-stat-card">' +
+        '<div class="nh-stat-val" style="color:#818cf8">' + (typeof getXP === 'function' ? getXP() : 0) + '</div>' +
+        '<div class="nh-stat-lbl">XP earned</div>' +
       '</div>' +
     '</div>' +
 
@@ -761,6 +867,7 @@ function onStartFocused() {
   const theme = DAILY_THEMES[new Date().getDay()];
   currentSession = generateSession(selectedMinutes || 15, selectedLocation || 'home', theme.tag);
   showView('train');
+  if (typeof switchTrainTab === 'function') switchTrainTab('training');
 }
 
 
@@ -1011,7 +1118,7 @@ function paintTimer() {
 
   // Prominent video thumbnail — shown above the ring so users see the move
   const videoSection = videoId
-    ? `<div class="timer-video-preview" onclick="timerPaused=true; paintTimer(); openModal('${esc(item.name)}')">
+    ? `<div class="timer-video-preview" onclick="timerPaused=true; paintTimer(); openTechDetail('${esc(item.name)}')">
          <img class="timer-video-thumb"
               src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg"
               alt="${esc(item.name)}"
@@ -1189,88 +1296,6 @@ function saveCapture() {
 // ══════════════════════════════════════════════════════════════════
 // HOME SECTION BUILDERS
 // ══════════════════════════════════════════════════════════════════
-
-// ── ① CONTINUE LEARNING ───────────────────────────────────────────
-function buildContinueLearning(activeBelt) {
-  if (!activeBelt) return '';
-  const b = activeBelt.belt;
-
-  // Collect all technique items for this belt (up to 5)
-  const rows = [];
-  for (const g of b.groups) {
-    for (const itemName of g.items) {
-      if (rows.length >= 5) break;
-      const tech      = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === itemName) : null;
-      const vid       = tech ? getVideoId(tech.url) : null;
-      const thumb     = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : null;
-      const thumbIsIllus = false;
-      const isDone    = !!beltProgress[b.id + '_' + itemName];
-      rows.push({ name: itemName, en: tech ? tech.en : '', thumb, vid, isDone });
-    }
-    if (rows.length >= 5) break;
-  }
-
-  const rowsHtml = rows.map((r, idx) => `
-    <div class="cl-row${r.isDone ? ' cl-done' : ''}" ${!r.isDone && r.vid ? `onclick="openModal('${r.name.replace(/'/g,"\\'")}')"` : ''}>
-      <div class="cl-thumb-wrap">
-        ${r.thumb
-          ? `<img class="${r.thumbIsIllus ? 'cl-thumb cl-thumb-illus' : 'cl-thumb'}" src="${r.thumb}" alt="${r.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : ''}
-        <div class="cl-thumb-fallback"${r.thumb ? ' style="display:none"' : ''}>
-          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-            <circle cx="20" cy="10" r="5" fill="#bbb"/>
-            <path d="M10 28c0-6 4-10 10-10s10 4 10 10" stroke="#bbb" stroke-width="2.5" fill="none"/>
-            <path d="M14 22l-4 8M26 22l4 8" stroke="#bbb" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-      <div class="cl-info">
-        <div class="cl-name">${r.name}</div>
-        ${r.en ? `<div class="cl-en">${r.en}</div>` : ''}
-        ${r.isDone ? `<div class="cl-status-done">Completed</div>` : `<div class="cl-mini-bar"><div class="cl-mini-fill" style="width:${r.vid ? '45' : '20'}%"></div></div>`}
-      </div>
-      <div class="cl-action">
-        ${r.isDone
-          ? `<div class="cl-check"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="11" stroke="#22c55e" stroke-width="1.8" fill="none"/><polyline points="7,12 10.5,16 17,8" stroke="#22c55e" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>`
-          : `<button class="cl-play${!r.vid ? ' cl-play-dim' : ''}" onclick="${r.vid ? `event.stopPropagation();openModal('${r.name.replace(/'/g,"\\'")}')` : 'void(0)'}"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="11" stroke="#999" stroke-width="1.5" fill="none"/><polygon points="10,8 17,12 10,16" fill="#555"/></svg></button>`}
-      </div>
-    </div>
-  `).join('');
-
-  // Belt Quiz row
-  const quizRow = `
-    <div class="cl-row cl-quiz-row" onclick="showView('belt')">
-      <div class="cl-thumb-wrap">
-        <div class="cl-quiz-icon">
-          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-            <rect x="4" y="4" width="32" height="32" rx="8" fill="#3b82f6" opacity=".15"/>
-            <rect x="4" y="4" width="32" height="32" rx="8" stroke="#3b82f6" stroke-width="1.5"/>
-            <text x="20" y="27" text-anchor="middle" font-size="18" fill="#3b82f6">?</text>
-          </svg>
-        </div>
-      </div>
-      <div class="cl-info">
-        <div class="cl-name">${b.to} Belt Quiz</div>
-        <div class="cl-en">${activeBelt.total} questions</div>
-        <div class="cl-mini-bar"><div class="cl-mini-fill" style="width:${activeBelt.pct}%"></div></div>
-      </div>
-      <div class="cl-action">
-        <button class="cl-play"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="11" stroke="#999" stroke-width="1.5" fill="none"/><polygon points="10,8 17,12 10,16" fill="#555"/></svg></button>
-      </div>
-    </div>`;
-
-  return `
-  <div class="cl-section">
-    <div class="cl-header">
-      <span class="cl-title">Continue Learning</span>
-      <button class="cl-viewall" onclick="showView('belt')">View all</button>
-    </div>
-    <div class="cl-card">
-      ${rowsHtml}
-      ${quizRow}
-    </div>
-  </div>`;
-}
 
 // ── ② QUICK STATS ─────────────────────────────────────────────────
 function getOverallProgress() {

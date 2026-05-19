@@ -164,7 +164,7 @@ function buildGradingReport(beltId) {
               const thumbUrl = vid ? 'https://img.youtube.com/vi/' + vid + '/mqdefault.jpg' : null;
               const checkSvg = '<svg viewBox="0 0 12 10" width="12" height="10"><polyline points="1,5 4.5,9 11,1" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
               const playSvg  = '<svg viewBox="0 0 24 24" width="15" height="15" fill="#2563eb"><polygon points="6,4 20,12 6,20"/></svg>';
-              const playAction = vid  ? `event.stopPropagation();openModal('${esc(item)}')`
+              const playAction = vid  ? `event.stopPropagation();openTechDetail('${esc(item)}')`
                                : gVid ? `event.stopPropagation();openGradingVideo('${gUrl}','${esc(item)}')`
                                : null;
               const thumbHtml = `<div class="ios-thumb-wrap">
@@ -201,7 +201,7 @@ function buildGradingReport(beltId) {
     <div class="gr-ios-section">
       <div class="gr-ios-section-label">Techniques to Log <span class="gr-ios-count-badge">${missingTechs.length}</span></div>
       <div class="gr-ios-chips">
-        ${missingTechs.map(t => `<button class="gr-ios-chip" onclick="closeGradingReadiness();openModal('${esc(t)}')">${t} ▶</button>`).join('')}
+        ${missingTechs.map(t => `<button class="gr-ios-chip" onclick="closeGradingReadiness();openTechDetail('${esc(t)}')">${t} ▶</button>`).join('')}
       </div>
     </div>` : ''}
 

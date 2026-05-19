@@ -85,7 +85,7 @@ function renderJuniorHome() {
 
       <!-- TECHNIQUE OF THE DAY -->
       ${totd ? `
-      <div class="jh-totd" onclick="openModal('${esc(totd.name)}')">
+      <div class="jh-totd" onclick="openTechDetail('${esc(totd.name)}')">
         <div class="jh-totd-label">🎯 Today's Technique</div>
         <div class="jh-totd-name">${totd.en || totd.name}</div>
         <div class="jh-totd-jp">${totd.en ? totd.name : ''}</div>

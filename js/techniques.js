@@ -33,14 +33,41 @@ const BELT_DOT_META = {
 };
 
 function getBeltDotsHtml(techName) {
+  // kept for backwards compat — now delegates to pill
+  return '';
+}
+
+// Returns the LOWEST belt that requires this technique, as a styled pill
+function getBeltRelevancePill(techName) {
   if (typeof BELT_TECHNIQUES === 'undefined') return '';
-  const dots = Object.entries(BELT_TECHNIQUES)
-    .filter(([, names]) => names.includes(techName))
-    .map(([id]) => {
-      const m = BELT_DOT_META[id];
-      return m ? `<span class="tech-belt-dot" style="background:${m.color}" title="${m.label}"></span>` : '';
-    }).join('');
-  return dots ? `<div class="tech-belt-dots">${dots}</div>` : '';
+  const beltOrder = [
+    {id:'toRed',    label:'Red',    color:'#e74c3c'},
+    {id:'toYellow', label:'Yellow', color:'#c8a800'},
+    {id:'toOrange', label:'Orange', color:'#d97706'},
+    {id:'toGreen',  label:'Green',  color:'#16a34a'},
+    {id:'toBlue',   label:'Blue',   color:'#2563eb'},
+    {id:'toBrown',  label:'Brown',  color:'#92400e'},
+  ];
+  const lower = techName.toLowerCase();
+  for (const b of beltOrder) {
+    const list = BELT_TECHNIQUES[b.id] || [];
+    if (list.some(n => n.toLowerCase() === lower)) {
+      return `<span class="tc-belt-pill" style="background:${b.color}22;color:${b.color};border-color:${b.color}44">${b.label} Belt · Required</span>`;
+    }
+  }
+  return '';
+}
+
+// Returns a one-line coaching hook from TECH_DEPTH
+function getCoachingHook(techName) {
+  if (typeof TECH_DEPTH === 'undefined' || !TECH_DEPTH[techName]) return '';
+  const d = TECH_DEPTH[techName];
+  // Use comp as the hook — it's the most motivating sentence
+  if (d.comp) {
+    const sentence = d.comp.split('. ')[0] + '.';
+    return sentence.length < 120 ? sentence : sentence.slice(0, 117) + '…';
+  }
+  return '';
 }
 
 
@@ -111,48 +138,80 @@ function techCard(t) {
   const vid      = getVideoId(t.url);
   const isExp    = expandedTech === t.name;
   const safeName = esc(t.name);
-  const catTag   = t.cat && !['Combination','Ne-waza'].includes(t.cat) ? `<span class="tag cat">${t.cat}</span>` : '';
-  const combTag  = t.cat === 'Combination' ? `<span class="tag cat">Combo</span>` : '';
-  const neTag    = t.cat === 'Ne-waza' ? `<span class="tag sub">${t.sub||'Ne-waza'}</span>` : '';
-  const subTag   = t.sub && t.cat !== 'Ne-waza' ? `<span class="tag sub">${t.sub}</span>` : '';
-  const koTag    = t.ko === 'Yes' ? `<span class="tag ko">Kodokan</span>` : '';
+  const thumbUrl = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : null;
+  const beltPill = getBeltRelevancePill(t.name);
+  const hook     = getCoachingHook(t.name);
+  const depth    = (typeof TECH_DEPTH !== 'undefined') ? TECH_DEPTH[t.name] : null;
 
-  const thumbUrl = vid
-    ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg`
-    : null;
+  const catLabel = t.sub || t.cat || '';
 
-  return `<div class="tech-card${isExp?' expanded':''}" id="tc-${safeId(t.name)}" onclick="toggleTech(event,'${safeName}')">
+  return `<div class="tech-card tc-coach${isExp?' expanded':''}" id="tc-${safeId(t.name)}" onclick="openTechDetail('${safeName}')">
 
-  <!-- THUMBNAIL -->
-  <div class="tech-thumb${vid ? '' : ' tech-thumb-novid'}">
+  <!-- VIDEO THUMBNAIL — first, dominant -->
+  <div class="tc-thumb-wrap">
     ${thumbUrl
-      ? `<img class="tech-thumb-img" src="${thumbUrl}" alt="${t.name}" loading="lazy">`
-      : `<div class="tech-thumb-placeholder">🥋</div>`}
+      ? `<img class="tc-thumb-img" src="${thumbUrl}" alt="${t.name}" loading="lazy">`
+      : `<div class="tc-thumb-empty"><span>🥋</span></div>`}
     ${vid
-      ? `<button class="tech-thumb-play" onclick="event.stopPropagation();openModal('${safeName}')" title="Watch ${t.name}">▶</button>`
-      : `<div class="tech-thumb-novid-label">No video</div>`}
-    ${t.ko === 'Yes' ? `<span class="tech-thumb-badge">Kodokan</span>` : ''}
+      ? `<button class="tc-thumb-play" onclick="event.stopPropagation();openTechDetail('${safeName}')">&#9654;</button>`
+      : ''}
+    ${t.ko === 'Yes' ? `<span class="tc-kodokan-badge">Kodokan</span>` : ''}
   </div>
 
-  <!-- INFO -->
-  <div class="tech-card-info">
-    <div class="tech-card-top">
+  <!-- CARD BODY -->
+  <div class="tc-body">
+    <div class="tc-header-row">
       <div style="flex:1;min-width:0">
-        <div class="tech-name">${t.name}</div>
-        ${t.en ? `<div class="tech-en">${t.en}</div>` : ''}
-        <div class="tech-tags" style="margin-top:6px">${subTag}${catTag}${combTag}${neTag}</div>
-        ${getBeltDotsHtml(t.name)}
+        ${beltPill || (catLabel ? `<span class="tc-cat-pill">${catLabel}</span>` : '')}
+        <div class="tc-name">${t.name}</div>
+        ${t.en ? `<div class="tc-en">${t.en}</div>` : ''}
+        ${hook ? `<div class="tc-hook">${hook}</div>` : ''}
       </div>
-      <span class="tech-chevron">⌄</span>
+      <span class="tc-chevron${isExp?' tc-chevron-open':''}">&#8964;</span>
     </div>
-  </div>
 
-  <!-- EXPANDED BODY -->
-  <div class="tech-body">
-    ${(typeof TECH_DEPTH !== 'undefined' && TECH_DEPTH[t.name]) ? renderTechDepth(TECH_DEPTH[t.name]) : ''}
-    <div class="td-notes-label">My Notes</div>
-    <textarea class="tech-notes-ta" id="note-${safeId(t.name)}" placeholder="Personal cues, things to work on, common mistakes…" onclick="event.stopPropagation()"></textarea>
-    <button class="add-to-plan-btn" onclick="event.stopPropagation();addTechToPlan('${safeName}')">+ Add to this week's plan</button>
+    <!-- EXPANDED COACHING SECTIONS -->
+    ${isExp && depth ? `
+    <div class="tc-depth" onclick="event.stopPropagation()">
+      ${depth.grips ? `
+        <div class="tc-section">
+          <div class="tc-section-label">&#129310; Grips &amp; Setup</div>
+          <div class="tc-section-text">${depth.grips}</div>
+        </div>` : ''}
+      ${depth.mistakes && depth.mistakes.length ? `
+        <div class="tc-section">
+          <div class="tc-section-label">&#10060; Common Mistakes</div>
+          <ul class="tc-list">${depth.mistakes.map(x=>`<li>${x}</li>`).join('')}</ul>
+        </div>` : ''}
+      ${depth.combos && depth.combos.length ? `
+        <div class="tc-section">
+          <div class="tc-section-label">&#128279; Works Well With</div>
+          <ul class="tc-list">${depth.combos.map(x=>`<li>${x}</li>`).join('')}</ul>
+        </div>` : ''}
+      ${depth.counters && depth.counters.length ? `
+        <div class="tc-section">
+          <div class="tc-section-label">&#9889; Counters</div>
+          <ul class="tc-list">${depth.counters.map(x=>`<li>${x}</li>`).join('')}</ul>
+        </div>` : ''}
+      ${depth.comp ? `
+        <div class="tc-section">
+          <div class="tc-section-label">&#127942; When To Use</div>
+          <div class="tc-section-text">${depth.comp}</div>
+        </div>` : ''}
+      <div class="tc-section">
+        <div class="tc-section-label">&#128221; My Notes</div>
+        <textarea class="tech-notes-ta" id="note-${safeId(t.name)}" placeholder="Personal cues, timing, what works for you…" onclick="event.stopPropagation()"></textarea>
+      </div>
+      <button class="add-to-plan-btn" onclick="event.stopPropagation();addTechToPlan('${safeName}')">+ Add to this week&apos;s plan</button>
+    </div>` : ''}
+    ${isExp && !depth ? `
+    <div class="tc-depth" onclick="event.stopPropagation()">
+      <div class="tc-section">
+        <div class="tc-section-label">&#128221; My Notes</div>
+        <textarea class="tech-notes-ta" id="note-${safeId(t.name)}" placeholder="Personal cues, timing, what works for you…" onclick="event.stopPropagation()"></textarea>
+      </div>
+      <button class="add-to-plan-btn" onclick="event.stopPropagation();addTechToPlan('${safeName}')">+ Add to this week&apos;s plan</button>
+    </div>` : ''}
   </div>
 </div>`;
 }
@@ -160,7 +219,13 @@ function techCard(t) {
 function toggleTech(e, name) {
   if (['TEXTAREA','BUTTON','INPUT'].includes(e.target.tagName)) return;
   expandedTech = (expandedTech === name) ? null : name;
-  renderTechGrid();
+  // Re-render whichever grid is currently visible
+  const trGrid = document.getElementById('tr-tech-grid');
+  if (trGrid && trGrid.querySelector('.tc-coach')) {
+    if (typeof filterTrainTech === 'function') filterTrainTech();
+  } else {
+    renderTechGrid();
+  }
   if (expandedTech) {
     setTimeout(() => {
       const el = document.getElementById('tc-' + safeId(name));
@@ -273,13 +338,21 @@ document.addEventListener('keydown', e => {
 // ── GRADING VIDEO OPENER ─────────────────────────────────────────
 // Uses the existing video-modal so the UI is identical to technique videos
 function openGradingVideo(url, title) {
-  if (!getVideoId(url)) return;
-  // Inject a synthetic entry so paintModal can render it normally
-  modalList = [{ name: title, url: url, en: 'Grading technique', cat: 'Grading', sub: '' }];
-  modalIdx  = 0;
-  paintModal();
-  document.getElementById('video-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  // Route through openTechDetail
+  if (typeof openTechDetail === 'function') {
+    const found = (typeof TECHNIQUES !== 'undefined') ? TECHNIQUES.find(t => t.name === title) : null;
+    if (found) { openTechDetail(title); return; }
+    // Synthetic entry for grading-only techniques
+    const synth = { name: title, url: url, en: 'Grading technique', cat: 'Grading', sub: '', ko: 'No' };
+    if (typeof TECHNIQUES !== 'undefined') TECHNIQUES.push(synth);
+    openTechDetail(title);
+    setTimeout(function() {
+      if (typeof TECHNIQUES !== 'undefined') {
+        const idx = TECHNIQUES.findIndex(t => t.name === title && t.en === 'Grading technique');
+        if (idx > -1) TECHNIQUES.splice(idx, 1);
+      }
+    }, 500);
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -336,7 +409,7 @@ function renderTechAccordion(techniques) {
         const thumb = vid ? `https://img.youtube.com/vi/${vid}/mqdefault.jpg` : null;
         const safeName = esc(t.name);
         return `
-          <div class="tac-row" onclick="toggleTech(event,'${safeName}')">
+          <div class="tac-row" onclick="openTechDetail('${safeName}')">
             <div class="tac-row-thumb">
               ${thumb
                 ? `<img src="${thumb}" class="tac-row-img" loading="lazy" onerror="this.style.display='none'">`
@@ -347,7 +420,7 @@ function renderTechAccordion(techniques) {
               ${t.en ? `<div class="tac-row-en">${t.en}</div>` : ''}
             </div>
             <div class="tac-row-actions">
-              ${vid ? `<button class="tac-play-btn" onclick="event.stopPropagation();openModal('${safeName}')">
+              ${vid ? `<button class="tac-play-btn" onclick="event.stopPropagation();openTechDetail('${safeName}')">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
               </button>` : ''}
             </div>

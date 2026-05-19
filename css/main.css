@@ -9682,3 +9682,32 @@ body.junior-mode #main {
 }
 
 /* ═══════════════════════════════════════════════════ */
+
+/* ── Play button — used in Continue Learning + Technique cards ── */
+.cl-play {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  padding: 0 !important;
+  background: #e63946 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+.cl-play svg { display: block; margin-left: 2px; }
+.cl-play-empty { width: 36px !important; height: 36px !important; flex-shrink: 0; }
+
+/* ── Empty play slot — no video available ── */
+.cl-play-empty {
+  background: transparent !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}

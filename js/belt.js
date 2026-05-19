@@ -318,7 +318,7 @@ function beltTechCard(t) {
   <div class="belt-tc-tags">${subTag}${catTag}${comboTag}</div>
   <div class="belt-tc-foot">
     ${vid
-      ? `<button class="belt-tc-watch" onclick="event.stopPropagation();openModal('${esc(t.name)}')">▶ Watch</button>`
+      ? `<button class="belt-tc-watch" onclick="event.stopPropagation();openTechDetail('${esc(t.name)}')">▶ Watch</button>`
       : `<span class="belt-tc-novid">No video</span>`}
   </div>
 </div>`;
@@ -415,6 +415,16 @@ const BELT_HEX = {
   'belt-color-brown':  '#795548',
 };
 
+const BELT_IMG_MAP = {
+  'belt-color-white':  'belt-white.png',
+  'belt-color-red':    'belt-red.png',
+  'belt-color-yellow': 'belt-yellow.png',
+  'belt-color-orange': 'belt-orange.png',
+  'belt-color-green':  'belt-green.png',
+  'belt-color-blue':   'belt-blue.png',
+  'belt-color-brown':  'belt-brown.png',
+};
+
 function buildAdultHero(b, pct) {
   const pctColor  = pct >= 80 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#e63946';
   const fromFile  = BELT_IMG_MAP[b.fromColor] || 'belt-white.png';
@@ -501,7 +511,7 @@ function buildAdultRequirements(b, doneCount, totalCount) {
       const thumbUrl   = techVid ? 'https://img.youtube.com/vi/' + techVid + '/mqdefault.jpg' : null;
       const subtitle   = (tech && tech.en) ? tech.en : ((typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? TERMS_EN[item] : '');
       const playAction = techVid
-        ? "event.stopPropagation();openModal('" + item.replace(/'/g, "\\'") + "')"
+        ? "event.stopPropagation();openTechDetail('" + item.replace(/'/g, "\\'") + "')"
         : gradingUrl ? "event.stopPropagation();openGradingVideo('" + gradingUrl + "','" + item.replace(/'/g, "\\'") + "')" : null;
       const isLast     = idx === g.items.length - 1;
 
@@ -589,7 +599,7 @@ function openFullRequirements(beltId) {
       const techVid  = tech ? getVideoId(tech.url) : null;
       const thumbUrl = techVid ? 'https://img.youtube.com/vi/' + techVid + '/mqdefault.jpg' : null;
       const subtitle = (tech && tech.en) ? tech.en : ((typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? TERMS_EN[item] : '');
-      const playAct  = techVid ? "event.stopPropagation();openModal('" + item.replace(/'/g, "\\'") + "')" : null;
+      const playAct  = techVid ? "event.stopPropagation();openTechDetail('" + item.replace(/'/g, "\\'") + "')" : null;
       const isLast   = idx === g.items.length - 1;
       return `
       <div class="gr-acc-tech${done ? ' ios-checked' : ''}" onclick="toggleAdultReq('${b.id}','${item.replace(/'/g, "\\'")}',this)">
@@ -752,7 +762,7 @@ function renderAdultTestCard() {
       <div class="jg-test-emoji">&#129355;</div>
       <div class="jg-test-label">Can you perform this?</div>
       <div class="jg-test-item">${item}</div>
-      ${vid ? `<button class="jg-test-watch" onclick="openModal('${esc(item)}')">&#9654; Watch technique</button>` : ''}
+      ${vid ? `<button class="jg-test-watch" onclick="openTechDetail('${esc(item)}')">&#9654; Watch technique</button>` : ''}
       <div class="jg-test-actions">
         <button class="jg-test-no"  onclick="answerAdultTest(false)">&#128517; Not yet</button>
         <button class="jg-test-yes" onclick="answerAdultTest(true)">&#10003; Yes, I can!</button>
@@ -959,12 +969,7 @@ function renderBlackBeltAchieved() {
         <div class="bb-moral-item"><span class="bb-moral-jp">制</span><span>Self-control</span></div>
         <div class="bb-moral-item"><span class="bb-moral-jp">友</span><span>Friendship</span></div>
       </div>
-      <div class="bb-ach-browse">
-        <div class="bb-ach-browse-label">Review your journey</div>
-        <div class="ab-browse-body open" id="ab-browse-body">
-          ${BELT_DATA.map(belt => beltSection(belt)).join('')}
-        </div>
-      </div>
     </div>
   `;
+  el.innerHTML = html;
 }
