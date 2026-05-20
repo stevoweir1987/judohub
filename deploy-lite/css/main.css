@@ -8759,13 +8759,14 @@ body.junior-mode #main {
 .app-header-envelope {
   background: none;
   border: none;
-  color: #666;
+  color: #aaa;
   padding: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   -webkit-tap-highlight-color: transparent;
 }
+.app-header-envelope:hover { color: #f0f4ff; }
 .app-header-envelope:active { opacity: .6; }
 
 /* ── Techniques filter bar (no dropdown) ───────────────────────── */

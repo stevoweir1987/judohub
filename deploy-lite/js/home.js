@@ -92,7 +92,16 @@ function calcSessionXP(session) {
 }
 
 // ── STREAK ─────────────────────────────────────────
-function getSessionLog()        { return JSON.parse(localStorage.getItem('judo_session_log') || '[]'); }
+function getSessionLog() {
+  var log1 = JSON.parse(localStorage.getItem('judo_session_log') || '[]');
+  var log2 = JSON.parse(localStorage.getItem('judohub_sessions_log') || '[]').map(function(s) {
+    return { date: s.date, category: s.cat || 'Training', minutes: s.duration || 20 };
+  });
+  var seen = new Set(log1.map(function(s){ return s.date + '_' + (s.category || ''); }));
+  var merged = log1.slice();
+  log2.forEach(function(s){ if (!seen.has(s.date + '_' + s.category)) merged.push(s); });
+  return merged;
+}
 function saveSessionLog(log)    { localStorage.setItem('judo_session_log', JSON.stringify(log)); }
 
 // Normalise entry — handles old string entries and new object entries
@@ -581,9 +590,13 @@ function buildContinueLearning(activeBelt) {
   var moreCount = undone.length > 4 && !_clExpanded ? undone.length - 4 : 0;
   var pct = total ? Math.round(doneN / total * 100) : 0;
 
+  var beltTag = (activeBelt && activeBelt.belt && activeBelt.belt.to) ? activeBelt.belt.to + ' Belt' : '';
   return '<div class="cl-section">'
     + '<div class="cl-header-row">'
-      + '<span class="cl-title">Continue Learning</span>'
+      + '<div>'
+        + '<span class="cl-title">Continue Learning</span>'
+        + (beltTag ? '<span class="cl-belt-tag">' + beltTag + '</span>' : '')
+      + '</div>'
       + '<span class="cl-badge">' + doneN + ' / ' + total + '</span>'
     + '</div>'
     + '<div class="cl-progress-bar"><div class="cl-progress-fill" style="width:' + pct + '%"></div></div>'
@@ -755,6 +768,7 @@ function renderHome() {
   '.cl-section{margin:0 14px 10px}' +
   '.cl-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}' +
   '.cl-title{font-size:11px;font-weight:800;color:#f0f4ff;letter-spacing:.04em;text-transform:uppercase}' +
+  '.cl-belt-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.12);padding:1px 7px;border-radius:5px;vertical-align:middle;text-transform:none;letter-spacing:0}' +
   '.cl-badge{font-size:10px;font-weight:700;color:#6b7280;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px}' +
   '.cl-progress-bar{height:3px;background:rgba(255,255,255,.07);border-radius:3px;margin-bottom:8px;overflow:hidden}' +
   '.cl-progress-fill{height:100%;background:#e63946;border-radius:3px;transition:width .4s}' +
@@ -1597,8 +1611,11 @@ const TECH_IMG = {
  * Get illustration path for a technique name.
  * Returns null if no illustration exists.
  */
-function getTechImg(techName) {
-  if (!techName) return null;
-  const key = techName.toLowerCase().trim();
-  return TECH_IMG[key] ? 'images/' + TECH_IMG[key] : null;
+function getTechImg(name) {
+  if (!name) return null;
+  var key = name.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+  var file = TECH_IMG_MAP[key];
+  return file ? 'images/techniques/' + file : null;
 }
