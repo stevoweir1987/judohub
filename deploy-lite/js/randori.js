@@ -686,16 +686,9 @@ function renderRandoriResults() {
   else if (pct >= 50) { grade = 'Yuko';         gradeColor = '#e67e22'; gradeMsg = 'Good foundation — focus on the categories you missed.'; }
   else                { grade = 'Keep drilling'; gradeColor = '#e02d2d'; gradeMsg = 'Every mistake is a lesson. Read the feedback and go again.'; }
 
-  document.getElementById('rb-body').innerHTML = `
-    <div class="rb-results">
-      <div class="rb-res-grade" style="color:${gradeColor}">${grade}</div>
-      <div class="rb-res-score">${score} / ${total}</div>
-      <div class="rb-res-pct">${pct}% correct</div>
-      <div class="rb-res-msg">${gradeMsg}</div>
-      ${rBrain.maxStreak > 2 ? `<div class="rb-res-streak">🔥 Best streak: ${rBrain.maxStreak}</div>` : ''}
-      <div class="rb-res-actions">
-        <button class="btn-primary rb-res-btn" onclick="startRandoriQuiz('${rBrain.catFilter}')">Play Again</button>
-        <button class="rb-res-btn rb-res-back" onclick="renderRandoriHub()">← Back to Hub</button>
-      </div>
-    </div>`;
+  document.getElementById('rb-result-grade').textContent   = grade;
+  document.getElementById('rb-result-grade').style.color   = gradeColor;
+  document.getElementById('rb-result-score').textContent   = pct + '%';
+  document.getElementById('rb-result-msg').textContent     = gradeMsg;
+  document.getElementById('rb-result-panel').style.display = 'block';
 }

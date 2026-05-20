@@ -686,4 +686,9 @@ function renderRandoriResults() {
   else if (pct >= 50) { grade = 'Yuko';         gradeColor = '#e67e22'; gradeMsg = 'Good foundation — focus on the categories you missed.'; }
   else                { grade = 'Keep drilling'; gradeColor = '#e02d2d'; gradeMsg = 'Every mistake is a lesson. Read the feedback and go again.'; }
 
-  document.getEl
+  document.getElementById('rb-result-grade').textContent   = grade;
+  document.getElementById('rb-result-grade').style.color   = gradeColor;
+  document.getElementById('rb-result-score').textContent   = pct + '%';
+  document.getElementById('rb-result-msg').textContent     = gradeMsg;
+  document.getElementById('rb-result-panel').style.display = 'block';
+}
