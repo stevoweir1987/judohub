@@ -185,4 +185,9 @@ function tdpAddToPlan() {
 }
 
 // Close on back button / swipe
-document.addEventListener('keydown
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const panel = document.getElementById('tech-detail-panel');
+    if (panel && panel.classList.contains('open')) closeTechDetail();
+  }
+});

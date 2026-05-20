@@ -1566,4 +1566,39 @@ const TECH_IMG = {
   'tsuri-komi-goshi':        'tech-tsuri-komi-goshi.png',
   'okuri-ashi-barai':        'tech-okuri-ashi-barai.png',
   'okuri-ashi-harai':        'tech-okuri-ashi-barai.png',
-  'tai-otoshi':              't
+  'tai-otoshi':              'tech-tai-otoshi.png',
+  'harai-goshi':             'tech-harai-goshi.png',
+  'uchi-mata':               'tech-uchi-mata.png',
+  'ko-soto-gake':            'tech-ko-soto-gake.png',
+  'tsuri-goshi':             'tech-tsuri-goshi.png',
+  'yoko-otoshi':             'tech-yoko-otoshi.png',
+  'ashi-guruma':             'tech-ashi-guruma.png',
+  'hane-goshi':              'tech-hane-goshi.png',
+  'harai-tsuri-komi-ashi':   'tech-harai-tsuri-komi-ashi.png',
+  'sumi-gaeshi':             'tech-sumi-gaeshi.png',
+  'tani-otoshi':             'tech-tani-otoshi.png',
+  'hane-maki-komi':          'tech-hane-maki-komi.png',
+  'sukui-nage':              'tech-sukui-nage.png',
+  'utsuri-goshi':            'tech-utsuri-goshi.png',
+  'o-guruma':                'tech-o-guruma.png',
+  'soto-maki-komi':          'tech-soto-maki-komi.png',
+  'uki-otoshi':              'tech-uki-otoshi.png',
+  'o-soto-guruma':           'tech-o-soto-guruma.png',
+  'uki-waza':                'tech-uki-waza.png',
+  'yoko-wakare':             'tech-yoko-wakare.png',
+  'yoko-guruma':             'tech-yoko-guruma.png',
+  'ushiro-goshi':            'tech-ushiro-goshi.png',
+  'ura-nage':                'tech-ura-nage.png',
+  'sumi-otoshi':             'tech-sumi-otoshi.png',
+  'yoko-gake':               'tech-yoko-gake.png',
+};
+
+/**
+ * Get illustration path for a technique name.
+ * Returns null if no illustration exists.
+ */
+function getTechImg(techName) {
+  if (!techName) return null;
+  const key = techName.toLowerCase().trim();
+  return TECH_IMG[key] ? 'images/' + TECH_IMG[key] : null;
+}

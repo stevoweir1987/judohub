@@ -736,4 +736,25 @@ function calcAvgSessionsPerWeek(log) {
 // ═══════════════════════════════════════════════════════════════
 function statCard(emoji, val, label, color) {
   return `<div class="prog-stat-card">
-    <div class="prog-stat-emoji">${emoji
+    <div class="prog-stat-emoji">${emoji}</div>
+    <div class="prog-stat-val" style="${color?'color:'+color:''}">${val}</div>
+    <div class="prog-stat-lbl">${label}</div>
+  </div>`;
+}
+
+function buildWeekDots(log) {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const now  = new Date();
+  const mon  = new Date(now);
+  mon.setDate(now.getDate()-((now.getDay()+6)%7));
+  mon.setHours(0,0,0,0);
+  return days.map((d,i) => {
+    const day = new Date(mon); day.setDate(mon.getDate()+i);
+    const key = day.toISOString().slice(0,10);
+    const done= log.some(l => l.date && l.date.slice(0,10)===key);
+    return `<div class="prog-day-dot${done?' done':''}">
+      <div class="prog-dot${done?' done':''}"></div>
+      <span>${d}</span>
+    </div>`;
+  }).join('');
+}

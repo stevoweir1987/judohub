@@ -207,4 +207,9 @@ function startJuniorSession() {
         {name:'Mae-ukemi (Front breakfall)',duration:60},{name:'Ushiro-ukemi (Back breakfall)',duration:60},{name:'Yoko-ukemi (Side breakfall)',duration:60}]},
       { type:'technique', name:'Throwing Practice', duration:360, cue:'Big throws!', items:[
         {name:'O-goshi (Hip throw)',duration:120},{name:'Ouchi-gari (Inner reap)',duration:120},{name:'Tai-otoshi (Body drop)',duration:120}]},
-   
+      { type:'recovery',  name:'Cool Down',        duration:120, cue:'Breathe and stretch', items:[
+        {name:'Stretching',duration:60},{name:'Bow and tidy up',duration:60}]},
+    ],
+  };
+  startSession();
+}

@@ -465,4 +465,12 @@ function selectTechBelt(btn, belt) {
   if (vb) requestAnimationFrame(() => { vb.scrollTop = sc; });
 }
 
-/* ── Video modal i
+/* ── Video modal info toggle ─────────────────────────────────── */
+function toggleVModalInfo() {
+  const panel = document.getElementById('vm-info-panel');
+  const label = document.getElementById('vm-handle-label');
+  if (!panel) return;
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? '' : 'none';
+  if (label) label.innerHTML = open ? '&#8681; Close' : '&#8679; Notes &amp; Info';
+}

@@ -866,4 +866,14 @@ const GRADING_VIDEOS = {
   'San-gaku-jime':                                       'https://www.youtube.com/watch?v=lq1CUBRAm7s',
   'San-gaku-gatame':                                     'https://www.youtube.com/watch?v=zQg6zaL09aI',
   'San-gaku-osae-gatame':                                'https://www.youtube.com/watch?v=JIulw4NgRvo&t=2s',
-  'Sumi-gaeshi — two varia
+  'Sumi-gaeshi — two variations':                  'https://www.youtube.com/watch?v=y_73gsi1V00',
+  'Ushiro-goshi as counter to Harai-goshi':              'https://www.youtube.com/watch?v=8XGiwPodgls',
+  'Sumi-gaeshi as combination with Uchi-mata':           'https://www.youtube.com/watch?v=Xx6HJ4Mfvfk',
+  'Counter Koshi-guruma with Ura-nage':                  'https://youtu.be/2qdE8x2CwDo?t=375',
+  'San-gaku-jime — complex entry':                 'https://youtu.be/2qdE8x2CwDo?t=522',
+  'San-gaku-gatame — complex entry':               'https://www.youtube.com/shorts/q3RpzHYhFX4',
+  'San-gaku-osae-gatame — turnover and hold':      'https://www.youtube.com/watch?v=JIulw4NgRvo',
+  'Hadaka-jime — Uke prone position':              'https://www.youtube.com/shorts/OdCMntXQH7Q',
+  'Kata-ha-jime — Uke all fours position':         'https://www.youtube.com/watch?v=BXa5NFIuCyk',
+
+};

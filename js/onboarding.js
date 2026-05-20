@@ -283,4 +283,12 @@ function finishOnboarding() {
   if (obProfile.type === 'junior') {
     document.getElementById('bottom-nav').style.display   = 'none';
     document.getElementById('junior-nav').style.display   = '';
-    i
+    if (typeof renderJuniorHome === 'function') renderJuniorHome();
+    showJuniorView('junior-home');
+  } else {
+    const nav = document.getElementById('bottom-nav');
+    if (nav) nav.style.display = '';
+    if (typeof renderHome === 'function') renderHome();
+    showView('home');
+  }
+}

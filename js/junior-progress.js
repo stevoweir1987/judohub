@@ -74,4 +74,6 @@ function renderJuniorProgress() {
 
 function getJuniorRank(level) {
   const ranks = ['','White Belt','Red Tag','Yellow Tag','Orange Tag','Green Belt',
-                 'Blue Belt','Brown Belt','Junior Champion','Dojo Legend','Judo Ma
+                 'Blue Belt','Brown Belt','Junior Champion','Dojo Legend','Judo Master'];
+  return ranks[Math.min(level, ranks.length-1)] || 'Judo Master';
+}

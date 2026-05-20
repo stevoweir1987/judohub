@@ -253,4 +253,12 @@ function tickFromGrading(beltId, item, btn) {
     const legacyBtn = row.querySelector('.gr-ios-tick-btn');
     if (legacyBtn) {
       legacyBtn.innerHTML = nowDone ? checkSvg : '';
-      legacyBtn.classList.toggle('gr-io
+      legacyBtn.classList.toggle('gr-ios-tick-on', nowDone);
+    }
+    row.classList.toggle('ios-checked', nowDone);
+    row.style.opacity = nowDone ? '0.55' : '1';
+  }
+
+  if (typeof renderBelt === 'function') renderBelt();
+  showToast(nowDone ? '✓ Ticked: ' + item : 'Unticked: ' + item);
+}

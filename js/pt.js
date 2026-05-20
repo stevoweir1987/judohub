@@ -218,4 +218,14 @@ function launchPTSession() {
     minutes: Math.max(1, Math.round(totalSecs / 60)),
     location: 'custom',
     blocks: [{
-      type: 'cust
+      type: 'custom',
+      name: ptName || 'My Session',
+      duration: totalSecs,
+      cue: '',
+      items: ptItems.map(i => ({ name: i.text, duration: i.duration })),
+    }],
+    totalDuration: totalSecs,
+  };
+
+  startSession();
+}

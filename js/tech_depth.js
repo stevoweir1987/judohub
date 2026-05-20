@@ -1359,4 +1359,27 @@ const TECH_DEPTH = {
   'Ude-hishigi-sankaku-gatame': {
     grips: 'Triangle armlock — the triangle leg position locks uke arm while simultaneously threatening a strangle.',
     mistakes: ['Pointing the knee down instead of maintaining horizontal triangle',
-      'N
+      'Not including the correct arm inside the triangle'],
+    combos: ['Sankaku-jime -> Ude-hishigi-sankaku-gatame (switch between strangle and armlock)'],
+    counters: ['Clear the arm from inside the triangle before it locks'],
+    comp: 'Highly effective from Sankaku position. The simultaneous strangle and armlock threat divides uke attention.',
+  },
+
+  'Ashi-garami': {
+    grips: 'Leg entanglement — wrap around uke leg to attack the knee joint.',
+    mistakes: ['Applying before securing a stable ground position',
+      'Rotating in the wrong direction'],
+    combos: [],
+    counters: ['Roll and create distance before the entanglement locks'],
+    comp: 'ILLEGAL in IJF competition due to knee injury risk. Legal in some other rulesets. Handle with extreme care in training.',
+  },
+
+  'Waki-gatame': {
+    grips: 'Armpit lock applied standing — jam uke arm under the armpit and drive the elbow down and outward.',
+    mistakes: ['Not trapping the arm deeply enough in the armpit',
+      'Applying with the arm bent — must straighten uke arm first'],
+    combos: ['From grip fighting — catch the sleeve and jam the arm under the pit'],
+    counters: ['Pull the arm back before it is trapped'],
+    comp: 'Can be applied during standing grip exchanges. Very quick submission when timed correctly. Requires a committed sleeve grip from uke.',
+  },
+};

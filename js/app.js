@@ -1651,4 +1651,25 @@ function renderTrainRandori() {
     var tagHtml = s.tags.map(function(tag) {
       return '<span style="background:'+s.color+'18;color:'+s.color+';border:0.5px solid '+s.color+'40;border-radius:5px;font-size:9px;font-weight:700;padding:2px 7px">'+tag+'</span>';
     }).join('');
-    return '<div style="background:#13131c;border-radius:14px;padding:13px 14px;margin-bottom:9px;border:0.5px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showView(\'randor
+    return '<div style="background:#13131c;border-radius:14px;padding:13px 14px;margin-bottom:9px;border:0.5px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showView(\'randori\')">'
+      + '<div style="width:42px;height:42px;border-radius:11px;background:'+s.color+'18;border:1px solid '+s.color+'40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'+s.icon+'</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="color:#f0f4ff;font-size:13px;font-weight:700;margin-bottom:3px">'+s.title+'</div>'
+      + '<div style="color:#555;font-size:11px;line-height:1.35;margin-bottom:6px">'+s.sub+'</div>'
+      + '<div style="display:flex;gap:5px">'+tagHtml+'</div>'
+      + '</div>'
+      + '<svg width="14" height="14" viewBox="0 0 16 16" style="flex-shrink:0;opacity:.25"><polyline points="5,2 11,8 5,14" fill="none" stroke="#f0f4ff" stroke-width="2.5" stroke-linecap="round"/></svg>'
+      + '</div>';
+  }).join('');
+
+  el.innerHTML = '<div style="padding:12px 14px 80px">'
+    + '<div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#666;margin-bottom:4px">RANDORI BRAIN</div>'
+    + '<div style="font-size:12px;color:#444;margin-bottom:14px">Tactical awareness &amp; contest intelligence</div>'
+    + cards
+    + '<div style="background:#1a0d04;border:0.5px solid rgba(217,119,6,.3);border-radius:14px;padding:13px 14px;margin-top:4px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showView(\'randori\')">'
+    + '<span style="font-size:22px">🧠</span>'
+    + '<div style="flex:1">'
+    + '<div style="color:#d97706;font-size:12px;font-weight:800">Open Full Randori Brain &#8594;</div>'
+    + '<div style="color:#555;font-size:10px;margin-top:2px">AI scenarios, live feedback &amp; sparring analysis</div>'
+    + '</div></div></div>';
+}

@@ -773,4 +773,26 @@ function toggleMonBand(band) {
   const body = document.getElementById('mon-band-body-' + band);
   const chev = document.getElementById('mon-band-chev-' + band);
   if (body) body.style.display = monBandOpen[band] ? 'block' : 'none';
-  if
+  if (chev) chev.textContent  = monBandOpen[band] ? '▲' : '▼';
+}
+
+function openMonBand(band) {
+  monBandOpen[band] = true;
+  const body = document.getElementById('mon-band-body-' + band);
+  const chev = document.getElementById('mon-band-chev-' + band);
+  if (body) body.style.display = 'block';
+  if (chev) chev.textContent  = '▲';
+}
+
+function toggleMonGrade(gradeId) {
+  monGradeOpen[gradeId] = !monGradeOpen[gradeId];
+  _openMonGrade(gradeId);
+}
+
+function _openMonGrade(gradeId) {
+  const open = monGradeOpen[gradeId];
+  const body = document.getElementById('mon-grade-body-' + gradeId);
+  const chev = document.getElementById('mon-grade-chev-' + gradeId);
+  if (body) body.style.display = open ? 'block' : 'none';
+  if (chev) chev.textContent  = open ? '↓' : '›';
+}

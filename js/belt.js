@@ -957,3 +957,19 @@ function renderBlackBeltAchieved() {
         You've completed the full Kyu Grade journey.<br>
         Every technique mastered, every grading passed.<br>
         <strong>Osu.</strong>
+      </div>
+      <div class="bb-moral-title">The Judo Moral Code</div>
+      <div class="bb-moral-grid">
+        <div class="bb-moral-item"><span class="bb-moral-jp">礼</span><span>Courtesy</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">勇</span><span>Courage</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">誠</span><span>Honesty</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">名誉</span><span>Honour</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">謙</span><span>Modesty</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">尊重</span><span>Respect</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">制</span><span>Self-control</span></div>
+        <div class="bb-moral-item"><span class="bb-moral-jp">友</span><span>Friendship</span></div>
+      </div>
+    </div>
+  `;
+  el.innerHTML = html;
+}
