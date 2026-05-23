@@ -610,254 +610,200 @@ function buildContinueLearning(activeBelt) {
 
 function renderHome() {
   try {
-  var activeBelt = getActiveBeltInfo();
-  var profile    = getProfile ? getProfile() : null;
-  var firstName  = (profile && profile.name) ? profile.name.split(' ')[0] : 'Judoka';
-  var streak     = getStreak();
-  var totd       = getTOTD();
-  var matHours   = getMatHours();
-  var pct        = activeBelt ? activeBelt.pct : 0;
-  var beltName   = activeBelt ? activeBelt.belt.from + ' Belt' : 'Judoka';
-  var targetBeltName = activeBelt ? activeBelt.belt.to + ' Belt' : '';
-  var fromHex    = activeBelt ? (BELT_HEX[activeBelt.belt.fromColor] || '#e8e8e8') : '#e8e8e8';
-  var toBeltColor = activeBelt ? (BELT_HEX[activeBelt.belt.toColor] || '#888') : '#888';
-  var toBeltFile  = activeBelt ? (BELT_IMG_MAP[activeBelt.belt.toColor] || 'belt-red.png') : 'belt-red.png';
+    var el = document.getElementById('home-body');
+    if (!el) return;
 
-  // Adaptive tip
-  var tip = getAdaptiveTip(activeBelt, streak, totd ? totd.name : null);
+    var activeBelt = getActiveBeltInfo();
+    var profile    = getProfile ? getProfile() : null;
+    var firstName  = (profile && profile.name) ? profile.name.split(' ')[0] : 'Judoka';
+    var streak     = getStreak();
+    var xp         = (typeof getXP === 'function') ? getXP() : 0;
+    var pct        = activeBelt ? activeBelt.pct : 0;
+    var totalXP    = 500;
+    var earnedXP   = Math.round(totalXP * pct / 100);
+    var targetBelt = activeBelt ? (activeBelt.belt.to + ' Belt') : 'Red Belt';
+    var unitName   = activeBelt ? (activeBelt.belt.from.toUpperCase() + ' BELT BASICS') : 'WHITE BELT BASICS';
+    var unitNum    = activeBelt ? (['White','Red','Yellow','Orange','Green','Blue','Brown'].indexOf(activeBelt.belt.from) + 1) : 1;
+    var donedToday = getSessionLog().some(function(s){ return _sessionDate(s) === todayStr(); });
 
-  // Today's technique
-  var totdVid   = totd ? getVideoId(totd.url) : null;
-  var totdThumb = totdVid ? ('https://img.youtube.com/vi/' + totdVid + '/mqdefault.jpg') : null;
-  var techName  = totd ? totd.name : 'Judo Training';
-  var techEn    = totd ? (totd.english || totd.translation || '') : '';
-  var techCat   = totd ? (totd.subcategory || totd.category || '') : '';
-  var techSub   = [techEn, techCat].filter(Boolean).join(' · ');
+    // ── Build path nodes from belt items ─────────────────────────────
+    var items   = getContinueLearningItems();
+    var doneItems   = items.filter(function(i){ return i.done; });
+    var undoneItems = items.filter(function(i){ return !i.done; });
+    var activeItem  = undoneItems[0] || null;
+    var lockedItems = undoneItems.slice(1);
 
-  // Dynamic CTA
-  var hasActive = (typeof currentSession !== 'undefined' && currentSession &&
-                   typeof timerInterval !== 'undefined' && timerInterval !== null);
-  var donedToday = getSessionLog().some(function(s){ return _sessionDate(s) === todayStr(); });
+    // Show last 2 completed + active + boss every 5 + up to 4 locked
+    var pathNodes = [];
 
-  // Week streak dots
-  var weekDaysDone = getWeekDaysDone();
-  var today = new Date();
-  var todayDisplayIdx = (today.getDay() + 6) % 7;
-  var dayLetters = ['M','T','W','T','F','S','S'];
-  var streakDots = dayLetters.map(function(d, i){
-    var done = weekDaysDone[i];
-    var isToday = (i === todayDisplayIdx);
-    if (done) return '<div class="nh-sd nh-sd-done">' + d + '</div>';
-    if (isToday) return '<div class="nh-sd nh-sd-today">' + d + '</div>';
-    return '<div class="nh-sd nh-sd-rest">' + d + '</div>';
-  }).join('');
+    // Last 2 completed (reversed so most recent is nearest)
+    var recentDone = doneItems.slice(-2).reverse();
+    recentDone.forEach(function(item) {
+      pathNodes.push({ type: 'done', name: item.name });
+    });
 
-  // Belt tag label
-  var beltTagLabel = targetBeltName
-    ? (targetBeltName + ' &nbsp;·&nbsp; ' + (activeBelt && activeBelt.nextItems && activeBelt.nextItems.length ? 'Required' : 'Recommended'))
-    : 'Recommended';
+    // Active node
+    if (activeItem) {
+      pathNodes.push({ type: 'active', name: activeItem.name });
+    }
 
-  // Tip HTML
-  var tipHtml = '';
-  if (tip) {
-    var tipBg    = (tip.cls === 'nh-adapt-returning') ? '#0a1420' : '#0f1a0f';
-    var tipBord  = (tip.cls === 'nh-adapt-returning') ? '#1a3060' : '#1a4a1a';
-    var tipCol   = (tip.cls === 'nh-adapt-returning') ? '#60a5fa' : '#4ade80';
-    var tagBg    = (tip.cls === 'nh-adapt-returning') ? 'rgba(59,130,246,.12)' : 'rgba(74,222,128,.12)';
-    var tagBord  = (tip.cls === 'nh-adapt-returning') ? 'rgba(59,130,246,.25)' : 'rgba(74,222,128,.25)';
-    tipHtml = '<div class="nh-adapt-box" style="background:' + tipBg + ';border-color:' + tipBord + '">' +
-      '<div class="nh-adapt-tag" style="background:' + tagBg + ';border-color:' + tagBord + ';color:' + tipCol + '">' + tip.tag + '</div>' +
-      '<div class="nh-adapt-title" style="color:' + tipCol + '">' + tip.title + '</div>' +
-      '<div class="nh-adapt-body">' + tip.body + '</div>' +
-      '</div>';
-  }
+    // Boss node if we're partway through
+    var doneCount = doneItems.length;
+    var nextBossAt = Math.ceil((doneCount + 1) / 5) * 5;
+    if (nextBossAt - doneCount <= 3) {
+      pathNodes.push({ type: 'boss', name: 'Grading Exam' });
+    }
 
-  // Thumb HTML
-  var thumbHtml = totdThumb
-    ? '<img src="' + totdThumb + '" class="nh-video-thumb" onerror="this.style.display=\'none\'" alt="Technique demo">'
-    : '';
+    // Up to 4 locked
+    lockedItems.slice(0, 4).forEach(function(item) {
+      pathNodes.push({ type: 'locked', name: item.name });
+    });
 
-  // CTA HTML — dominant action
-  var sessionPct = 0;
-  if (hasActive && typeof getTotalItemCount === 'function' && getTotalItemCount() > 0) {
-    sessionPct = Math.min(99, Math.round((getCurrentItemNum() - 1) / getTotalItemCount() * 100));
-  }
-  var ctaHtml;
-  if (hasActive) {
-    ctaHtml = '<button class="nh-hero-btn nh-hero-btn-continue" onclick="showView(\'train\')">' +
-      '<span class="nh-btn-play">&#9654;</span>' +
-      '<span class="nh-btn-label">CONTINUE SESSION</span>' +
-      '<span class="nh-btn-pct">' + sessionPct + '%</span>' +
-      '</button>' +
-      '<button class="nh-sec-btn" onclick="onStartFocused()">+ Start today&#39;s training instead</button>';
-  } else if (donedToday) {
-    ctaHtml = '<button class="nh-hero-btn nh-hero-btn-done" onclick="onStartFocused()">' +
-      '<span class="nh-btn-play">&#10003;</span>' +
-      '<span class="nh-btn-label">SESSION DONE · TRAIN AGAIN?</span>' +
-      '</button>';
-  } else {
-    ctaHtml = '<button class="nh-hero-btn nh-hero-btn-start" onclick="onStartFocused()">' +
-      '<span class="nh-btn-play">&#9654;</span>' +
-      '<span class="nh-btn-label">START TODAY\'S TRAINING</span>' +
-      '</button>';
-  }
+    // If nothing to show at all, show a boss and 3 locked placeholders
+    if (!pathNodes.length) {
+      pathNodes.push({ type: 'boss', name: 'Grading Exam' });
+    }
 
-  document.getElementById('home-body').innerHTML =
-  '<style>' +
-  /* ── Layout foundation ── */
-  '.hf-wrap{display:flex;flex-direction:column;min-height:100%;padding:0 0 80px;box-sizing:border-box}' +
-  /* ── Header ── */
-  '.hf-header{display:flex;flex-direction:column;gap:2px;padding:8px 14px 6px;flex-shrink:0}' +
-  '' +
-  '.hf-logo{display:flex;align-items:center;gap:9px}' +
-  '.hf-logo-icon{width:32px;height:32px;flex-shrink:0}' +
-  '.hf-logo-text{display:flex;flex-direction:column;gap:0}' +
-  '.hf-logo-name{font-size:16px;font-weight:800;color:#f4f4f8;letter-spacing:-.3px;line-height:1}' +
-  '.hf-logo-sub{font-size:8px;font-weight:700;color:#d97706;letter-spacing:2px;text-transform:uppercase;margin-top:1px}' +
-  '.hf-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}' +
-  '.hf-name-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 10px 5px 8px;cursor:pointer;font-size:12px;font-weight:600;color:#f4f4f8;-webkit-tap-highlight-color:transparent}' +
-  '.hf-pill-arrow{font-size:9px;color:rgba(255,255,255,.35);margin-left:1px}' +
-  '.hf-envelope-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px;cursor:pointer;color:#bbb;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}' +
-  /* ── Greeting + identity ── */
-  '.hf-greeting{font-size:22px;font-weight:800;color:#f0f0f5;letter-spacing:-.5px;line-height:1.15}' +
-  '.hf-identity-row{display:flex;align-items:center;gap:5px;margin-top:1px}' +
-  '.hf-belt-colordot{display:inline-block;border-radius:50%;flex-shrink:0}' +
-  '.hf-belt-label{font-size:12px;color:#ccc;font-weight:500}' +
-  '.hf-identity-sep{color:#444;font-size:11px}' +
-  '.hf-streak-fire{font-size:12px}' +
-  '.hf-streak-num{font-size:12px;color:#ccc}' +
-  /* ── Adaptive tip ── */
-  '.nh-adapt-box{border-radius:12px;padding:8px 12px;margin:0 14px 8px;border:1px solid}@media(max-height:680px){.nh-adapt-box{display:none!important}}' +
-  '.nh-adapt-tag{display:inline-block;border-radius:5px;border:1px solid;padding:2px 8px;font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px}' +
-  '.nh-adapt-title{font-size:12px;font-weight:700;margin-bottom:2px}' +
-  '.nh-adapt-body{font-size:11px;color:#999;line-height:1.45}' +
-  /* ── Today training card ── */
-  '.nh-today-card{background:#120508;border:1.5px solid rgba(230,57,70,.3);border-radius:16px;padding:14px 14px 12px;margin:0 14px 10px;box-shadow:0 2px 20px rgba(230,57,70,.08)}' +
-  '.nh-belt-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;padding:3px 9px;font-size:9px;font-weight:700;color:#999;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}' +
-  '.nh-belt-dot-sm{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}' +
-  '.nh-tech-name{font-size:21px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:2px;letter-spacing:-.4px}' +
-  '.nh-tech-sub{font-size:11px;color:#666;margin-bottom:6px}' +
-  '.nh-meta-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}' +
-  '.nh-meta-chip{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:3px 8px;font-size:10px;font-weight:600;color:#999}' +
-  '.nh-meta-done{color:#4ade80!important;background:rgba(74,222,128,.09)!important;border-color:rgba(74,222,128,.18)!important}' +
-  '.nh-meta-focus{color:#f97316!important;background:rgba(249,115,22,.09)!important;border-color:rgba(249,115,22,.18)!important}' +
-  /* ── Video thumbnail ── */
-  '.nh-video-thumb{width:100%;height:130px;object-fit:cover;object-position:center center;border-radius:10px;margin-top:10px;margin-bottom:0;background:#0d0d12;display:block}' +
-  /* ── CTA buttons ── */
-  '.nh-hero-btn{width:100%;border:none;border-radius:14px;padding:17px 20px;font-size:16px;font-weight:900;cursor:pointer;margin-bottom:8px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:10px;-webkit-tap-highlight-color:transparent;transition:transform .1s,box-shadow .1s}' +
-  '.nh-hero-btn:active{transform:scale(.98)}' +
-  '.nh-hero-btn-start{background:#e63946;color:#fff;box-shadow:0 4px 20px rgba(230,57,70,.45)}' +
-  '.nh-hero-btn-continue{background:#f59e0b;color:#0d0d12;box-shadow:0 4px 20px rgba(245,158,11,.4)}' +
-  '.nh-hero-btn-done{background:#16a34a;color:#fff;box-shadow:0 4px 20px rgba(22,163,74,.35)}' +
-  '.nh-btn-play{font-size:13px;opacity:.85}' +
-  '.nh-btn-label{flex:1;text-align:center}' +
-  '.nh-btn-pct{font-size:13px;font-weight:700;opacity:.8;background:rgba(0,0,0,.15);padding:2px 8px;border-radius:6px}' +
-  '.nh-sec-btn{width:100%;background:transparent;border:none;color:#e63946;font-size:12px;font-weight:600;padding:6px;cursor:pointer;opacity:.7;-webkit-tap-highlight-color:transparent}' +
-  /* ── Week streak ── */
-  '.nh-streak-section{margin:0 14px 8px;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:10px 13px}' +
-  '.nh-streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}' +
-  '.nh-section-lbl{font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.8px}' +
-  '.nh-streak-count{font-size:11px;font-weight:700;color:#f59e0b}' +
-  '.nh-streak-row{display:flex;gap:5px;justify-content:space-between}' +
-  '.nh-sd{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}' +
-  '.nh-sd-done{background:#e63946;color:#fff}' +
-  '.nh-sd-today{background:transparent;border:1.5px dashed #e63946;color:#e63946}' +
-  '.nh-sd-rest{background:rgba(255,255,255,.04);color:#3a3a48}' +
-  /* ── Stats row ── */
-  '.nh-stats-row{display:flex;gap:8px;margin:0 14px 8px}' +
-  '.cl-section{margin:0 14px 10px}' +
-  '.cl-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}' +
-  '.cl-title{font-size:11px;font-weight:800;color:#f0f4ff;letter-spacing:.04em;text-transform:uppercase}' +
-  '.cl-belt-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,.12);padding:1px 7px;border-radius:5px;vertical-align:middle;text-transform:none;letter-spacing:0}' +
-  '.cl-badge{font-size:10px;font-weight:700;color:#6b7280;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px}' +
-  '.cl-progress-bar{height:3px;background:rgba(255,255,255,.07);border-radius:3px;margin-bottom:8px;overflow:hidden}' +
-  '.cl-progress-fill{height:100%;background:#e63946;border-radius:3px;transition:width .4s}' +
-  '.cl-list{display:flex;flex-direction:column;gap:2px}' +
-  '.cl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#13131c;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,.05);-webkit-tap-highlight-color:transparent}' +
-  '.cl-item:active{background:#1a1a26}' +
-  '.cl-item-done{opacity:.45}' +
-  '.cl-thumb-wrap{width:52px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#0d0d12}' +
-  '.cl-thumb{width:52px;height:36px;object-fit:cover;display:block}' +
-  '.cl-thumb-ph{display:flex;align-items:center;justify-content:center;font-size:16px;width:52px;height:36px}' +
-  '.cl-info{flex:1;min-width:0}' +
-  '.cl-name{font-size:13px;font-weight:700;color:#f0f4ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-  '.cl-sub{font-size:10px;color:#6b7280;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-  '.cl-play{width:28px;height:28px;background:#e63946;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding-left:2px;-webkit-tap-highlight-color:transparent}' +
-  '.cl-play-empty{width:28px;height:28px;flex-shrink:0}' +
-  '.cl-view-all{width:100%;margin-top:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;color:#9ca3af;font-size:12px;font-weight:600;padding:9px;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
-  '.nh-stat-card{flex:1;background:#0f0f14;border:1px solid #1e1e28;border-radius:13px;padding:11px 8px;text-align:center}' +
-  '.nh-stat-val{font-size:19px;font-weight:800;line-height:1}' +
-  '.nh-stat-lbl{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}' +
-'</style>' +
-  '<div class="hf-wrap">' +
+    // Zigzag offsets: cycle right, center-left, left, center-right
+    var xOffsets = ['translate-x-6', '-translate-x-2', '-translate-x-8', 'translate-x-2'];
 
-    '<div class="hf-header">' +
-      '<div class="hf-greeting">Good ' + getTimeOfDay() + ', ' + firstName + '</div>' +
-      '<div class="hf-identity-row">' +
-        '<span class="hf-belt-colordot" style="background:' + fromHex + '"></span>' +
-        '<span class="hf-belt-label">' + beltName + '</span>' +
-        '<span class="hf-identity-sep">&nbsp;·&nbsp;</span>' +
-        '<span class="hf-streak-fire">🔥</span>' +
-        '<span class="hf-streak-num">' + streak + ' day streak</span>' +
-      '</div>' +
-    '</div>' +
+    function nodeIcon(type) {
+      if (type === 'done')   return '<span class="material-symbols-outlined ms-fill text-4xl" style="color:#ff5262">check_circle</span>';
+      if (type === 'active') return '<span class="material-symbols-outlined ms-fill text-4xl" style="color:#5b0012">school</span>';
+      if (type === 'boss')   return '<span class="material-symbols-outlined ms-fill text-6xl" style="color:#5b0012">grade</span>';
+      return '<span class="material-symbols-outlined text-4xl" style="color:#8f909c">lock</span>';
+    }
 
-    '<!-- ADAPTIVE TIP -->' +
-    tipHtml +
+    function nodeStyle(type) {
+      if (type === 'done')   return 'background:#2a2a2a;border-bottom:6px solid #1a1a1a;';
+      if (type === 'active') return 'background:#ff5262;border-bottom:6px solid #920022;box-shadow:0 4px 20px rgba(255,82,98,.4);';
+      if (type === 'boss')   return 'background:#ff5262;border-bottom:8px solid #920022;box-shadow:0 8px 0 0 #920022,0 15px 30px -5px rgba(255,82,98,.5);';
+      return 'background:#353534;border-bottom:6px solid #1a1a1a;opacity:.55;';
+    }
 
-    '<!-- TODAYS TRAINING -->' +
-    '<div class="nh-today-card">' +
-      '<div class="nh-belt-tag">' +
-        '<span class="nh-belt-dot-sm" style="background:' + toBeltColor + '"></span>' +
-        beltTagLabel +
-      '</div>' +
-      '<div class="nh-tech-name">' + techName + '</div>' +
-      '<div class="nh-tech-sub">' + techSub + '</div>' +
-      '<div class="nh-meta-row">' +
-        '<span class="nh-meta-chip"><span>&#9200;</span> 12 min</span>' +
-        (donedToday
-          ? '<span class="nh-meta-chip nh-meta-done">&#10003; Done today</span>'
-          : '<span class="nh-meta-chip nh-meta-focus">&#128293; Today&#39;s focus</span>') +
-      '</div>' +
-      ctaHtml +
-      (totdThumb ? '<div style="margin-top:10px">' + thumbHtml + '</div>' : '') +
-    '</div>' +
+    function nodeSize(type) {
+      return type === 'boss' ? 'width:7rem;height:7rem;' : 'width:5rem;height:5rem;';
+    }
 
-    '<!-- CONTINUE LEARNING -->' +
-    buildContinueLearning(activeBelt) +
+    var nodesHtml = pathNodes.map(function(node, i) {
+      var offset = (node.type === 'boss') ? '' : xOffsets[i % xOffsets.length];
+      var safe   = node.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      var click  = (node.type !== 'locked' && node.type !== 'boss')
+        ? 'onclick="openLesson(\'' + safe + '\')"'
+        : (node.type === 'boss' ? 'onclick="openExam()"' : '');
 
-    '<!-- WEEK STREAK -->' +
-    '<div class="nh-streak-section">' +
-      '<div class="nh-streak-top">' +
-        '<span class="nh-section-lbl">THIS WEEK</span>' +
-        '<span class="nh-streak-count">&#128293; ' + streak + ' day streak</span>' +
-      '</div>' +
-      '<div class="nh-streak-row">' + streakDots + '</div>' +
-    '</div>' +
+      var startBubble = (node.type === 'active')
+        ? '<div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-white font-bold px-3 py-1 rounded-lg text-xs animate-bounce shadow-md" style="color:#131313;white-space:nowrap">START</div>'
+        : '';
 
-    '<!-- QUICK STATS -->' +
-    '<div class="nh-stats-row">' +
-      '<div class="nh-stat-card">' +
-        '<div class="nh-stat-val" style="color:#f59e0b">' + matHours + '</div>' +
-        '<div class="nh-stat-lbl">Mat hours</div>' +
-      '</div>' +
-      '<div class="nh-stat-card">' +
-        '<div class="nh-stat-val" style="color:#4ade80">' + pct + '%</div>' +
-        '<div class="nh-stat-lbl">Belt done</div>' +
-      '</div>' +
-      '<div class="nh-stat-card">' +
-        '<div class="nh-stat-val" style="color:#818cf8">' + (typeof getXP === 'function' ? getXP() : 0) + '</div>' +
-        '<div class="nh-stat-lbl">XP earned</div>' +
-      '</div>' +
-    '</div>' +
+      var bossLabel = (node.type === 'boss')
+        ? '<div class="absolute -top-3 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border-2 animate-bounce-soft" style="background:#690005;color:#ffdad6;border-color:#ff5262">BOSS</div>'
+        : '';
 
-  '</div>';
+      var sparkle = (node.type === 'done')
+        ? '<span class="material-symbols-outlined ms-fill absolute -top-1 -right-1 text-xl" style="color:#ff5262;font-size:18px">auto_awesome</span>'
+        : '';
+
+      var nameStyle = node.type === 'boss'
+        ? 'font-size:18px;font-weight:800;color:#ffb3b3;letter-spacing:-0.5px;white-space:nowrap;'
+        : 'font-size:13px;font-weight:700;color:#e5e2e1;white-space:nowrap;';
+
+      return '<div class="relative flex flex-col items-center gap-6 ' + offset + '" style="margin-bottom:1.5rem">'
+        + startBubble
+        + '<button class="relative rounded-full flex items-center justify-center cursor-pointer tactile-node" '
+        + 'style="' + nodeSize(node.type) + nodeStyle(node.type) + '" ' + click + '>'
+        + bossLabel + sparkle + nodeIcon(node.type)
+        + '</button>'
+        + '<div class="absolute -bottom-6 left-1/2 -translate-x-1/2" style="' + nameStyle + '">' + node.name + '</div>'
+        + '</div>';
+    }).join('');
+
+    var continueLabel = donedToday ? 'TRAIN AGAIN' : 'CONTINUE JOURNEY';
+    var continueClick = activeItem ? "openLesson('" + (activeItem.name.replace(/'/g,"\\'")) + "')" : "showView('belt')";
+
+    el.innerHTML =
+      '<div class="dark font-jakarta" style="background:#131313;min-height:100dvh;overflow-x:hidden;max-width:100vw">'
+
+      // ── Stitch header ──
+      + '<header style="position:sticky;top:0;z-index:50;background:#131313;border-bottom:3px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center;padding:10px 20px">'
+        + '<div style="display:flex;align-items:center;gap:8px">'
+          + '<span class="material-symbols-outlined ms-fill" style="color:#ff5262;font-size:26px">local_fire_department</span>'
+          + '<span style="font-size:20px;font-weight:800;color:#ffb3b3;letter-spacing:-0.5px">JudoHub</span>'
+        + '</div>'
+        + '<div style="background:#2a2a2a;padding:6px 14px;border-radius:9999px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #393939">'
+          + '<span style="font-size:13px;font-weight:700;color:#ffb3b3">' + streak + ' <span class="material-symbols-outlined ms-fill" style="color:#ff5262;font-size:16px;vertical-align:middle">local_fire_department</span></span>'
+          + '<div style="width:2px;height:14px;background:#393939"></div>'
+          + '<span style="font-size:13px;font-weight:700;color:#e5e2e1">' + xp + ' XP</span>'
+          + '<div style="width:2px;height:14px;background:#393939"></div>'
+          + '<span style="font-size:13px;font-weight:700">5 ❤️</span>'
+        + '</div>'
+      + '</header>'
+
+      // ── Main path ──
+      + '<main class="bg-grid-pattern pb-32 pt-8 relative" style="max-width:28rem;margin:0 auto;padding-left:1rem;padding-right:1rem">'
+
+        // Unit card
+        + '<div style="text-align:center;margin-bottom:3rem">'
+          + '<div style="display:inline-block;background:#2a2a2a;border-radius:12px;padding:16px;border-bottom:4px solid #393939;margin-bottom:8px;min-width:220px">'
+            + '<div style="font-size:20px;font-weight:800;color:#ff5262;letter-spacing:-0.5px">UNIT ' + unitNum + '</div>'
+            + '<div style="font-size:13px;font-weight:700;color:#e5bdbd;margin-top:2px">' + unitName + '</div>'
+            + '<div style="margin-top:10px;background:#0e0e0e;height:8px;border-radius:9999px;overflow:hidden;border:1px solid #393939">'
+              + '<div style="background:#ffb3b3;height:100%;border-radius:9999px;width:' + pct + '%"></div>'
+            + '</div>'
+            + '<div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:700;color:#8f909c;text-transform:uppercase;letter-spacing:0.05em">'
+              + '<span>' + pct + '% Progress</span><span>' + earnedXP + '/' + totalXP + ' XP</span>'
+            + '</div>'
+          + '</div>'
+        + '</div>'
+
+        // Path nodes
+        + '<div class="flex flex-col items-center" style="gap:3rem;position:relative">'
+          + nodesHtml
+        + '</div>'
+
+        // Continue journey button
+        + '<div style="margin-top:3rem;padding:0 2rem">'
+          + '<button onclick="' + continueClick + '" style="width:100%;background:#ff5262;color:#5b0012;padding:16px;border-radius:12px;border:none;border-bottom:6px solid #920022;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;transform:translateY(-2px);transition:all .1s" '
+          + 'onmousedown="this.style.transform=\'translateY(2px)\';this.style.borderBottomWidth=\'2px\'" '
+          + 'onmouseup="this.style.transform=\'translateY(-2px)\';this.style.borderBottomWidth=\'6px\'" '
+          + 'ontouchstart="this.style.transform=\'translateY(2px)\';this.style.borderBottomWidth=\'2px\'" '
+          + 'ontouchend="this.style.transform=\'translateY(-2px)\';this.style.borderBottomWidth=\'6px\'">'
+          + continueLabel
+          + '</button>'
+        + '</div>'
+
+      + '</main>'
+
+      // ── FAB ──
+      + '<button onclick="showView(\'techniques\')" style="position:fixed;right:1.5rem;bottom:7rem;width:3.5rem;height:3.5rem;background:#393939;border-radius:14px;border:none;border-bottom:4px solid #2a2a2a;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.4);z-index:40;cursor:pointer">'
+        + '<span class="material-symbols-outlined" style="color:#ff5262;font-size:28px">sports_kabaddi</span>'
+      + '</button>'
+
+      // ── Bottom nav ──
+      + '<nav style="position:fixed;bottom:0;width:100%;z-index:50;border-radius:12px 12px 0 0;background:#201f1f;border-top:3px solid #353534;box-shadow:0 -4px 12px rgba(0,0,0,.3);display:flex;justify-content:space-around;align-items:center;padding:8px 8px 28px">'
+        + _stNavBtn('Learn',       'school',         true,   "showView('home')")
+        + _stNavBtn('Practice',    'fitness_center',  false,  "showView('techniques')")
+        + _stNavBtn('Progress',    'leaderboard',     false,  "showView('progress')")
+        + _stNavBtn('Profile',     'person',          false,  "showView('progress')")
+      + '</nav>'
+
+      + '</div>';
+
   } catch(e) {
-    var el=document.getElementById('home-body');
-    if(el) el.innerHTML='<div style="padding:20px;color:#e63946;font-size:12px;background:#14090a;margin:14px;border-radius:12px;border:1px solid #3d1015"><b>JS Error:</b><br>'+e.message+'<br><small style="color:#888">'+e.stack+'</small></div>';
+    var el = document.getElementById('home-body');
+    if (el) el.innerHTML = '<div style="padding:20px;color:#e63946;font-size:12px;background:#14090a;margin:14px;border-radius:12px;border:1px solid #3d1015"><b>JS Error:</b><br>' + e.message + '<br><small style="color:#888">' + e.stack + '</small></div>';
   }
 }
 
+function _stNavBtn(label, icon, active, onclick) {
+  var bg  = active ? '#920022' : 'transparent';
+  var col = active ? '#ffb3b3' : '#8f909c';
+  var tx  = 'translateY(-2px)';
+  return '<button onclick="' + onclick + '" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:' + bg + ';color:' + col + ';border:none;border-radius:10px;padding:6px 12px;' + (active ? 'transform:' + tx + ';border-bottom:3px solid #690005;' : '') + 'cursor:pointer">'
+    + '<span class="material-symbols-outlined' + (active ? ' ms-fill' : '') + '" style="font-size:22px">' + icon + '</span>'
+    + '<span style="font-size:11px;font-weight:700;margin-top:2px">' + label + '</span>'
+    + '</button>';
+}
 
 function revealIQCard() {
   const sub = document.getElementById('hf-iq-sub');

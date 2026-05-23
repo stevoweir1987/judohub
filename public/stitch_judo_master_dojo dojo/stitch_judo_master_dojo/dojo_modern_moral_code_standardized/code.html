@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Moral Code | Dojo Master</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #131313;
+            background-image: 
+                linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.02) 75%, transparent 75%, transparent),
+                linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.02) 75%, transparent 75%, transparent);
+            background-size: 60px 60px;
+            color: #e5e2e1;
+        }
+
+        .tatami-card {
+            background: linear-gradient(145deg, #201f1f, #131313);
+            border: 1px solid rgba(255, 179, 179, 0.05);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hanko-seal {
+            border: 2px solid #ff5262;
+            color: #ff5262;
+            position: relative;
+        }
+
+        .hanko-seal::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, #ff5262 10%, transparent 70%);
+            opacity: 0.1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ac8888;
+            border-radius: 10px;
+        }
+
+        .tactile-button {
+            box-shadow: 0 4px 0 0 #920022;
+            transition: all 0.1s;
+        }
+        .tactile-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #920022;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#003730",
+                    "on-background": "#e5e2e1",
+                    "on-tertiary-fixed": "#00201c",
+                    "on-secondary-container": "#f2f3ff",
+                    "secondary": "#b0c6ff",
+                    "on-primary": "#680016",
+                    "on-primary-fixed-variant": "#920022",
+                    "surface": "#131313",
+                    "secondary-fixed": "#d9e2ff",
+                    "error-container": "#93000a",
+                    "on-primary-fixed": "#40000a",
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#71d8c6",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-surface": "#e5e2e1",
+                    "surface-container-highest": "#353534",
+                    "on-tertiary-container": "#00302a",
+                    "tertiary-container": "#33a191",
+                    "outline-variant": "#5c3f40",
+                    "primary-fixed": "#ffdad9",
+                    "primary-container": "#ff5262",
+                    "surface-bright": "#393939",
+                    "primary": "#ffb3b3",
+                    "tertiary": "#71d8c6",
+                    "surface-tint": "#ffb3b3",
+                    "on-secondary-fixed-variant": "#00429b",
+                    "on-primary-container": "#5b0012",
+                    "inverse-primary": "#bf0030",
+                    "on-secondary-fixed": "#001945",
+                    "surface-container-high": "#2a2a2a",
+                    "background": "#131313",
+                    "inverse-on-surface": "#313030",
+                    "on-tertiary-fixed-variant": "#005047",
+                    "surface-dim": "#131313",
+                    "secondary-container": "#0068ed",
+                    "secondary-fixed-dim": "#b0c6ff",
+                    "on-secondary": "#002d6e",
+                    "outline": "#ac8888",
+                    "surface-variant": "#353534",
+                    "surface-container": "#201f1f",
+                    "tertiary-fixed": "#8ef5e2",
+                    "surface-container-low": "#1c1b1b",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed-dim": "#ffb3b3",
+                    "inverse-surface": "#e5e2e1",
+                    "on-surface-variant": "#e5bdbd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-mobile": "20px",
+                    "unit": "8px",
+                    "gutter": "16px",
+                    "margin-desktop": "64px",
+                    "max-width": "1200px"
+            },
+            "fontFamily": {
+                    "title-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md overflow-x-hidden">
+<!-- Top Navigation HUD (Consistent with Dojo Modern) -->
+<header class="bg-surface border-b border-outline-variant w-full top-0 sticky z-50 flex justify-between items-center px-margin-mobile h-16">
+<a class="mr-2 text-on-surface hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+</a><div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 0;">account_tree</span>
+<h1 class="font-display-lg text-headline-lg-mobile text-primary tracking-tighter uppercase">Dojo Master</h1>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-highest px-4 py-2 rounded-xl border border-outline-variant shadow-inner">
+<div class="flex items-center gap-1.5">
+<span class="text-sm font-bold text-on-surface">12</span>
+<span class="text-lg">🔥</span>
+</div>
+<div class="w-[1px] h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-1.5">
+<span class="text-sm font-bold text-on-surface">5/5</span>
+<span class="text-lg text-primary">❤️</span>
+</div>
+</div>
+</header>
+<main class="flex-grow pb-32 px-margin-mobile max-w-max-width mx-auto w-full">
+<!-- Hero Section -->
+<section class="mt-8 mb-10">
+<div class="relative h-56 w-full rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] border border-outline-variant">
+<img alt="Traditional Japanese Dojo" class="w-full h-full object-cover grayscale-[0.3] contrast-[1.1]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYM4__VExjj48ZN4NWW39piLk3dx-X5fL-vgUjlpxzdYWAjJd7bspSBDeZxgD6jPHvHrTTaRHsoXD4c5fb0-FQy8vONYtfMuhhI-_YrtXpVbmLA1_-ZmNHgu6Zjw3Fv89g0uETGJxzmWk98DNL4y5DrqbxKllw5OFyMrXuk7jVrxjYPfcBOfac0aP4AOxyhorO99_MMOtjBCFb736HQvZB-VuEoZEJW9E-xRmydYQBEh_vnR5lB4zuDOrHdCjh6GIdbF6Jd2EwfB4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
+<div class="absolute bottom-8 left-8">
+<span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-sm font-label-caps text-[10px] mb-3 inline-block tracking-[0.2em] uppercase">The Dojo Way</span>
+<h2 class="font-display-lg text-4xl text-on-background uppercase tracking-tight">Moral Code</h2>
+</div>
+</div>
+</section>
+<!-- Principles Tactile Grid -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<!-- Courtesy -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">礼</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">pan_tool</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Courtesy</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">It is the respect shown to others through good manners and politeness. In the dojo, it begins with the bow.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Reigi</span>
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+</div>
+</div>
+<!-- Courage -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-l-4 border-l-primary hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">勇</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">shield</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Courage</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">Doing what is right even when it is difficult. Facing your fears on and off the mat with a focused heart.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Yuuki</span>
+<span class="material-symbols-outlined text-primary text-xl">verified</span>
+</div>
+</div>
+<!-- Sincerity -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">誠</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">draw</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Sincerity</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">To speak without disguise and act with honesty. Being true to yourself and your fellow practitioners.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Makoto</span>
+<span class="material-symbols-outlined text-outline/30 text-xl">circle</span>
+</div>
+</div>
+<!-- Honor -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">名</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">military_tech</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Honor</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">Being true to your word and maintaining integrity in all actions. Honor is the foundation of a Judoka's spirit.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Meiyo</span>
+<span class="material-symbols-outlined text-outline/30 text-xl">circle</span>
+</div>
+</div>
+<!-- Modesty -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">謙</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">expand</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Modesty</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">To be humble about your achievements and not to boast. The higher the rank, the deeper the bow.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Kenkyo</span>
+<span class="material-symbols-outlined text-outline/30 text-xl">circle</span>
+</div>
+</div>
+<!-- Respect -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer bg-primary-container/5 border-primary/20">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">尊</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">groups</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Respect</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">Without respect, trust cannot exist. Mutual respect is essential for progress in mastery.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Sonkei</span>
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+</div>
+</div>
+<!-- Self-Control -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">自</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">psychology</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Self-Control</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">Controlling your emotions and actions, especially during intense competition or physical fatigue.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Jiseki</span>
+<span class="material-symbols-outlined text-outline/30 text-xl">circle</span>
+</div>
+</div>
+<!-- Friendship -->
+<div class="tatami-card p-6 rounded-xl relative group overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-primary/40 active:translate-y-1 active:shadow-none cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<span class="hanko-seal w-12 h-12 rounded-lg flex items-center justify-center font-bold text-2xl bg-surface-container">友</span>
+<span class="material-symbols-outlined text-outline opacity-40 group-hover:text-primary group-hover:opacity-100 transition-all">handshake</span>
+</div>
+<h3 class="font-title-md text-headline-lg-mobile text-on-surface mb-2">Friendship</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">The purest form of connection between training partners. Growing together through shared effort.</p>
+<div class="border-t border-outline-variant pt-3 flex justify-between items-center">
+<span class="text-[10px] font-label-caps text-outline tracking-widest uppercase">Yuujou</span>
+<span class="material-symbols-outlined text-outline/30 text-xl">circle</span>
+</div>
+</div>
+</div>
+<!-- Mastery Section -->
+<section class="mt-12 bg-surface-container-high p-8 rounded-xl border border-outline-variant relative overflow-hidden shadow-2xl">
+<div class="absolute top-0 right-0 p-4 opacity-[0.03]">
+<span class="material-symbols-outlined text-[12rem]">temple_buddhist</span>
+</div>
+<div class="relative z-10 max-w-2xl">
+<h2 class="font-display-lg text-headline-lg text-primary mb-4 uppercase tracking-tight">The Way of Jigorō Kanō</h2>
+<p class="text-on-surface-variant mb-8 leading-relaxed italic">"Judo is the way to the highest efficacious use of both physical and mental power. By training in attacks and weapons it nurtures your body and soul and helps you make the essence of judo a part of your very being."</p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="tactile-button bg-primary text-on-primary px-8 py-4 rounded-xl font-title-md flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">quiz</span>
+                        Take Moral Exam
+                    </button>
+<button class="border border-outline-variant text-on-surface px-8 py-4 rounded-xl font-title-md hover:bg-surface-bright transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">history_edu</span>
+                        View History
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation (Unified 4-tab) -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe bg-surface-container/95 backdrop-blur-md border-t border-outline-variant z-50">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase tracking-tighter">Study</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-all" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase tracking-tighter">Practice</span>
+</a>
+<a class="relative flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl w-16 h-12 shadow-[0_4px_0_0_#920022] -translate-y-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">temple_buddhist</span>
+<span class="font-label-caps text-[9px] mt-0.5 uppercase font-bold">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:opacity-100 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase tracking-tighter">Profile</span>
+</a>
+</nav>
+</body></html>

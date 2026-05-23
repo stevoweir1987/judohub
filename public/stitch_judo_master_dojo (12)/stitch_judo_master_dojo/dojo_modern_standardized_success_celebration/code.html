@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Technique Mastered - DOJO MASTER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#33a191",
+                        "inverse-on-surface": "#313030",
+                        "tertiary-fixed": "#8ef5e2",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-fixed-dim": "#ffb3b3",
+                        "secondary-fixed": "#d9e2ff",
+                        "on-secondary": "#002d6e",
+                        "on-secondary-fixed-variant": "#00429b",
+                        "background": "#131313",
+                        "secondary": "#b0c6ff",
+                        "tertiary": "#71d8c6",
+                        "primary": "#ffb3b3",
+                        "on-tertiary-fixed-variant": "#005047",
+                        "on-error": "#690005",
+                        "outline": "#ac8888",
+                        "inverse-primary": "#bf0030",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "surface-container": "#201f1f",
+                        "surface-dim": "#131313",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-container": "#5b0012",
+                        "outline-variant": "#5c3f40",
+                        "on-tertiary-fixed": "#00201c",
+                        "primary-container": "#ff5262",
+                        "tertiary-fixed-dim": "#71d8c6",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed": "#40000a",
+                        "surface-container-highest": "#353534",
+                        "secondary-fixed-dim": "#b0c6ff",
+                        "on-surface": "#e5e2e1",
+                        "on-secondary-fixed": "#001945",
+                        "on-surface-variant": "#e5bdbd",
+                        "on-background": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "surface-tint": "#ffb3b3",
+                        "on-secondary-container": "#f2f3ff",
+                        "primary-fixed": "#ffdad9",
+                        "on-primary-fixed-variant": "#920022",
+                        "on-primary": "#680016",
+                        "surface": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary": "#003730",
+                        "secondary-container": "#0068ed",
+                        "on-tertiary-container": "#00302a",
+                        "inverse-surface": "#e5e2e1",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "max-width": "1200px",
+                        "unit": "8px",
+                        "margin-desktop": "64px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tatami-bg {
+            background-image: 
+                linear-gradient(45deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.015) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.015) 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px 20px, 20px 0;
+        }
+        .kanji-glow {
+            text-shadow: 0 0 30px rgba(255, 179, 179, 0.7), 0 0 60px rgba(255, 179, 179, 0.3);
+        }
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 0;
+            animation: confetti-fall linear forwards;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        .pip-glow {
+            box-shadow: 0 0 10px rgba(176, 198, 255, 0.9);
+        }
+        .squishy-button {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            box-shadow: 0 8px 0 0 #920022;
+        }
+        .squishy-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 0 #920022;
+        }
+        .badge-elevation {
+            box-shadow: 0 15px 0 0 rgba(0,0,0,0.5), 0 20px 40px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary selection:text-on-primary min-h-screen tatami-bg overflow-x-hidden relative">
+<div class="fixed inset-0 pointer-events-none z-0" id="confetti-container"></div>
+<!-- Dojo Modern Header -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-background/90 backdrop-blur-md border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="font-display-lg text-xl text-primary tracking-tighter font-extrabold uppercase">DOJO MASTER</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-high rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1">bolt</span>
+<span class="text-sm font-bold">5</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-high rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1">favorite</span>
+<span class="text-sm font-bold">5/5</span>
+</div>
+</div>
+</header>
+<main class="relative z-10 pt-24 pb-36 px-margin-mobile max-w-sm mx-auto flex flex-col items-center min-h-screen">
+<!-- Premium Success Celebration Identity -->
+<div class="relative mb-12 flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-10 duration-1000 fill-mode-both">
+<!-- 3D Style Badge Container -->
+<div class="relative w-64 h-64 mb-10">
+<!-- Background Radial Glow -->
+<div class="absolute inset-0 rounded-full bg-primary/20 blur-[80px] animate-pulse"></div>
+<div class="relative w-full h-full rounded-[2.5rem] bg-surface-container-highest border-4 border-primary/20 flex items-center justify-center badge-elevation overflow-hidden group">
+<!-- Subtle Background Kanji Pattern -->
+<span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[160px] opacity-10 text-primary rotate-12 select-none" data-icon="military_tech">military_tech</span>
+<!-- Calligraphy 'Success' -->
+<div class="text-primary text-[88px] font-bold kanji-glow select-none z-10">
+                        成功
+                    </div>
+</div>
+<!-- Floating Star Decoration -->
+<div class="absolute -top-4 -right-4 w-16 h-16 bg-surface-container-high border-2 border-primary/40 rounded-2xl flex items-center justify-center shadow-2xl animate-bounce duration-[3000ms]">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1">grade</span>
+</div>
+</div>
+<h1 class="font-display-lg text-headline-lg text-primary mb-3 uppercase tracking-tight">TECHNIQUE MASTERED</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">Your <span class="text-on-surface font-extrabold underline decoration-primary/40 decoration-2 underline-offset-4">Seoi Nage</span> execution has reached the required proficiency level.</p>
+</div>
+<!-- Progress Stats Section -->
+<div class="w-full space-y-4 mb-10">
+<!-- XP Bonus Card -->
+<div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant shadow-xl relative overflow-hidden">
+<div class="flex justify-between items-start mb-5">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 tracking-[0.2em]">XP Gained</p>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-3xl text-primary">+250 XP</h3>
+<span class="px-2 py-0.5 bg-primary/10 rounded text-[10px] text-primary font-black uppercase tracking-widest border border-primary/20">Bonus</span>
+</div>
+</div>
+<div class="bg-surface-container-high w-12 h-12 rounded-2xl border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1">stars</span>
+</div>
+</div>
+<!-- XP Progress Bar -->
+<div class="relative w-full h-4 bg-surface-container-highest rounded-full overflow-hidden border border-outline-variant/30">
+<div class="absolute inset-y-0 left-0 bg-gradient-to-r from-tertiary via-secondary-container to-secondary transition-all duration-[1500ms] ease-out shadow-[0_0_15px_rgba(113,216,198,0.5)]" id="xp-bar" style="width: 0%;"></div>
+</div>
+</div>
+<!-- Dan Status Card -->
+<div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant shadow-xl">
+<div class="flex justify-between items-center mb-6">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1 tracking-[0.2em]">Dan Status</p>
+<h3 class="font-headline-lg text-3xl text-secondary">7 Day Dan</h3>
+</div>
+<div class="bg-black border-2 border-outline-variant rounded-xl px-2 py-1.5 flex gap-1.5 shadow-inner">
+<div class="w-2 h-7 bg-secondary/30 rounded-full"></div>
+<div class="w-2 h-7 bg-secondary/30 rounded-full"></div>
+<div class="w-2 h-7 bg-secondary/30 rounded-full"></div>
+</div>
+</div>
+<!-- Dan Progress Pips -->
+<div class="flex justify-between items-center gap-2 px-1">
+<div class="h-2 flex-1 rounded-full bg-secondary pip-glow"></div>
+<div class="h-2 flex-1 rounded-full bg-secondary pip-glow"></div>
+<div class="h-2 flex-1 rounded-full bg-secondary pip-glow"></div>
+<div class="h-2 flex-1 rounded-full bg-secondary pip-glow"></div>
+<div class="h-2 flex-1 rounded-full bg-secondary pip-glow"></div>
+<div class="h-2 flex-1 rounded-full bg-secondary pip-glow"></div>
+<div class="h-4 flex-1 rounded-full bg-primary animate-pulse ring-4 ring-primary/20 ring-offset-2 ring-offset-surface-container-low"></div>
+</div>
+</div>
+</div>
+<!-- Tactile Continue Button -->
+<div class="w-full mt-auto">
+<button class="squishy-button w-full bg-primary-container text-on-primary-container font-headline-lg text-xl py-5 px-8 rounded-[1.5rem] flex items-center justify-center gap-4 active:brightness-110 transition-all uppercase tracking-widest" onclick="window.location.href='#'">
+                CONTINUE
+                <span class="material-symbols-outlined text-3xl font-bold" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Dojo Modern Bottom Navigation -->
+<nav class="fixed bottom-6 left-6 right-6 z-50 flex justify-around items-center h-20 bg-surface-container-low/95 backdrop-blur-lg border border-outline-variant shadow-2xl rounded-[2rem] px-4">
+<a class="flex flex-col items-center justify-center gap-1.5 w-16 h-16 bg-primary-container text-on-primary-container rounded-2xl transition-all shadow-lg" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1">school</span>
+<span class="font-label-caps text-[9px] font-black uppercase tracking-wider">LEARN</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1.5 w-16 h-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">fitness_center</span>
+<span class="font-label-caps text-[9px] font-bold uppercase tracking-wider">PRACTICE</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1.5 w-16 h-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">temple_buddhist</span>
+<span class="font-label-caps text-[9px] font-bold uppercase tracking-wider">DOJO</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1.5 w-16 h-16 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="font-label-caps text-[9px] font-bold uppercase tracking-wider">PROFILE</span>
+</a>
+</nav>
+<script>
+        window.addEventListener('DOMContentLoaded', () => {
+            // Trigger XP Bar Animation
+            setTimeout(() => {
+                document.getElementById('xp-bar').style.width = '82%';
+            }, 800);
+
+            // Enhanced Confetti Effect
+            const container = document.getElementById('confetti-container');
+            const colors = ['#ffb3b3', '#ffffff', '#ff5262', '#ffd700', '#b0c6ff']; 
+            
+            function createConfetti() {
+                const confettiCount = 80;
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.backgroundColor = color;
+                    
+                    const startX = Math.random() * 100;
+                    const duration = 2.5 + Math.random() * 3.5;
+                    const delay = Math.random() * 2;
+                    
+                    confetti.style.left = startX + 'vw';
+                    confetti.style.animationDuration = duration + 's';
+                    confetti.style.animationDelay = delay + 's';
+                    
+                    const size = 5 + Math.random() * 7;
+                    confetti.style.width = size + 'px';
+                    confetti.style.height = size + 'px';
+
+                    container.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), (duration + delay) * 1000);
+                }
+            }
+
+            createConfetti();
+            // Secondary burst for more premium feel
+            setTimeout(createConfetti, 4000);
+        });
+    </script>
+</body></html>

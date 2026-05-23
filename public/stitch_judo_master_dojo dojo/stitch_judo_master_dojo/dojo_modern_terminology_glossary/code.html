@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Terminology Glossary - DojoMaster</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #131313;
+            /* Tatami weave texture pattern */
+            background-image: 
+                linear-gradient(45deg, #1a1a1a 25%, transparent 25%), 
+                linear-gradient(-45deg, #1a1a1a 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1a1a1a 75%), 
+                linear-gradient(-45deg, transparent 75%, #1a1a1a 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+        }
+
+        .tatami-card {
+            background: linear-gradient(145deg, #201f1f, #1c1b1b);
+            box-shadow: 4px 4px 0px 0px #353534;
+        }
+
+        .tatami-card:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #353534;
+        }
+
+        .gi-collar-accent {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(225deg, #5c3f40 50%, transparent 50%);
+        }
+
+        .hanko-check {
+            border: 2px solid #ff5262;
+            position: relative;
+        }
+
+        .hanko-check::after {
+            content: '印';
+            font-size: 10px;
+            color: #ff5262;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .stamina-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #353534;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "on-error-container": "#ffdad6",
+                "surface": "#131313",
+                "inverse-on-surface": "#313030",
+                "surface-container-high": "#2a2a2a",
+                "on-primary": "#680016",
+                "error": "#ffb4ab",
+                "on-tertiary-fixed": "#00201c",
+                "primary": "#ffb3b3",
+                "surface-tint": "#ffb3b3",
+                "on-secondary-fixed-variant": "#00429b",
+                "outline-variant": "#5c3f40",
+                "on-surface": "#e5e2e1",
+                "on-error": "#690005",
+                "inverse-surface": "#e5e2e1",
+                "error-container": "#93000a",
+                "primary-fixed": "#ffdad9",
+                "tertiary": "#71d8c6",
+                "tertiary-fixed": "#8ef5e2",
+                "surface-container-lowest": "#0e0e0e",
+                "surface-container": "#201f1f",
+                "secondary-container": "#0068ed",
+                "on-secondary": "#002d6e",
+                "on-primary-fixed-variant": "#920022",
+                "surface-container-highest": "#353534",
+                "surface-variant": "#353534",
+                "on-secondary-container": "#f2f3ff",
+                "primary-container": "#ff5262",
+                "surface-dim": "#131313",
+                "secondary": "#b0c6ff",
+                "surface-bright": "#393939",
+                "on-secondary-fixed": "#001945",
+                "background": "#131313",
+                "on-surface-variant": "#e5bdbd",
+                "on-tertiary-fixed-variant": "#005047",
+                "surface-container-low": "#1c1b1b",
+                "on-tertiary-container": "#00302a",
+                "primary-fixed-dim": "#ffb3b3",
+                "tertiary-fixed-dim": "#71d8c6",
+                "on-tertiary": "#003730",
+                "tertiary-container": "#33a191",
+                "on-primary-container": "#5b0012",
+                "on-background": "#e5e2e1",
+                "inverse-primary": "#bf0030",
+                "secondary-fixed": "#d9e2ff",
+                "secondary-fixed-dim": "#b0c6ff",
+                "outline": "#ac8888",
+                "on-primary-fixed": "#40000a"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              "spacing": {
+                "margin-mobile": "20px",
+                "unit": "8px",
+                "max-width": "1200px",
+                "gutter": "16px",
+                "margin-desktop": "64px"
+              },
+              "fontFamily": {
+                "headline-lg-mobile": ["Plus Jakarta Sans"],
+                "display-lg": ["Plus Jakarta Sans"],
+                "title-md": ["Plus Jakarta Sans"],
+                "body-md": ["Plus Jakarta Sans"],
+                "body-lg": ["Plus Jakarta Sans"],
+                "label-caps": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top App Bar (HUD) -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-md border-b-4 border-surface-variant h-16 flex justify-between items-center px-margin-mobile py-unit">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary hover:opacity-80 active:translate-y-[2px] transition-all cursor-pointer">menu</span>
+<h1 class="font-headline-lg-mobile text-[20px] font-black text-primary tracking-tight">DOJO MASTER</h1>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-orange-500 text-[18px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-caps text-[12px] text-on-surface-variant">12</span>
+</div>
+<div class="w-[1px] h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-1.5">
+<div class="w-12 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="w-[100%] h-full bg-gradient-to-r from-tertiary to-secondary-container stamina-pulse"></div>
+</div>
+<span class="font-label-caps text-[10px] text-on-surface-variant">5/5</span>
+</div>
+<div class="w-[1px] h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-1">
+<span class="font-label-caps text-[12px] text-primary">5 ❤️</span>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-margin-mobile max-w-max-width mx-auto">
+<!-- Search & Filter Area -->
+<section class="mb-10">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border-b-4 border-surface-variant focus:border-primary-container text-on-surface font-body-md text-body-md px-12 py-4 rounded-xl outline-none transition-all placeholder:text-outline/50" placeholder="Search terminology (e.g. Kuzushi, Gari)..." type="text"/>
+</div>
+</section>
+<!-- Core Principles Section -->
+<section class="mb-12">
+<div class="flex items-center gap-4 mb-6">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface border-l-4 border-primary-container pl-4">Core Principles</h2>
+<div class="flex-grow h-[2px] bg-surface-variant"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Kuzushi -->
+<div class="tatami-card relative p-6 rounded-xl transition-all cursor-pointer group overflow-hidden">
+<div class="gi-collar-accent opacity-20 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-primary-container uppercase tracking-widest">Foundation</span>
+<div class="hanko-check w-5 h-5 rounded-full"></div>
+</div>
+<h3 class="font-title-md text-title-md text-primary mb-1">Kuzushi</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-4 italic">[koo-zoo-shee]</p>
+<p class="font-body-md text-body-md text-on-surface">The essential act of breaking your opponent's balance. The first stage of every successful Judo technique.</p>
+</div>
+<!-- Tsukuri -->
+<div class="tatami-card relative p-6 rounded-xl transition-all cursor-pointer group overflow-hidden">
+<div class="gi-collar-accent opacity-20 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-primary-container uppercase tracking-widest">Preparation</span>
+<div class="hanko-check w-5 h-5 rounded-full"></div>
+</div>
+<h3 class="font-title-md text-title-md text-primary mb-1">Tsukuri</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-4 italic">[tsoo-koo-ree]</p>
+<p class="font-body-md text-body-md text-on-surface">The precise positioning and entry. Moving yourself into the optimal spot to execute the throw.</p>
+</div>
+<!-- Kake -->
+<div class="tatami-card relative p-6 rounded-xl transition-all cursor-pointer group overflow-hidden">
+<div class="gi-collar-accent opacity-20 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-primary-container uppercase tracking-widest">Completion</span>
+<div class="hanko-check w-5 h-5 rounded-full"></div>
+</div>
+<h3 class="font-title-md text-title-md text-primary mb-1">Kake</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-4 italic">[kah-keh]</p>
+<p class="font-body-md text-body-md text-on-surface">The final execution or the 'point of no return' where the technique is fully applied to finish the throw.</p>
+</div>
+</div>
+</section>
+<!-- Technique Modifiers Section -->
+<section class="mb-12">
+<div class="flex items-center gap-4 mb-6">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface border-l-4 border-tertiary-container pl-4">Technique Modifiers</h2>
+<div class="flex-grow h-[2px] bg-surface-variant"></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-gutter">
+<div class="tatami-card p-4 rounded-lg text-center flex flex-col items-center group cursor-pointer">
+<h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">O</h4>
+<span class="font-label-caps text-label-caps text-outline-variant mb-2">Major</span>
+<div class="w-8 h-[1px] bg-outline-variant mb-2"></div>
+<p class="font-body-md text-[13px] leading-tight text-on-surface-variant opacity-70">Large/Great</p>
+</div>
+<div class="tatami-card p-4 rounded-lg text-center flex flex-col items-center group cursor-pointer">
+<h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">Ko</h4>
+<span class="font-label-caps text-label-caps text-outline-variant mb-2">Minor</span>
+<div class="w-8 h-[1px] bg-outline-variant mb-2"></div>
+<p class="font-body-md text-[13px] leading-tight text-on-surface-variant opacity-70">Small/Little</p>
+</div>
+<div class="tatami-card p-4 rounded-lg text-center flex flex-col items-center group cursor-pointer">
+<h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">Uchi</h4>
+<span class="font-label-caps text-label-caps text-outline-variant mb-2">Inner</span>
+<div class="w-8 h-[1px] bg-outline-variant mb-2"></div>
+<p class="font-body-md text-[13px] leading-tight text-on-surface-variant opacity-70">Inside</p>
+</div>
+<div class="tatami-card p-4 rounded-lg text-center flex flex-col items-center group cursor-pointer">
+<h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">Soto</h4>
+<span class="font-label-caps text-label-caps text-outline-variant mb-2">Outer</span>
+<div class="w-8 h-[1px] bg-outline-variant mb-2"></div>
+<p class="font-body-md text-[13px] leading-tight text-on-surface-variant opacity-70">Outside</p>
+</div>
+<div class="tatami-card p-4 rounded-lg text-center flex flex-col items-center group cursor-pointer">
+<h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">Gari</h4>
+<span class="font-label-caps text-label-caps text-outline-variant mb-2">Reap</span>
+<div class="w-8 h-[1px] bg-outline-variant mb-2"></div>
+<p class="font-body-md text-[13px] leading-tight text-on-surface-variant opacity-70">Clipping</p>
+</div>
+<div class="tatami-card p-4 rounded-lg text-center flex flex-col items-center group cursor-pointer">
+<h4 class="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">Gake</h4>
+<span class="font-label-caps text-label-caps text-outline-variant mb-2">Hook</span>
+<div class="w-8 h-[1px] bg-outline-variant mb-2"></div>
+<p class="font-body-md text-[13px] leading-tight text-on-surface-variant opacity-70">Hooking</p>
+</div>
+</div>
+</section>
+<!-- Dynamic Content Example -->
+<section class="mt-8">
+<div class="tatami-card rounded-2xl overflow-hidden border border-outline-variant/30 flex flex-col md:flex-row h-auto md:h-64">
+<div class="w-full md:w-1/2 h-48 md:h-full relative overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="A moody, high-contrast black and white cinematic shot of a traditional Japanese Dojo interior. Soft light filters through shoji screen windows, casting long shadows across a textured tatami mat floor. The atmosphere is quiet, disciplined, and spiritual, with a wooden wall featuring traditional Japanese calligraphy and a martial arts training area ready for practice. The visual style is minimalist and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPmxBOasEt0MA2ScudJCZ4Bp4p-xW1ln0q6lso-PAGyNUCbE9uDtxMHNUUgi3MmI_8pV6zo_vWzeznz--Q2UxfPR-D0hx9fedZ0-OSy9ucaUSURxH5UcyW1ceFJ0nhVK27iSIaXmCTLOoyEy4rsaJ94iasQRA5lwe861oYvu0u57AWNr4CAEDDpW1X3VABn82WyoB5yBC9NvpgWCb0mGqMO68lzMV7KHLPd6wGGfZ2qbIsvrxJCg4w5OXbFGq4nQ93jYfcQO8xOe0"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface to-transparent"></div>
+</div>
+<div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-2">Master the Flow</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6">Terminology isn't just words; it's the rhythm of combat. Learn these terms to understand the deeper mechanics of your Randori sessions.</p>
+<button class="bg-primary-container text-on-primary-container px-6 py-3 font-label-caps text-label-caps tracking-widest rounded-lg self-start active:translate-y-[2px] transition-all border-b-4 border-on-primary-fixed-variant">CONTINUE STUDY</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Unified 4-tab) -->
+<nav class="fixed bottom-0 w-full rounded-t-xl z-50 pb-8 bg-surface-container shadow-[0px_-4px_12px_rgba(0,0,0,0.3)] border-t-4 border-surface-variant flex justify-around items-center px-margin-mobile pt-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all duration-100" href="#">
+<span class="material-symbols-outlined mb-1">map</span>
+<span class="font-label-bold text-[12px] font-bold">Study</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all duration-100" href="#">
+<span class="material-symbols-outlined mb-1">exercise</span>
+<span class="font-label-bold text-[12px] font-bold">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-2 translate-y-[-2px] border-b-4 border-on-primary-fixed-variant transition-all duration-100" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-label-bold text-[12px] font-bold">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all duration-100" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-bold text-[12px] font-bold">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for terminology cards
+        document.querySelectorAll('.tatami-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const hanko = card.querySelector('.hanko-check');
+                if (hanko) {
+                    hanko.classList.toggle('bg-primary-container');
+                    hanko.classList.toggle('border-primary-container');
+                }
+            });
+        });
+
+        // Search highlight logic
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.tatami-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(term)) {
+                    card.style.opacity = '1';
+                    card.style.display = 'flex';
+                } else {
+                    card.style.opacity = '0.3';
+                }
+            });
+        });
+    </script>
+</body></html>
