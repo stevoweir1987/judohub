@@ -106,24 +106,7 @@ tailwind.config = {
   </div>
 </header>
 
-<!-- HEARTS DEPLETED OVERLAY -->
-<div id="hearts-depleted-overlay" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6" style="background:rgba(11,28,48,0.7);backdrop-filter:blur(4px)">
-  <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-    <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-5">
-      <span class="material-symbols-outlined text-red-400 ms-fill" style="font-size:44px">heart_broken</span>
-    </div>
-    <h2 class="text-xl font-extrabold text-on-surface mb-2">Hearts Depleted</h2>
-    <p class="text-sm text-on-surface-variant mb-6">You've used all your hearts. Take a break and come back tomorrow — they refill at midnight.</p>
-    <div class="bg-surface-container-low rounded-2xl px-6 py-4 mb-6 border border-outline-variant/20">
-      <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Refills in</p>
-      <p class="text-3xl font-extrabold text-primary" id="hearts-countdown">--:--:--</p>
-    </div>
-    <button onclick="document.getElementById('hearts-depleted-overlay').classList.add('hidden');showScreen('home')"
-      class="w-full bg-surface-container text-on-surface font-bold py-3 rounded-xl border border-outline-variant/30 text-sm">
-      Back to Learn
-    </button>
-  </div>
-</div>
+<!-- Hearts depleted overlay removed — replaced with soft nudge (dojo_state.js showDepleted) -->
 
 <!-- XP TOAST -->
 <div id="xp-toast" class="hidden fixed z-[150] left-1/2 -translate-x-1/2 top-20 px-4 py-2 rounded-full font-bold text-sm text-white flex items-center gap-2 xp-toast"
@@ -367,6 +350,8 @@ tailwind.config = {
       </div>
       <h1 class="text-headline-lg font-bold text-primary uppercase tracking-tight">TECHNIQUE MASTERED</h1>
       <p class="text-body-md text-on-surface-variant mt-2 leading-relaxed">Your <strong class="text-on-surface underline decoration-primary/40 decoration-2 underline-offset-4" id="success-tech-name">technique</strong> execution has reached the required proficiency level.</p>
+      <!-- Quest progress indicator -->
+      <div id="success-quest-progress" class="hidden mt-3 flex items-center justify-center gap-2"></div>
     </div>
     <div class="w-full space-y-4 mb-8">
       <div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant shadow-xl relative overflow-hidden">
@@ -462,8 +447,8 @@ tailwind.config = {
 
       <!-- Header -->
       <div>
-        <p class="text-primary font-bold uppercase tracking-widest mb-0.5" style="font-size:10px">TRAINING GROUNDS</p>
-        <h2 class="text-headline-lg-mobile font-bold text-on-surface">Practice Hub</h2>
+        <p class="text-primary font-bold uppercase tracking-widest mb-0.5" style="font-size:10px">TRAIN</p>
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface">Today's Drills</h2>
       </div>
 
       <!-- Readiness card -->
@@ -512,79 +497,7 @@ tailwind.config = {
         <div id="practice-drills-list" class="space-y-3"></div>
       </div>
 
-      <!-- Technique Library -->
-      <div>
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="font-bold text-on-surface flex items-center gap-2 text-base">
-            <span class="material-symbols-outlined text-tertiary" style="font-size:20px">menu_book</span>
-            Technique Library
-          </h2>
-          <button onclick="DojoPractice.openFilter()"
-            class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container border border-outline-variant/30 rounded-lg text-on-surface-variant text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
-            <span class="material-symbols-outlined" style="font-size:16px">filter_list</span>
-            Filter
-          </button>
-        </div>
-
-        <!-- Filter panel -->
-        <div id="practice-filter-panel" class="hidden bg-surface-container border border-outline-variant/30 rounded-2xl p-4 mb-3 shadow-xl space-y-4">
-
-          <!-- Search -->
-          <div>
-            <p class="text-on-surface-variant font-bold uppercase tracking-widest mb-2" style="font-size:10px">Search Techniques</p>
-            <div class="relative">
-              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" style="font-size:18px">search</span>
-              <input id="tech-search-input" type="text" placeholder="e.g. Osoto-gari, hip throw…"
-                class="w-full bg-surface-container-low border-2 border-outline-variant rounded-xl pl-9 pr-9 py-3 text-on-surface font-semibold text-sm placeholder-on-surface-variant/30 outline-none transition-all focus:border-primary-container"
-                style="background:#f0f4ff"
-                oninput="DojoPractice.searchTech(this.value)"/>
-              <button id="tech-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 hidden"
-                onclick="DojoPractice.clearSearch()">
-                <span class="material-symbols-outlined text-on-surface-variant/50 hover:text-primary transition-colors" style="font-size:18px">close</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Category chips -->
-          <div>
-            <p class="text-on-surface-variant font-bold uppercase tracking-widest mb-2" style="font-size:10px">Filter by Category</p>
-            <div class="flex flex-wrap gap-2">
-              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
-                data-cat="Tachi-waza" onclick="DojoPractice.filterBy('Tachi-waza')">Tachi-waza</button>
-              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
-                data-cat="Osaekomi-waza" onclick="DojoPractice.filterBy('Osaekomi-waza')">Osaekomi-waza</button>
-              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
-                data-cat="Ne-waza" onclick="DojoPractice.filterBy('Ne-waza')">Ne-waza</button>
-              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
-                data-cat="Kansetsu-waza" onclick="DojoPractice.filterBy('Kansetsu-waza')">Kansetsu-waza</button>
-              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
-                data-cat="Shime-waza" onclick="DojoPractice.filterBy('Shime-waza')">Shime-waza</button>
-              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
-                data-cat="Ukemi" onclick="DojoPractice.filterBy('Ukemi')">Ukemi</button>
-            </div>
-          </div>
-
-          <button onclick="DojoPractice.clearSearch();DojoPractice.filterBy(null)"
-            class="text-xs text-primary font-bold uppercase tracking-wider">Clear all</button>
-        </div>
-
-        <!-- Technique scroll row with arrow controls -->
-        <div class="relative -mx-5">
-          <!-- Left arrow -->
-          <button id="tech-scroll-left"
-            class="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-surface-container-high/90 border border-outline-variant/40 flex items-center justify-center shadow-lg active:scale-95 transition-all"
-            onclick="document.getElementById('practice-tech-list').scrollBy({left:-200,behavior:'smooth'})">
-            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">chevron_left</span>
-          </button>
-          <!-- Right arrow -->
-          <button id="tech-scroll-right"
-            class="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-surface-container-high/90 border border-outline-variant/40 flex items-center justify-center shadow-lg active:scale-95 transition-all"
-            onclick="document.getElementById('practice-tech-list').scrollBy({left:200,behavior:'smooth'})">
-            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">chevron_right</span>
-          </button>
-          <div id="practice-tech-list" class="flex gap-3 pb-3 px-5" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap"></div>
-        </div>
-      </div>
+      <!-- Technique Library removed — use PATH tab for belt technique reference -->
 
       <!-- Mastery footer -->
       <div class="bg-surface-container border border-primary-container/20 rounded-2xl p-6 shadow-xl relative overflow-hidden">
@@ -879,9 +792,18 @@ tailwind.config = {
             <img id="profile-avatar" class="hidden w-full h-full object-cover" src="" alt="avatar"/>
             <span id="profile-avatar-icon" class="material-symbols-outlined text-on-surface-variant/40" style="font-size:48px">person</span>
           </div>
+          <button onclick="DojoProfile.openEdit()"
+            class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-white active:scale-90 transition-transform">
+            <span class="material-symbols-outlined text-white ms-fill" style="font-size:16px">edit</span>
+          </button>
         </div>
         <h2 class="text-xl font-bold text-on-surface" id="profile-name">Judoka</h2>
         <p class="text-xs text-on-surface-variant/60 uppercase tracking-widest mt-0.5" id="profile-belt">White Belt</p>
+        <button onclick="DojoProfile.openEdit()"
+          class="mt-2 px-4 py-1.5 rounded-full border border-primary/30 text-primary font-bold active:scale-95 transition-transform"
+          style="font-size:11px;letter-spacing:0.05em;background:rgba(0,74,198,0.06)">
+          Edit Profile
+        </button>
       </div>
 
       <!-- Stats grid -->
