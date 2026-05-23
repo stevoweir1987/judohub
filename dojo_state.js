@@ -526,6 +526,3 @@ const DojoProfile = {
     if (typeof DojoHome !== 'undefined') { DojoHome.render(); }
   }
 };
-); }
-  }
-};
