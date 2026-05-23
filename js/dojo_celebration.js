@@ -40,6 +40,21 @@ const DojoCelebration = (() => {
     _successBeltIdx = beltIdx  || 0;
     _successReturn  = returnScreen || (typeof DojoLesson !== 'undefined' ? DojoLesson.getReturnScreen() : 'home');
 
+    // Adapt button labels based on context
+    const isQuestMode = _successReturn === 'home';
+    const nextBtn  = document.getElementById('success-next-btn');
+    const contBtn  = document.querySelector('#screen-success button:last-of-type');
+    if (nextBtn) {
+      nextBtn.innerHTML = isQuestMode
+        ? '<span class="material-symbols-outlined ms-fill" style="font-size:22px">skip_next</span> Next Quest Task'
+        : '<span class="material-symbols-outlined ms-fill" style="font-size:22px">skip_next</span> Next Technique';
+    }
+    if (contBtn && contBtn !== nextBtn) {
+      contBtn.innerHTML = isQuestMode
+        ? '<span class="material-symbols-outlined" style="font-size:18px">wb_sunny</span> Back to Today'
+        : '<span class="material-symbols-outlined" style="font-size:18px">home</span> Back to Path';
+    }
+
     // Store pending promotion check
     _pendingBeltId = isBeltComplete ? (beltId || _currentBeltId()) : null;
 
@@ -88,7 +103,7 @@ const DojoCelebration = (() => {
     DojoHome.render();
     DojoProfile.render();
     // Return to belt path if that was the origin, otherwise home
-    const dest = ['practice','syllabus','dojo'].includes(_successReturn) ? _successReturn : 'belt-path';
+    const dest = ['practice','syllabus','dojo'].includes(_successReturn) ? _successReturn : _successReturn === 'home' ? 'home' : 'belt-path';
     showScreen(dest);
   }
 
@@ -98,7 +113,26 @@ const DojoCelebration = (() => {
       _pendingBeltId = null;
       return;
     }
-    // Find next item in the belt and open it directly
+
+    // ── Quest mode: came from Today screen ────────────
+    if (_successReturn === 'home' && typeof DojoHome !== 'undefined') {
+      const next = DojoHome.getNextQuestTask(_successItem);
+      DojoHome.render();
+      if (next) {
+        const t = next.task;
+        if (t.type === 'knowledge' && typeof DojoKnowledge !== 'undefined') {
+          DojoKnowledge.open(t.beltId, t.item, t.group, t.beltIdx, 'home');
+        } else {
+          DojoLesson.open(t.beltId, t.item, t.beltIdx, 'home');
+        }
+      } else {
+        // All quest tasks done — return to Today
+        showScreen('home');
+      }
+      return;
+    }
+
+    // ── Belt path mode: find next item in sequence ────
     const nextItem = _successBeltId ? DojoState.getNextItem(_successBeltId) : null;
     if (nextItem) {
       const belt = (typeof BELT_DATA !== 'undefined') ? BELT_DATA.find(b => b.id === _successBeltId) : null;
@@ -112,7 +146,6 @@ const DojoCelebration = (() => {
         DojoLesson.open(_successBeltId, nextItem, _successBeltIdx, _successReturn);
       }
     } else {
-      // Belt complete — go to belt path to see the finished state
       DojoHome.render();
       DojoProfile.render();
       showScreen('belt-path');

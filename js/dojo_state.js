@@ -18,11 +18,19 @@ const DojoState = (() => {
   function getProgress()  {
     try { return JSON.parse(localStorage.getItem('dojo_progress') || '{}'); } catch { return {}; }
   }
-  function saveXP(v)        { localStorage.setItem('dojo_xp', v); }
-  function saveHearts(v)    { localStorage.setItem('dojo_hearts', Math.max(0, Math.min(MAX_HEARTS, v))); }
-  function saveStreak(v)    { localStorage.setItem('dojo_streak', v); }
-  function saveLastTrain(v) { localStorage.setItem('dojo_last_train', v); }
-  function saveProgress(p)  { localStorage.setItem('dojo_progress', JSON.stringify(p)); }
+
+  // ── Firebase cloud sync helper ────────────────────
+  function _fsync() {
+    if (typeof FirebaseSync !== 'undefined' && FirebaseSync.isReady()) {
+      FirebaseSync.scheduleSave();
+    }
+  }
+
+  function saveXP(v)        { localStorage.setItem('dojo_xp', v); _fsync(); }
+  function saveHearts(v)    { localStorage.setItem('dojo_hearts', Math.max(0, Math.min(MAX_HEARTS, v))); _fsync(); }
+  function saveStreak(v)    { localStorage.setItem('dojo_streak', v); _fsync(); }
+  function saveLastTrain(v) { localStorage.setItem('dojo_last_train', v); _fsync(); }
+  function saveProgress(p)  { localStorage.setItem('dojo_progress', JSON.stringify(p)); _fsync(); }
 
   // ── Profile ───────────────────────────────────────
   // profile: { name, belt, avatarDataUrl }
@@ -31,7 +39,7 @@ const DojoState = (() => {
   function getProfile()   {
     try { return JSON.parse(localStorage.getItem('dojo_profile') || '{}'); } catch { return {}; }
   }
-  function saveProfile(p) { localStorage.setItem('dojo_profile', JSON.stringify(p)); }
+  function saveProfile(p) { localStorage.setItem('dojo_profile', JSON.stringify(p)); _fsync(); }
 
   // Belt the user currently HOLDS → index of belt path they are WORKING ON
   const BELT_WORK_INDEX = { WHITE:0, RED:1, YELLOW:2, ORANGE:3, GREEN:4, BLUE:5, BROWN:5, BLACK:5 };
@@ -44,7 +52,7 @@ const DojoState = (() => {
   function checkHeartReset() {
     const lastReset = localStorage.getItem('dojo_hearts_date') || '';
     const t = today();
-    if (lastReset !== t) { saveHearts(MAX_HEARTS); localStorage.setItem('dojo_hearts_date', t); }
+    if (lastReset !== t) { saveHearts(MAX_HEARTS); localStorage.setItem('dojo_hearts_date', t); _fsync(); }
   }
 
   // ── Streak ────────────────────────────────────────
@@ -127,6 +135,7 @@ const DojoState = (() => {
     const key = beltId + '::' + itemName;
     progress[key] = true;
     saveProgress(progress);
+    _incrementMastery(beltId, itemName);
     touchStreak();
     const streak = getStreak();
     const bonus = streak >= 3 ? XP_STREAK_BONUS : 0;
@@ -201,6 +210,23 @@ const DojoState = (() => {
       const s = JSON.parse(localStorage.getItem('dojo_seen') || '{}');
       s[beltId + '::' + itemName] = true;
       localStorage.setItem('dojo_seen', JSON.stringify(s));
+      _fsync();
+    } catch {}
+  }
+
+  // ── Mastery (repeat completions) ──────────────────
+  // Levels: 0=untouched, 1=done, 2=trained, 3=drilled, 4+=mastered
+  function getMastery(beltId, itemName) {
+    try { return parseInt(JSON.parse(localStorage.getItem('dojo_mastery') || '{}')[beltId + '::' + itemName] || '0', 10); }
+    catch { return 0; }
+  }
+  function _incrementMastery(beltId, itemName) {
+    try {
+      const m = JSON.parse(localStorage.getItem('dojo_mastery') || '{}');
+      const key = beltId + '::' + itemName;
+      m[key] = (parseInt(m[key] || '0', 10) + 1);
+      localStorage.setItem('dojo_mastery', JSON.stringify(m));
+      _fsync();
     } catch {}
   }
 
@@ -209,7 +235,7 @@ const DojoState = (() => {
     beltProgress, isDone, isAreaUnlocked, isItemUnlocked, getNextItem,
     hasProfile, getProfile, saveProfile, getWorkingBeltIndex,
     getXP, getStreak, getHearts, MAX_HEARTS,
-    isSeen, markSeen,
+    isSeen, markSeen, getMastery,
   };
 
 })();
