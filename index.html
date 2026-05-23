@@ -73,6 +73,14 @@ tailwind.config = {
 </style>
 </head>
 <body class="tatami-bg text-on-background overflow-x-hidden">
+<!-- ── Firebase loading overlay ─────────────────── -->
+<div id="app-loading" style="position:fixed;inset:0;z-index:9999;background:#f0f4ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="width:56px;height:56px;border-radius:50%;border:5px solid #c7d7f5;border-top-color:#004ac6;animation:spin 0.8s linear infinite"></div>
+  <p style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#004ac6;font-size:15px;letter-spacing:0.02em">Loading Dojo…</p>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+
 
 <!-- STANDARDIZED HEADER -->
 <header id="app-header" class="fixed top-0 left-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-outline-variant/10">
@@ -213,15 +221,11 @@ tailwind.config = {
   </main>
 </div>
 
-<!-- SCREEN: HOME -->
+<!-- SCREEN: HOME (TODAY) -->
 <div id="screen-home" class="screen active">
   <main class="min-h-svh pt-20 pb-32">
-    <div class="px-5 max-w-md mx-auto space-y-6">
-      <div class="text-center py-4">
-        <h2 class="text-headline-lg-mobile font-bold text-on-surface">The Path</h2>
-        <p class="text-body-md text-on-surface-variant mt-1">Work through each technique to achieve your next rank.</p>
-      </div>
-      <div id="home-path-container"></div>
+    <div class="px-4 max-w-md mx-auto py-3">
+      <div id="home-path-container" class="space-y-6"></div>
     </div>
   </main>
 </div>
@@ -233,7 +237,7 @@ tailwind.config = {
     <div class="flex items-center gap-3 px-4 py-3 max-w-md mx-auto">
       <button onclick="showScreen('home')" class="flex items-center gap-1 text-on-surface-variant active:scale-95 transition-transform">
         <span class="material-symbols-outlined" style="font-size:20px">arrow_back_ios</span>
-        <span class="text-xs font-bold uppercase tracking-wider">Learn</span>
+        <span class="text-xs font-bold uppercase tracking-wider">Today</span>
       </button>
       <div class="flex-1 min-w-0 text-center">
         <p class="font-bold text-on-surface text-sm truncate" id="belt-path-header-label">Belt Path</p>
@@ -261,7 +265,7 @@ tailwind.config = {
       <!-- Back -->
       <button onclick="showScreen('home')" class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm">
         <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
-        <span class="font-bold uppercase tracking-wider" style="font-size:11px">Back to Learn</span>
+        <span class="font-bold uppercase tracking-wider" style="font-size:11px">Back to Today</span>
       </button>
       <!-- Header -->
       <div>
@@ -951,37 +955,41 @@ tailwind.config = {
 </div>
 
 <!-- STANDARDIZED BOTTOM NAV -->
-<nav id="app-nav" class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-high/95 backdrop-blur-md border-t border-outline-variant/10 pb-safe">
-  <div class="flex w-full justify-around items-center max-w-md mx-auto px-2 py-2">
-    <button onclick="showScreen('home')" data-nav="home"
-      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
-      <span class="material-symbols-outlined nav-icon" style="font-size:22px">school</span>
-      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">LEARN</span>
+<nav id="app-nav" class="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-outline-variant/20 pb-safe" style="box-shadow:0 -2px 16px rgba(0,74,198,0.07)">
+  <div class="flex w-full justify-around items-center max-w-md mx-auto px-1 py-1">
+    <button onclick="showScreen('home')" data-nav="today"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:24px">wb_sunny</span>
+      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">TODAY</span>
     </button>
-    <button onclick="showScreen('practice')" data-nav="practice"
-      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
-      <span class="material-symbols-outlined nav-icon" style="font-size:22px">fitness_center</span>
-      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">PRACTICE</span>
+    <button onclick="showScreen('belt-path')" data-nav="path"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:24px">route</span>
+      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">PATH</span>
     </button>
-    <button onclick="showScreen('dojo')" data-nav="dojo"
-      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
-      <span class="material-symbols-outlined nav-icon" style="font-size:22px">temple_buddhist</span>
-      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">DOJO</span>
+    <button onclick="showScreen('practice')" data-nav="train"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:24px">sports_martial_arts</span>
+      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">TRAIN</span>
     </button>
-    <button onclick="showScreen('profile')" data-nav="profile"
-      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
-      <span class="material-symbols-outlined nav-icon" style="font-size:22px">person</span>
-      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">PROFILE</span>
+    <button onclick="showScreen('profile')" data-nav="me"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:24px">person</span>
+      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">ME</span>
     </button>
   </div>
 </nav>
 
-<script src="js/data.js?v=4"></script>
-<script src="js/dojo_state.js?v=6"></script>
-<script src="js/dojo_home.js?v=14"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase_sync.js?v=1"></script>
+<script src="js/data.js?v=5"></script>
+<script src="js/dojo_state.js?v=8"></script>
+<script src="js/dojo_home.js?v=18"></script>
 
 <script src="js/dojo_lesson.js?v=12"></script>
-<script src="js/dojo_celebration.js?v=5"></script>
+<script src="js/dojo_celebration.js?v=6"></script>
 <script src="js/dojo_practice.js?v=6"></script>
 <script src="js/dojo_dojo.js?v=4"></script>
 <script>
@@ -993,10 +1001,9 @@ const SCREEN_IDS = ['onboarding','home','belt-path','grading','lesson','knowledg
 function updateNavHighlight(navName) {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     const active = btn.dataset.nav === navName;
-    btn.classList.toggle('bg-primary-container',       active);
-    btn.classList.toggle('text-on-primary-container',  active);
-    btn.classList.toggle('shadow-md',                  active);
-    btn.classList.toggle('text-on-surface-variant',    !active);
+    btn.style.color  = active ? '#004ac6' : '#737686';
+    btn.style.background = active ? 'rgba(0,74,198,0.08)' : '';
+    btn.classList.toggle('text-on-surface-variant', !active);
     btn.style.opacity = active ? '1' : '0.55';
     btn.querySelectorAll('.nav-icon').forEach(ic => ic.classList.toggle('ms-fill', active));
   });
@@ -1020,15 +1027,18 @@ function showScreen(name) {
   const nav = document.getElementById('app-nav');
   if (hdr) hdr.classList.toggle('hidden', isOnboarding);
   if (nav) nav.classList.toggle('hidden', isOnboarding);
-  // Nav highlight — lesson/success/promo inherit from return screen
+  // Nav highlight — lesson/success/promo/knowledge inherit from return screen
   let navName;
-  if (['lesson','success','belt-promo'].includes(name)) {
+  if (['lesson','success','belt-promo','knowledge'].includes(name)) {
     const ret = (typeof DojoLesson !== 'undefined') ? DojoLesson.getReturnScreen() : 'home';
-    navName = ret === 'practice' ? 'practice' : 'home';
+    navName = ret === 'practice' ? 'train' : 'path';
   } else {
-    navName = (['practice-drill','syllabus','unit-exam'].includes(name)) ? 'practice'
-            : (['grading','belt-path'].includes(name)) ? 'home'
-            : (['dojo-hub','dojo-moral','dojo-terms','dojo-history','dojo-kata'].includes(name)) ? 'dojo'
+    navName = (['practice-drill','syllabus','unit-exam'].includes(name))                       ? 'train'
+            : (['grading','belt-path'].includes(name))                                         ? 'path'
+            : (['dojo','dojo-hub','dojo-moral','dojo-terms','dojo-history','dojo-kata'].includes(name)) ? 'path'
+            : name === 'home'     ? 'today'
+            : name === 'practice' ? 'train'
+            : name === 'profile'  ? 'me'
             : name;
   }
   updateNavHighlight(navName);
@@ -1183,7 +1193,7 @@ const DojoOnboarding = (() => {
     _prefillCompletedBelts(_selectedBelt);
     DojoState.saveProfile({ name, belt: _selectedBelt, goal: _selectedGoal || 'belt', avatarDataUrl: _avatarDataUrl || null });
     DojoState.init();
-    const goalScreen = { belt: 'home', training: 'practice', culture: 'dojo' }[_selectedGoal] || 'home';
+    const goalScreen = { belt: 'home', training: 'practice', culture: 'home' }[_selectedGoal] || 'home';
     showScreen(goalScreen);
   }
 
@@ -1198,16 +1208,39 @@ function renderProfile() { DojoProfile.render(); }
 // ═══════════════════════════════════════════════════
 //  App init
 // ═══════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // ── 1. Init Firebase (anonymous auth) ──────────
+  try {
+    await FirebaseSync.init();
+    const cloudData = await FirebaseSync.load();
+    if (cloudData) {
+      // Cloud data wins — overwrite local cache
+      FirebaseSync.applyToLocalStorage(cloudData);
+    }
+  } catch (e) {
+    console.warn('[App] Firebase init failed, using localStorage only:', e.message);
+  }
+
+  // ── 2. Hide loading overlay ─────────────────────
+  const loadingEl = document.getElementById('app-loading');
+  if (loadingEl) loadingEl.style.display = 'none';
+
+  // ── 3. Normal app init ──────────────────────────
   DojoState.init();
   if (DojoState.hasProfile()) {
     const p = DojoState.getProfile();
-    const goalScreen = { belt: 'home', training: 'practice', culture: 'dojo' }[p.goal] || 'home';
+    const goalScreen = { belt: 'home', training: 'practice', culture: 'home' }[p.goal] || 'home';
     showScreen(goalScreen);
   } else {
     showScreen('onboarding');
     DojoOnboarding.init();
   }
+
+  // ── 4. Save on page unload ──────────────────────
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') FirebaseSync.flushNow();
+  });
+  window.addEventListener('pagehide', () => FirebaseSync.flushNow());
 });
 </script>
 </body>

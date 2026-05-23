@@ -14,181 +14,278 @@ const DojoHome = (() => {
     toBrown:  { color: '#a16207', shadow: '#451a03', label: 'Brown Belt',  img: 'images/belt-brown.png' },
   };
 
+  // ── Daily mission state ─────────────────────────
+  let _mission = null;
+
+  function _todayKey() { return new Date().toISOString().slice(0, 10); }
+
+  function _getDailyMission(beltId, beltIdx) {
+    const dateKey = _todayKey();
+    // Return cached if date + belt match
+    if (_mission && _mission.date === dateKey && _mission.beltId === beltId) return _mission;
+    // Try localStorage
+    try {
+      const stored = JSON.parse(localStorage.getItem('dojo_daily_quest') || '{}');
+      if (stored.date === dateKey && stored.beltId === beltId && Array.isArray(stored.tasks) && stored.tasks.length) {
+        _mission = stored;
+        return _mission;
+      }
+    } catch {}
+
+    // Generate fresh mission seeded by date
+    const seed = parseInt(dateKey.replace(/-/g, ''), 10);
+    const belt = (typeof BELT_DATA !== 'undefined') ? BELT_DATA.find(b => b.id === beltId) : null;
+    if (!belt) { _mission = { date: dateKey, beltId, tasks: [] }; return _mission; }
+
+    const techGroups = belt.groups.filter(g => !/Knowledge|Moral|Terminology|Contest|Referee/i.test(g.title));
+    const knowGroups = belt.groups.filter(g =>  /Knowledge|Moral|Terminology|Contest|Referee/i.test(g.title));
+
+    const techItems = techGroups.flatMap(g => g.items.map(item => ({ item, group: g.title })));
+    const knowItems = knowGroups.flatMap(g => g.items.map(item => ({ item, group: g.title })));
+
+    // Prefer unlocked + undone (respect belt path sequence)
+    const undoneTech = techItems.filter(({item}) =>
+      !DojoState.isDone(beltId, item) && DojoState.isItemUnlocked(beltId, item));
+    const undoneKnow = knowItems.filter(({item}) =>
+      !DojoState.isDone(beltId, item) && DojoState.isItemUnlocked(beltId, item));
+
+    const pickFrom = (pool, fallback, offset) => {
+      const arr = pool.length ? pool : fallback;
+      return arr.length ? arr[(seed + offset) % arr.length] : null;
+    };
+
+    const tasks = [];
+    const usedItems = new Set();
+
+    // Task 1: technique
+    const t1 = pickFrom(undoneTech, techItems, 0);
+    if (t1) { tasks.push({ type:'technique', beltId, beltIdx, item:t1.item, group:t1.group, label:t1.item }); usedItems.add(t1.item); }
+
+    // Task 2: knowledge item (if available), else second technique
+    const t2k = pickFrom(undoneKnow, knowItems, 1);
+    if (t2k) {
+      tasks.push({ type:'knowledge', beltId, beltIdx, item:t2k.item, group:t2k.group, label:t2k.item });
+      usedItems.add(t2k.item);
+    } else {
+      const pool2 = (undoneTech.length ? undoneTech : techItems).filter(({item}) => !usedItems.has(item));
+      const t2 = pickFrom(pool2, techItems.filter(({item}) => !usedItems.has(item)), 2);
+      if (t2) { tasks.push({ type:'technique', beltId, beltIdx, item:t2.item, group:t2.group, label:t2.item }); usedItems.add(t2.item); }
+    }
+
+    // Task 3: another technique from a different group if possible
+    const pool3 = (undoneTech.length ? undoneTech : techItems).filter(({item, group}) =>
+      !usedItems.has(item) && (!tasks[0] || group !== tasks[0].group));
+    const t3 = pickFrom(pool3, techItems.filter(({item}) => !usedItems.has(item)), 3);
+    if (t3) tasks.push({ type:'technique', beltId, beltIdx, item:t3.item, group:t3.group, label:t3.item });
+
+    _mission = { date: dateKey, beltId, tasks: tasks.slice(0, 3) };
+    try { localStorage.setItem('dojo_daily_quest', JSON.stringify(_mission)); } catch {}
+    return _mission;
+  }
+
+  function openQuestTask(idx) {
+    if (!_mission || !_mission.tasks[idx]) return;
+    const task = _mission.tasks[idx];
+    // Always pass 'home' as returnScreen so success screen knows we came from Today
+    if (task.type === 'technique') {
+      DojoLesson.open(task.beltId, task.item, task.beltIdx, 'home');
+    } else if (task.type === 'knowledge') {
+      if (typeof DojoKnowledge !== 'undefined')
+        DojoKnowledge.open(task.beltId, task.item, task.group, task.beltIdx, 'home');
+    }
+  }
+
+  // Returns the next incomplete quest task after a given item, or null
+  function getNextQuestTask(completedItem) {
+    if (!_mission) return null;
+    // Find first task that isn't done yet (and isn't the one we just finished)
+    for (let i = 0; i < _mission.tasks.length; i++) {
+      const t = _mission.tasks[i];
+      if (t.item === completedItem) continue;
+      if (!DojoState.isDone(t.beltId, t.item)) return { task: t, idx: i };
+    }
+    return null; // all done
+  }
+
   // ── Main render ───────────────────────────────────
   function render() {
     if (typeof BELT_DATA === 'undefined') return;
+    const container = document.getElementById('home-path-container');
+    if (!container) return;
 
     const workIdx  = DojoState.getWorkingBeltIndex();
     const belt     = BELT_DATA[workIdx];
     if (!belt) return;
 
-    const accent   = BELT_ACCENT[belt.id] || { color: '#004ac6', shadow: '#1e40af', label: belt.to + ' Belt', img: 'images/belt-white.png' };
-    const progress = DojoState.beltProgress(belt.id);
-    const readPct  = Math.round(progress * 100);
+    const accent   = BELT_ACCENT[belt.id] || { color:'#004ac6', shadow:'#1e40af', label: belt.to + ' Belt', img:'images/belt-white.png' };
+    const profile  = DojoState.getProfile();
+    const firstName = (profile.name || 'Judoka').split(' ')[0];
+    const streak   = DojoState.getStreak();
+    const xp       = DojoState.getXP();
 
-    const allItems = belt.groups.flatMap(g => g.items);
+    // Belt progress
+    const allItems  = belt.groups.flatMap(g => g.items);
     const doneCount = allItems.filter(item => DojoState.isDone(belt.id, item)).length;
-    const allDone   = allItems.every(item => DojoState.isDone(belt.id, item));
+    const readPct   = allItems.length ? Math.round(doneCount / allItems.length * 100) : 0;
 
-    const container = document.getElementById('home-path-container');
-    if (!container) return;
+    // Daily mission
+    const mission   = _getDailyMission(belt.id, workIdx);
+    const tasksDone = mission.tasks.filter(t => DojoState.isDone(t.beltId, t.item) || t.type === 'drill').length;
+    // Re-check done status live (progress may have changed since mission was generated)
+    mission.tasks.forEach(t => { if (t.type !== 'drill') t._liveDone = DojoState.isDone(t.beltId, t.item); else t._liveDone = !!t.drillDone; });
+    const liveDone  = mission.tasks.filter(t => t._liveDone).length;
+    const allQDone  = liveDone >= mission.tasks.length && mission.tasks.length > 0;
 
-    // ── Belt Header ──
-    let html = `
-      <div class="belt-header-card rounded-2xl overflow-hidden mb-6 border border-outline-variant/20 shadow-xl relative"
-        style="background:linear-gradient(135deg,#dce9ff 0%,#eff4ff 100%)">
-        <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse at top right,${accent.color}18 0%,transparent 60%)"></div>
-        <div class="flex items-center gap-4 p-5">
-          <img src="${accent.img}" alt="${accent.label}" class="w-20 h-auto drop-shadow-xl shrink-0" onerror="this.style.display='none'"/>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold uppercase tracking-widest mb-0.5" style="font-size:10px;color:${accent.color}">WORKING TOWARDS</p>
-            <h2 class="text-headline-lg-mobile font-bold text-on-surface leading-tight">${accent.label}</h2>
-            <p class="text-xs text-on-surface-variant mt-0.5">${doneCount} of ${allItems.length} techniques</p>
-            <div class="mt-3">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-xs font-bold uppercase tracking-wider" style="color:${accent.color};font-size:10px">READINESS</span>
-                <span class="font-bold text-on-surface text-sm">${readPct}%</span>
-              </div>
-              <div class="w-full h-2.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/10">
-                <div class="h-full rounded-full transition-all duration-700"
-                  style="width:${readPct}%;background:${accent.color};box-shadow:0 0 8px ${accent.color}80"></div>
-              </div>
-            </div>
+    // Greeting
+    const hour     = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const dateStr  = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'short' });
+
+    const TASK_ICON  = { technique:'sports_kabaddi', knowledge:'menu_book', drill:'fitness_center' };
+    const TASK_LABEL = { technique:'Technique', knowledge:'Knowledge', drill:'Drill' };
+
+    let html = '';
+
+    // ── Greeting ──────────────────────────────────────
+    html += `
+      <div class="pt-1 pb-2">
+        <p class="text-on-surface-variant font-semibold text-sm">${greeting},</p>
+        <h2 class="font-extrabold text-on-surface leading-tight" style="font-size:26px">${firstName} 🥋</h2>
+      </div>`;
+
+    // ── Daily Quest card ──────────────────────────────
+    const earnedXP = liveDone * 50;
+    const totalQXP = mission.tasks.length * 50;
+    const qBg = allQDone
+      ? 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)'
+      : 'linear-gradient(135deg,#ffffff 0%,#eff4ff 100%)';
+    const qBorder = allQDone ? '#00624240' : accent.color + '40';
+
+    html += `
+      <div class="rounded-2xl overflow-hidden border-2" style="background:${qBg};border-color:${qBorder};box-shadow:0 4px 16px rgba(0,74,198,0.08)">
+        <!-- Header row -->
+        <div class="flex items-center justify-between px-4 pt-4 pb-2">
+          <div>
+            <p class="font-extrabold uppercase tracking-widest mb-0.5" style="font-size:9px;color:${allQDone?'#006242':accent.color}">
+              ${allQDone ? '✓ QUEST COMPLETE' : '⚡ DAILY QUEST'}
+            </p>
+            <p class="font-bold text-on-surface" style="font-size:13px">${dateStr}</p>
+          </div>
+          <div class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl" style="background:${allQDone?'rgba(0,98,66,0.1)':accent.color+'14'}">
+            <span class="material-symbols-outlined ms-fill" style="font-size:13px;color:${allQDone?'#006242':accent.color}">bolt</span>
+            <span class="font-black" style="font-size:12px;color:${allQDone?'#006242':accent.color}">${earnedXP}/${totalQXP} XP</span>
           </div>
         </div>
-        <div class="px-5 pb-4">
-          <button onclick="showScreen('grading')"
-            class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border transition-all active:scale-[0.98]"
-            style="background:#ffffff;border-color:#dce9ff;box-shadow:0 1px 4px rgba(0,74,198,0.07)">
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-outlined ms-fill" style="font-size:20px;color:${accent.color}">checklist</span>
-              <span class="font-bold text-sm text-on-surface">Grading Checklist</span>
+        <!-- Progress bar -->
+        <div class="mx-4 mb-3 h-1 rounded-full overflow-hidden" style="background:${allQDone?'rgba(0,98,66,0.15)':accent.color+'15'}">
+          <div class="h-full rounded-full transition-all duration-700" style="width:${mission.tasks.length?Math.round(liveDone/mission.tasks.length*100):0}%;background:${allQDone?'#006242':accent.color}"></div>
+        </div>
+        <!-- Tasks -->
+        <div class="px-4 pb-4 space-y-2">`;
+
+    if (mission.tasks.length === 0) {
+      html += `<p class="text-on-surface-variant text-sm text-center py-3">All techniques complete! 🎉</p>`;
+    }
+
+    mission.tasks.forEach((task, i) => {
+      const done  = task._liveDone;
+      const icon  = TASK_ICON[task.type]  || 'star';
+      const label = TASK_LABEL[task.type] || 'Task';
+      const en    = (task.type === 'technique' || task.type === 'knowledge')
+                    ? ((typeof TERMS_EN !== 'undefined' && TERMS_EN[task.item]) ? TERMS_EN[task.item] : task.item.replace(/-/g,' '))
+                    : '';
+      html += `
+          <div class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer active:scale-[0.98] transition-all"
+            style="background:${done?accent.color+'0a':'#ffffff'};border-color:${done?accent.color+'40':'#e5eeff'}"
+            onclick="DojoHome.openQuestTask(${i})">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style="background:${done?accent.color:'#eff4ff'}">
+              <span class="material-symbols-outlined ${done?'ms-fill':''}" style="font-size:18px;color:${done?'#fff':accent.color}">
+                ${done ? 'check' : icon}
+              </span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-sm" style="color:${accent.color}">${readPct}% ready</span>
-              <span class="material-symbols-outlined" style="font-size:18px;color:#93b4f0">chevron_right</span>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-on-surface leading-tight truncate" style="font-size:12px">${task.label}</p>
+              ${en ? `<p class="text-on-surface-variant truncate mt-0.5" style="font-size:10px">${en}</p>` : ''}
+              <p class="font-bold uppercase tracking-widest mt-0.5" style="font-size:8px;color:${done?accent.color:'#93b4f0'}">${label} · +50 XP</p>
             </div>
-          </button>
+            ${done
+              ? `<span class="material-symbols-outlined ms-fill shrink-0" style="font-size:18px;color:${accent.color}">task_alt</span>`
+              : `<span class="material-symbols-outlined shrink-0" style="font-size:16px;color:#c7d7f5">chevron_right</span>`}
+          </div>`;
+    });
+
+    if (allQDone && mission.tasks.length > 0) {
+      html += `
+          <div class="flex items-center justify-center gap-2 pt-1">
+            <span class="material-symbols-outlined ms-fill text-emerald-600" style="font-size:16px">celebration</span>
+            <p class="font-bold text-emerald-700" style="font-size:12px">Quest complete! Come back tomorrow.</p>
+          </div>`;
+    }
+
+    html += `
         </div>
       </div>`;
 
-    // ── Next Up card ──
-    const nextItem = DojoState.getNextItem(belt.id);
-    if (nextItem && !allDone) {
-      const nextEn = (typeof TERMS_EN !== 'undefined' && TERMS_EN[nextItem]) ? TERMS_EN[nextItem] : nextItem.replace(/-/g,' ');
-      const nextGroup = belt.groups.find(g => g.items.includes(nextItem));
-      const groupLabel = nextGroup ? nextGroup.title.replace(/^(Fundamental|Performance|Knowledge)\s*[—-]\s*/i,'') : '';
-      html += `
-        <div class="rounded-2xl border border-outline-variant/30 overflow-hidden mb-2"
-          style="background:linear-gradient(135deg,#ffffff 0%,#f0f4ff 100%);box-shadow:0 2px 12px rgba(0,74,198,0.08)">
-          <div class="flex items-center gap-4 p-4">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-              style="background:${accent.color}18;border:1px solid ${accent.color}30">
-              <span class="material-symbols-outlined ms-fill" style="font-size:26px;color:${accent.color}">play_circle</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-bold uppercase tracking-widest text-on-surface-variant mb-0.5" style="font-size:9px">NEXT UP · ${groupLabel.toUpperCase()}</p>
-              <p class="font-bold text-on-surface text-sm leading-tight truncate">${nextItem}</p>
-              <p class="text-on-surface-variant text-xs truncate">${nextEn}</p>
-            </div>
-            <button onclick="DojoHome.openItem('${belt.id}','${nextItem.replace(/'/g,"\\'")}',${workIdx})"
-              class="btn-tactile shrink-0 font-black text-xs uppercase tracking-widest px-4 py-2.5 rounded-xl"
-              style="background:${accent.color};color:#fff;box-shadow:0 4px 0 0 ${accent.shadow || '#1e40af'}">
-              START
-            </button>
-          </div>
-        </div>`;
-    }
+    // ── Quick Stats strip (always shown) ────────────
+    html += `
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-white border border-outline-variant/20 rounded-2xl p-3 flex flex-col items-center">
+          <span class="material-symbols-outlined ms-fill text-orange-400 mb-1" style="font-size:20px">local_fire_department</span>
+          <span class="font-black text-on-surface leading-none" style="font-size:20px">${streak}</span>
+          <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-1" style="font-size:8px">STREAK</span>
+        </div>
+        <div class="bg-white border border-outline-variant/20 rounded-2xl p-3 flex flex-col items-center">
+          <span class="material-symbols-outlined ms-fill text-primary mb-1" style="font-size:20px">bolt</span>
+          <span class="font-black text-on-surface leading-none" style="font-size:20px">${xp}</span>
+          <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-1" style="font-size:8px">XP</span>
+        </div>
+        <div class="bg-white border border-outline-variant/20 rounded-2xl p-3 flex flex-col items-center">
+          <div class="w-4 h-4 rounded-full mb-1 shrink-0" style="background:${accent.color}"></div>
+          <span class="font-black text-on-surface leading-none" style="font-size:20px">${readPct}%</span>
+          <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-1" style="font-size:8px">${accent.label.replace(' Belt','').toUpperCase()}</span>
+        </div>
+      </div>`;
 
-    // ── Quick Stats strip (or welcome nudge on first launch) ──
-    {
-      const totalDone = (() => {
-        let d = 0, t = 0;
-        BELT_DATA.forEach(b => b.groups.forEach(g => g.items.forEach(item => { t++; if (DojoState.isDone(b.id,item)) d++; })));
-        return { d, t, pct: t ? Math.round(d/t*100) : 0 };
-      })();
-      const streak = DojoState.getStreak();
-      const xp     = DojoState.getXP();
-      const isNew  = xp === 0 && totalDone.d === 0;
+    // ── Daily Coaching Tip ────────────────────────────
+    const TIPS = [
+      { title:'Master Kuzushi First',  icon:'swap_vert',         body:'Every throw begins with breaking your partner\'s balance. Get kuzushi right and the technique will follow naturally.' },
+      { title:'Control the Sleeve',    icon:'back_hand',         body:'Secure the sleeve before the lapel. A firm sleeve grip controls uke\'s arm and limits their attack options.' },
+      { title:'Fall Better, Win More', icon:'airline_seat_flat', body:'Good ukemi is good judo. A judoka who falls confidently trains harder and learns faster.' },
+      { title:'Combine Your Attacks',  icon:'shuffle',           body:'Set up your big throw with a smaller one. A convincing feint opens the space for your real technique.' },
+      { title:'Win on the Ground',     icon:'rotate_right',      body:'Ne-waza wins contests. Even 5 seconds of osaekomi can change a match — stay active.' },
+      { title:'Protect Your Posture',  icon:'accessibility_new', body:'Stand tall and upright. Bending forward gives your opponent your back.' },
+      { title:'Randori Mindset',       icon:'psychology',        body:'In randori, experiment freely. In shiai, execute what you know. Every session is a learning lab.' },
+    ];
+    const tip = TIPS[new Date().getDay() % TIPS.length];
+    html += `
+      <div class="flex items-start gap-3 p-4 rounded-2xl border border-tertiary/20"
+        style="background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%)">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:#d1fae5">
+          <span class="material-symbols-outlined ms-fill text-emerald-600" style="font-size:20px">${tip.icon}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold uppercase tracking-widest text-emerald-700 mb-0.5" style="font-size:8px">SENSEI'S TIP</p>
+          <p class="font-bold text-on-surface leading-snug mb-1" style="font-size:13px">${tip.title}</p>
+          <p class="text-on-surface-variant leading-relaxed" style="font-size:12px">${tip.body}</p>
+        </div>
+      </div>`;
 
-      if (isNew) {
-        html += `
-          <div class="flex items-center gap-4 p-4 rounded-2xl border-2 mb-2"
-            style="background:#ffffff;border-color:${accent.color}40;border-style:dashed">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:${accent.color}15">
-              <span class="material-symbols-outlined ms-fill" style="font-size:26px;color:${accent.color}">waving_hand</span>
-            </div>
-            <div class="flex-1">
-              <p class="font-bold text-on-surface text-sm leading-snug">Welcome to your judo journey!</p>
-              <p class="text-on-surface-variant text-xs mt-0.5">Tap <strong>Grading Challenge</strong> below or hit <strong>Start</strong> to begin your first technique.</p>
-            </div>
-          </div>`;
-      } else {
-        html += `
-          <div class="grid grid-cols-3 gap-2 mb-2">
-            <div class="bg-white border border-outline-variant/30 rounded-2xl p-3 flex flex-col items-center">
-              <span class="material-symbols-outlined ms-fill text-orange-400 mb-1" style="font-size:20px">local_fire_department</span>
-              <span class="font-black text-on-surface text-lg leading-none">${streak}</span>
-              <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-0.5" style="font-size:9px">Day Streak</span>
-            </div>
-            <div class="bg-white border border-outline-variant/30 rounded-2xl p-3 flex flex-col items-center">
-              <span class="material-symbols-outlined ms-fill text-primary mb-1" style="font-size:20px">bolt</span>
-              <span class="font-black text-on-surface text-lg leading-none">${xp}</span>
-              <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-0.5" style="font-size:9px">Total XP</span>
-            </div>
-            <div class="bg-white border border-outline-variant/30 rounded-2xl p-3 flex flex-col items-center">
-              <span class="material-symbols-outlined ms-fill text-secondary mb-1" style="font-size:20px">done_all</span>
-              <span class="font-black text-on-surface text-lg leading-none">${totalDone.pct}%</span>
-              <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-0.5" style="font-size:9px">All Belts</span>
-            </div>
-          </div>`;
-      }
-    }
-
-    // ── Daily Coaching Tip ──
-    {
-      const TIPS = [
-        { title:'Master Kuzushi First',    icon:'swap_vert',         body:'Every throw begins with breaking your partner’s balance. Get kuzushi right and the technique will follow naturally.' },
-        { title:'Control the Sleeve',      icon:'back_hand',         body:'Secure the sleeve before the lapel. A firm sleeve grip controls uke’s arm and limits their attack options.' },
-        { title:'Fall Better, Win More',   icon:'airline_seat_flat', body:'Good ukemi is good judo. A judoka who falls confidently trains harder and learns faster.' },
-        { title:'Combine Your Attacks',    icon:'shuffle',           body:'Set up your big throw with a smaller one. A convincing feint opens the space for your real technique.' },
-        { title:'Win on the Ground',       icon:'rotate_right',      body:'Ne-waza wins contests. Even 5 seconds of osaekomi can change a match — stay active when it goes to ground.' },
-        { title:'Protect Your Posture',    icon:'accessibility_new', body:'Stand tall and upright. Bending forward gives your opponent your back — the most dangerous position in judo.' },
-        { title:'Randori Mindset',         icon:'psychology',        body:'In randori, experiment freely. In shiai, execute what you know. Treat every practice session as a learning lab.' },
-      ];
-      const tip = TIPS[new Date().getDay() % TIPS.length];
-      html += `
-        <div class="flex items-start gap-4 p-4 rounded-2xl border border-tertiary/30 mb-2"
-          style="background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%)">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:#d1fae5">
-            <span class="material-symbols-outlined ms-fill text-emerald-600" style="font-size:22px">${tip.icon}</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold uppercase tracking-widest text-emerald-700 mb-1" style="font-size:9px">SENSEI’S TIP</p>
-            <p class="font-bold text-on-surface text-sm leading-snug mb-1">${tip.title}</p>
-            <p class="text-on-surface-variant text-xs leading-relaxed">${tip.body}</p>
-          </div>
-        </div>`;
-    }
-
-    // ── Grading Challenge CTA ──
+    // ── Belt mini-card → Path ─────────────────────────
     html += `
       <button onclick="showScreen('belt-path')"
-        class="w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all active:scale-[0.98] mt-1"
-        style="background:#ffffff;border-color:${accent.color}40;box-shadow:0 4px 0 0 ${accent.color}30">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-          style="background:${accent.color}18;border:1.5px solid ${accent.color}30">
-          <span class="material-symbols-outlined ms-fill" style="font-size:30px;color:${accent.color}">sports_kabaddi</span>
+        class="w-full flex items-center gap-4 p-4 rounded-2xl border transition-all active:scale-[0.98]"
+        style="background:#ffffff;border-color:${accent.color}25;box-shadow:0 2px 8px rgba(0,74,198,0.05)">
+        <img src="${accent.img}" alt="${accent.label}" class="h-12 w-auto drop-shadow shrink-0" onerror="this.style.display='none'"/>
+        <div class="flex-1 min-w-0 text-left">
+          <p class="font-bold uppercase tracking-widest mb-0.5" style="font-size:9px;color:${accent.color}">BELT PATH</p>
+          <p class="font-bold text-on-surface leading-tight" style="font-size:13px">${accent.label}</p>
+          <div class="mt-1.5 w-full h-1 rounded-full overflow-hidden" style="background:#eff4ff">
+            <div class="h-full rounded-full transition-all duration-700" style="width:${readPct}%;background:${accent.color}"></div>
+          </div>
+          <p class="text-on-surface-variant mt-1" style="font-size:10px">${doneCount} of ${allItems.length} techniques · ${readPct}%</p>
         </div>
-        <div class="flex-1 text-left min-w-0">
-          <p class="font-bold uppercase tracking-widest mb-0.5" style="font-size:10px;color:${accent.color}">GRADING CHALLENGE</p>
-          <p class="font-bold text-on-surface text-base leading-tight">${accent.label} Path</p>
-          <p class="text-on-surface-variant text-xs mt-0.5">${doneCount} of ${allItems.length} techniques · ${readPct}% complete</p>
-        </div>
-        <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
-          style="background:${accent.color};box-shadow:0 4px 0 0 ${accent.shadow || '#1e40af'}">
-          <span class="material-symbols-outlined text-white" style="font-size:22px">arrow_forward</span>
-        </div>
+        <span class="material-symbols-outlined shrink-0" style="font-size:20px;color:${accent.color}">arrow_forward_ios</span>
       </button>`;
 
     container.innerHTML = html;
@@ -237,19 +334,29 @@ const DojoHome = (() => {
         globalIdx++;
 
         if (done) {
+          const mastery  = DojoState.getMastery(belt.id, item);
+          const mLabel   = mastery >= 4 ? 'MASTERED' : mastery === 3 ? 'DRILLED' : mastery === 2 ? 'TRAINED' : 'DONE';
+          const mColor   = mastery >= 4 ? '#006242'  : accent.color;
+          const mPips    = Math.min(mastery, 4);
+          const pipsHtml = [1,2,3,4].map(p =>
+            `<span class="inline-block rounded-full" style="width:10px;height:5px;background:${p<=mPips?mColor:'#dce9ff'}"></span>`
+          ).join('');
           html += `
-            <div class="tile-done flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer"
-              style="background:${accent.color}15;border-color:${accent.color}40"
+            <div class="tile-done flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all cursor-pointer"
+              style="background:${mastery>=4?'#ecfdf5':accent.color+'0d'};border-color:${mastery>=4?'#00624230':accent.color+'30'}"
               onclick="DojoHome.openItem('${belt.id}','${item.replace(/'/g,"\'")}',${workIdx})">
-              <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-                style="background:${accent.color}">
-                <span class="material-symbols-outlined ms-fill text-white" style="font-size:22px">check</span>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style="background:${mastery>=4?'#006242':accent.color}">
+                <span class="material-symbols-outlined ms-fill text-white" style="font-size:20px">${mastery>=4?'military_tech':'check'}</span>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-bold text-on-surface text-sm leading-tight truncate">${item}</p>
-                <p class="text-xs mt-0.5 truncate" style="color:${accent.color}">${en}</p>
+                <p class="font-bold text-on-surface leading-tight truncate" style="font-size:13px">${item}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <div class="flex gap-1">${pipsHtml}</div>
+                  <span class="font-black uppercase tracking-widest" style="font-size:8px;color:${mColor}">${mLabel}</span>
+                </div>
               </div>
-              <span class="material-symbols-outlined ms-fill shrink-0" style="color:${accent.color};font-size:18px">task_alt</span>
+              <span class="material-symbols-outlined shrink-0" style="font-size:16px;color:${accent.color}40">chevron_right</span>
             </div>`;
         } else if (active) {
           html += `
@@ -496,5 +603,5 @@ const DojoHome = (() => {
     }).join('');
   }
 
-  return { render, renderBeltPath, renderChecklist, openItem, startUnitExam, switchBelt };
+  return { render, renderBeltPath, renderChecklist, openItem, startUnitExam, switchBelt, openQuestTask, getNextQuestTask };
 })();
