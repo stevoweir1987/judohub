@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dojo Master - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "on-tertiary-container": "#bdffdb",
+                        "surface-tint": "#0053db",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-container": "#5c647a",
+                        "background": "#f8f9ff",
+                        "tertiary-container": "#007d55",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "primary-container": "#2563eb",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed": "#131b2e",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-surface-variant": "#434655",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#00174b",
+                        "error-container": "#ffdad6",
+                        "secondary": "#565e74",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "outline": "#737686",
+                        "inverse-primary": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed": "#002113",
+                        "secondary-fixed": "#dae2fd",
+                        "tertiary": "#006242",
+                        "surface-bright": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-4 h-16 z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC05CfPD_nSrpOgLCt2zxYekPAK8lb70xpBMYBrQDKECnXamAOAOAR4aH-M5wCykp9AlltWs4uqdi2fwkiknPQhsmFg3-k2B0Qld3YQLPuWdglFohPqs4ypI80KuGhFulRBXfjgOls7oLDbUPYmgydrkL4wGGSnKqzGkK9BrO-8G3E2e7opB6gU8csqYzwxgQEIclQakKu42gqAA4pe_pNN1uehQChBHzDyWX5o-CW6q3xkq5PDR5kT-L7bKXE09ZJyLK6WpLcHfls"/>
+</div>
+<span class="font-headline text-lg font-bold text-primary">Dojo Master</span>
+</div>
+<div class="text-primary font-semibold px-4 py-1.5 bg-surface-container rounded-full text-sm flex items-center gap-1">
+            5 ❤️ 12 🔥
+        </div>
+</header>
+<main class="max-w-lg mx-auto px-4 pt-24 pb-8 space-y-8">
+<!-- Profile Header -->
+<section class="flex flex-col items-center text-center">
+<div class="relative mb-4">
+<div class="w-32 h-32 rounded-full border-4 border-surface-container-highest p-1 relative">
+<div class="w-full h-full rounded-full overflow-hidden bg-primary-container">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7fjI8_3jf_MnGYrZN8WKUK8MRbex0WeWdI0WBpygIAYyV5cqbbq3D90k-wYhE4x6HnJBZaBkgZsux81pIyOQda0Pgvhb7CAhGobSjLbpSQxNmWZmc5RVZy7h2Xl3G3-rI-V-aCRAYl23aAx8m9ISAjJZbAO3SdtBaQixf9uBdFcYCIDnXHftuDrfCI_8tJDBU4gKSVHgWj6Jqhx23YdRxQMlSzwx71iizXHNQ6iQG7kapfk8948-DBLoCdgQuUG9XYGS6bI0YWMI"/>
+</div>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-surface-container-lowest border border-outline-variant px-3 py-1 rounded-full shadow-sm">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface">White Belt</span>
+</div>
+</div>
+<button class="absolute bottom-1 right-0 bg-primary text-on-primary w-8 h-8 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<h1 class="text-2xl font-bold text-on-surface mb-1">Kenji Tanaka</h1>
+<p class="text-on-surface-variant text-sm px-4">Dedicated practitioner focusing on Kuzushi and efficient throwing mechanics. Journey started March 2024.</p>
+</section>
+<!-- Stats Grid -->
+<section class="stats-grid">
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<span class="text-primary font-display text-2xl font-bold">42</span>
+<span class="text-on-surface-variant text-[10px] font-semibold uppercase tracking-wider">Lessons Done</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<span class="text-primary font-display text-2xl font-bold">156</span>
+<span class="text-on-surface-variant text-[10px] font-semibold uppercase tracking-wider">Total Drills</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<span class="text-tertiary font-display text-2xl font-bold">12</span>
+<span class="text-on-surface-variant text-[10px] font-semibold uppercase tracking-wider">Mastered</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<span class="text-error font-display text-2xl font-bold">8</span>
+<span class="text-on-surface-variant text-[10px] font-semibold uppercase tracking-wider">Day Streak</span>
+</div>
+</section>
+<!-- Belt Progress Card -->
+<section class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/50">
+<div class="flex justify-between items-start mb-1">
+<h2 class="text-xl font-bold text-on-surface">Belt Progress</h2>
+<span class="text-primary font-bold text-lg">15%</span>
+</div>
+<p class="text-on-surface-variant text-xs mb-4">Next Rank: Yellow Belt (6th Kyu)</p>
+<div class="w-full h-8 bg-surface-container-highest rounded-md flex items-center p-1 mb-6 relative border border-outline-variant/20">
+<div class="h-full bg-white border border-outline-variant rounded transition-all duration-1000 w-[15%]"></div>
+<div class="absolute inset-0 flex justify-around items-center pointer-events-none opacity-20">
+<div class="w-[1px] h-3 bg-on-surface"></div>
+<div class="w-[1px] h-3 bg-on-surface"></div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="bg-white p-3 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-lg">menu_book</span>
+<p class="text-[10px] font-bold uppercase text-on-surface-variant">Theory</p>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full">
+<div class="bg-primary w-[40%] h-full rounded-full"></div>
+</div>
+</div>
+<div class="bg-white p-3 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-lg">fitness_center</span>
+<p class="text-[10px] font-bold uppercase text-on-surface-variant">Technique</p>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full">
+<div class="bg-primary w-[10%] h-full rounded-full"></div>
+</div>
+</div>
+<div class="bg-white p-3 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-lg">history_edu</span>
+<p class="text-[10px] font-bold uppercase text-on-surface-variant">Terminology</p>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full">
+<div class="bg-primary w-[65%] h-full rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Achievements Section -->
+<section class="bg-surface-container rounded-xl p-6">
+<h2 class="text-xl font-bold text-on-surface mb-6">Achievements</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 flex flex-col items-center">
+<div class="w-14 h-14 bg-primary-container/10 rounded-full flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface text-center">First Throw</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 flex flex-col items-center">
+<div class="w-14 h-14 bg-secondary-container/10 rounded-full flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface text-center">10 Day Streak</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 flex flex-col items-center">
+<div class="w-14 h-14 bg-tertiary-container/10 rounded-full flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-tertiary text-2xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface text-center">Technique Master</span>
+</div>
+<div class="bg-surface-container-lowest/50 p-4 rounded-xl border border-dashed border-outline-variant flex flex-col items-center grayscale">
+<div class="w-14 h-14 bg-outline-variant/10 rounded-full flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-outline text-2xl">lock</span>
+</div>
+<span class="text-[10px] font-bold text-outline-variant text-center">Black Belt</span>
+</div>
+</div>
+<button class="w-full mt-6 text-primary font-bold text-sm flex items-center justify-center gap-2">
+                View All 24 Badges <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface-container-lowest border-t border-outline-variant shadow-lg pb-safe">
+<a class="flex flex-col items-center justify-center text-outline gap-1" href="#">
+<span class="material-symbols-outlined text-2xl">book</span>
+<span class="text-[10px] font-bold">Study</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline gap-1" href="#">
+<span class="material-symbols-outlined text-2xl">target</span>
+<span class="text-[10px] font-bold">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline gap-1" href="#">
+<span class="material-symbols-outlined text-2xl">shield</span>
+<span class="text-[10px] font-bold">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-lg px-6 py-2 gap-1" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</a>
+</nav>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bar = document.querySelector('.bg-white.border.border-outline-variant');
+            if (bar) {
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = '15%';
+                }, 300);
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rank Up - Yellow Belt Achieved</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#33a191",
+                        "inverse-on-surface": "#313030",
+                        "tertiary-fixed": "#8ef5e2",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-fixed-dim": "#ffb3b3",
+                        "secondary-fixed": "#d9e2ff",
+                        "on-secondary": "#002d6e",
+                        "on-secondary-fixed-variant": "#00429b",
+                        "background": "#131313",
+                        "secondary": "#b0c6ff",
+                        "tertiary": "#71d8c6",
+                        "primary": "#ffb3b3",
+                        "on-tertiary-fixed-variant": "#005047",
+                        "on-error": "#690005",
+                        "outline": "#ac8888",
+                        "inverse-primary": "#bf0030",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "surface-container": "#201f1f",
+                        "surface-dim": "#131313",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-container": "#5b0012",
+                        "outline-variant": "#5c3f40",
+                        "on-tertiary-fixed": "#00201c",
+                        "primary-container": "#ff5262",
+                        "tertiary-fixed-dim": "#71d8c6",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed": "#40000a",
+                        "surface-container-highest": "#353534",
+                        "secondary-fixed-dim": "#b0c6ff",
+                        "on-surface": "#e5e2e1",
+                        "on-secondary-fixed": "#001945",
+                        "on-surface-variant": "#e5bdbd",
+                        "on-background": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "surface-tint": "#ffb3b3",
+                        "on-secondary-container": "#f2f3ff",
+                        "primary-fixed": "#ffdad9",
+                        "on-primary-fixed-variant": "#920022",
+                        "on-primary": "#680016",
+                        "surface": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary": "#003730",
+                        "secondary-container": "#0068ed",
+                        "on-tertiary-container": "#00302a",
+                        "inverse-surface": "#e5e2e1",
+                        "error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "max-width": "1200px",
+                        "unit": "8px",
+                        "margin-desktop": "64px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            background-image: 
+                linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+            overflow-x: hidden;
+            min-height: 100dvh;
+        }
+
+        .glow-pulse {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 218, 0, 0.3)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 40px rgba(255, 218, 0, 0.6)); transform: scale(1.02); }
+        }
+
+        .hanko-seal {
+            border: 2px solid #ff5262;
+            color: #ff5262;
+            padding: 4px;
+            display: inline-block;
+            transform: rotate(-15deg);
+            font-weight: 800;
+        }
+
+        .squishy-button:active .button-front {
+            transform: translateY(2px);
+            border-bottom-width: 0px;
+        }
+    </style>
+</head>
+<body class="dark bg-background text-on-surface font-body-md text-body-md flex flex-col">
+<!-- Standard Header -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-surface-container-high flex justify-between items-center px-4 h-[56px]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-xl">bolt</span>
+<span class="font-bold text-white uppercase tracking-tight text-sm">Dojo Floor: Home Path</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1 rounded border border-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary-container text-[16px]">bolt</span>
+<span class="font-bold text-on-surface text-xs">5</span>
+</div>
+<div class="w-[1px] h-3 bg-surface-variant"></div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary-container text-[16px]">favorite</span>
+<span class="font-bold text-on-surface text-xs">5/5</span>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-margin-mobile flex flex-col items-center">
+<!-- Celebration Header -->
+<div class="text-center mb-8">
+<p class="font-label-caps text-label-caps text-primary-container tracking-widest uppercase mb-2">RANK UP!</p>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Yellow Belt Achieved</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 opacity-70">5th Kyu Mastery Level</p>
+</div>
+<!-- Central Belt Visualization -->
+<div class="relative w-full max-w-sm aspect-square flex items-center justify-center mb-10">
+<!-- Light Burst Effect -->
+<div class="absolute inset-0 bg-gradient-radial from-primary-container/20 to-transparent scale-150 opacity-50" style="opacity: 0.424147;"></div>
+<div class="absolute inset-0 border-[1px] border-primary-container/30 rounded-full scale-75 animate-ping"></div>
+<div class="relative z-10 glow-pulse">
+<img alt="Yellow Belt" class="w-64 h-auto drop-shadow-[0_0_15px_rgba(255,218,0,0.4)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWB4l9Gd5DltDA5SJ47T7UOt-eAOFZXN38YUnFcsoBbP0Cef9Zq8L2MVP6io6qNx_NP8Lpyqs_LPR2Wk-OW0reSn-kPifXoTVaEica59EjXfvhiA0KWU5hKUl8bLc95Jl7BZ5pTp3FZtncNeKU3xOkO2ecrXd28wdwscdzV0t3wyEUcvUm-YEWbJZ5oM-BgipOWX4cdQHKvZSw-NcOi6IJFQAxiR0uzy0vHv6RgoiS8zhWEFDDbYed0KnCxykMFO3OYhTa1RclcWA"/>
+<div class="absolute -top-6 -right-6 hanko-seal font-headline-lg text-4xl px-3 py-1 rotate-12 bg-background/40 backdrop-blur-sm shadow-[0_0_20px_rgba(255,82,98,0.4)] animate-pulse border-4">合格</div>
+<!-- Belt Rank Badge -->
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-on-surface text-background font-bold px-4 py-1 rounded-full shadow-lg">
+                    5TH KYU
+                </div>
+</div>
+</div>
+<!-- Mastery Breakdown Card -->
+<div class="w-full max-w-md bg-surface-container p-6 rounded-xl border-t-[1px] border-surface-bright shadow-[8px_8px_0px_0px_rgba(0,0,0,0.5)] relative overflow-hidden mb-12">
+<!-- Gi Collar Accent -->
+<div class="absolute top-0 right-0 w-16 h-16 pointer-events-none">
+<div class="absolute top-0 right-0 w-full h-full bg-surface-variant origin-top-right rotate-45 transform translate-x-8 -translate-y-8 border-l border-b border-outline-variant"></div>
+</div>
+<h3 class="font-title-md text-title-md mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">military_tech</span>
+                Mastery Metrics
+            </h3>
+<!-- Progress Bars -->
+<div class="space-y-6">
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-caps text-label-caps opacity-60">TECHNIQUE PROFICIENCY</span>
+<span class="font-bold text-tertiary">+450 XP</span>
+</div>
+<div class="h-3 w-full bg-background rounded-full overflow-hidden border border-surface-variant">
+<div class="h-full bg-gradient-to-r from-tertiary to-tertiary-container w-[85%] animate-[pulse_2s_infinite]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-caps text-label-caps opacity-60">DOJO CONSISTENCY</span>
+<span class="font-bold text-tertiary">+200 XP</span>
+</div>
+<div class="h-3 w-full bg-background rounded-full overflow-hidden border border-surface-variant">
+<div class="h-full bg-gradient-to-r from-tertiary to-tertiary-container w-[100%] animate-[pulse_2s_infinite]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-caps text-label-caps opacity-60">SPARRING ETIQUETTE</span>
+<span class="font-bold text-tertiary">+150 XP</span>
+</div>
+<div class="h-3 w-full bg-background rounded-full overflow-hidden border border-surface-variant">
+<div class="h-full bg-gradient-to-r from-tertiary to-tertiary-container w-[65%] animate-[pulse_2s_infinite]"></div>
+</div>
+</div>
+</div>
+<!-- Total XP -->
+<div class="mt-8 pt-6 border-t border-surface-variant flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Total Rewards</span>
+<span class="text-3xl font-black text-on-surface">800 XP</span>
+</div>
+<div class="hanko-seal font-headline-lg-mobile px-4 py-1">合格 PASSED</div>
+</div>
+</div>
+<!-- Primary Action Button (Tactile 3D) -->
+<button class="squishy-button group relative w-full max-w-md transition-all duration-100 mb-12">
+<div class="absolute inset-0 bg-on-error translate-y-1 rounded-xl"></div>
+<div class="button-front relative bg-primary-container hover:bg-[#ff6b7a] text-on-primary-container font-headline-lg-mobile text-headline-lg-mobile py-4 rounded-xl transition-all border-b-[6px] border-on-error flex items-center justify-center gap-2">
+                BACK TO THE FLOOR
+                <span class="material-symbols-outlined">sports_martial_arts</span>
+</div>
+</button>
+</main>
+<!-- Standard Bottom Navigation (Learn active) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-container border-t border-surface-variant flex justify-around items-center px-2 h-16">
+<a class="flex flex-col items-center justify-center gap-1 w-20 py-2 rounded-lg bg-primary-container text-on-primary-container" href="#">
+<span class="material-symbols-outlined font-bold">school</span>
+<span class="text-[10px] uppercase font-bold tracking-wider">Learn</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-20 py-2 text-on-surface hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="text-[10px] uppercase tracking-wider font-bold opacity-70">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-20 py-2 text-on-surface hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">temple_buddhist</span>
+<span class="text-[10px] uppercase tracking-wider font-bold opacity-70">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-20 py-2 text-on-surface hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] uppercase tracking-wider font-bold opacity-70">Profile</span>
+</a>
+</nav>
+<!-- Micro-interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Random subtle flash effect for celebration
+            setInterval(() => {
+                const burst = document.querySelector('.bg-gradient-radial');
+                if (burst) {
+                    burst.style.opacity = (Math.random() * 0.3 + 0.3).toString();
+                }
+            }, 500);
+        });
+    </script>
+</body></html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DojoMaster - Practice Session</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #131313;
+            background-image: 
+                linear-gradient(45deg, rgba(255, 255, 255, 0.015) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255, 255, 255, 0.015) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.015) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.015) 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .gi-fold::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 32px 32px 0;
+            border-color: transparent #353534 transparent transparent;
+        }
+        .hanko-seal {
+            border: 2px solid #ac8888;
+            position: relative;
+        }
+        .hanko-seal.checked {
+            border-color: #ffb3b3;
+            background-color: rgba(255, 179, 179, 0.1);
+        }
+        .hanko-seal.checked::after {
+            content: '印';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffb3b3;
+            font-weight: 900;
+            font-size: 14px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#ffb3b3",
+                        "on-primary": "#680016",
+                        "primary-container": "#ff5262",
+                        "on-primary-container": "#5b0012",
+                        "secondary": "#b0c6ff",
+                        "tertiary": "#71d8c6",
+                        "background": "#131313",
+                        "on-background": "#e5e2e1",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-surface-variant": "#e5bdbd",
+                        "outline": "#ac8888",
+                        "outline-variant": "#5c3f40",
+                        "surface-container": "#201f1f",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-highest": "#353534",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container-lowest": "#0e0e0e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "max-width": "1200px",
+                        "margin-mobile": "20px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface text-primary border-b-4 border-surface-variant shadow-md flex justify-between items-center px-margin-mobile py-unit h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:opacity-80 active:translate-y-[1px] transition-all">menu</span>
+<h1 class="text-xl font-extrabold tracking-tight">DojoMaster</h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-high px-3 py-1 rounded-full border border-outline-variant flex items-center gap-2">
+<span class="text-xs font-bold">52 🔥</span>
+<span class="text-xs font-bold">5 ❤️</span>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 px-margin-mobile max-w-screen-md mx-auto space-y-gutter">
+<!-- HUD Stats -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 rounded-xl shadow-md border-b-4 border-surface-variant">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Stamina</span>
+<span class="text-[10px] font-bold text-tertiary">85%</span>
+</div>
+<div class="w-full h-2 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[85%]"></div>
+</div>
+</div>
+<div class="bg-surface-container p-4 rounded-xl shadow-md border-b-4 border-surface-variant flex items-center gap-3">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block leading-none mb-1">Belt Streak</span>
+<span class="text-lg font-bold text-on-surface leading-none">3rd Dan</span>
+</div>
+</div>
+</section>
+<!-- Video Player -->
+<section class="relative aspect-video rounded-xl overflow-hidden bg-surface-container-lowest border-4 border-surface-variant shadow-lg group">
+<img alt="Uchikomi Practice" class="w-full h-full object-cover opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqe1vj2RqQqy4eWhqvqbvah8xtKCNqulCYbhD-kcogeHVaCCaGFMeSlEHQN2BMvSSOdrrwJxeZdF0wNT7Ev9-08WM2Jg-XsVRPdmavg8CKET-n1SOU3XxwZnLexh-VMOYRNvzYeIttdvg9aTb25y06prixHCahJc6prSh9ehzJmpmruyROfbloJ1BaJq35adKBKmOO64yDyjxVMaZWRCcB8C6RzWU0FIV6enGBftz-erQ4rL_-v_knzFVxoOI9j-OU9IirXvLl8A4"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-[0_6px_0_#920022] active:translate-y-[4px] active:shadow-none transition-all">
+<span class="material-symbols-outlined text-on-primary text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+<div class="bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10">
+<p class="text-[10px] font-bold text-white leading-tight">Strength: Grappling Power</p>
+</div>
+<div class="bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10">
+<p class="text-[10px] font-bold text-white leading-tight">04:20 / 12:00</p>
+</div>
+</div>
+</section>
+<!-- Technical Card -->
+<section class="relative bg-surface-container p-6 rounded-xl border-b-4 border-surface-variant shadow-md gi-fold overflow-hidden">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-2 h-8 bg-primary rounded-full"></div>
+<h2 class="text-2xl font-bold text-on-surface">Uchikomi Bands</h2>
+</div>
+<div class="grid grid-cols-3 gap-3 mb-8">
+<div class="bg-surface-container-high p-3 rounded-lg text-center border border-outline-variant">
+<span class="block text-2xl font-black text-primary leading-none">3</span>
+<span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mt-1">Sets</span>
+</div>
+<div class="bg-surface-container-high p-3 rounded-lg text-center border border-outline-variant">
+<span class="block text-2xl font-black text-primary leading-none">20</span>
+<span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mt-1">Reps</span>
+</div>
+<div class="bg-surface-container-high p-3 rounded-lg text-center border border-outline-variant">
+<span class="block text-2xl font-black text-primary leading-none">60s</span>
+<span class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mt-1">Rest</span>
+</div>
+</div>
+<!-- Sensei's Tip -->
+<div class="bg-tertiary/10 border-l-4 border-tertiary p-4 rounded-r-lg flex gap-4">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+<div>
+<h4 class="text-[10px] font-black text-tertiary uppercase tracking-widest mb-1">Sensei's Tip</h4>
+<p class="text-sm text-on-surface leading-relaxed">Focus on explosive hip rotation and keeping your posture upright.</p>
+</div>
+</div>
+</section>
+<!-- Task Checklist -->
+<section class="space-y-3">
+<button class="w-full bg-surface-container-high p-4 rounded-xl flex items-center justify-between group active:scale-[0.99] transition-transform" onclick="toggleTask(this)">
+<div class="flex items-center gap-4">
+<div class="hanko-seal w-7 h-7 rounded-full transition-all"></div>
+<span class="text-base font-medium text-on-surface">Complete Set 1</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+<button class="w-full bg-surface-container-high p-4 rounded-xl flex items-center justify-between group active:scale-[0.99] transition-transform" onclick="toggleTask(this)">
+<div class="flex items-center gap-4">
+<div class="hanko-seal w-7 h-7 rounded-full transition-all"></div>
+<span class="text-base font-medium text-on-surface">Complete Set 2</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</button>
+</section>
+<!-- Timer Button -->
+<section class="pt-4">
+<button class="w-full bg-primary-container text-on-primary-container font-black text-xl py-5 rounded-xl shadow-[0_6px_0_#920022] active:translate-y-[6px] active:shadow-none transition-all flex items-center justify-center gap-3" id="timerBtn" onclick="toggleTimer()">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span>START TIMER</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-container border-t-4 border-surface-variant shadow-[0px_-4px_12px_rgba(0,0,0,0.3)] flex justify-around items-stretch h-20 px-2 pb-2">
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">map</span>
+<span class="text-[10px] font-bold mt-1">Learn</span>
+</button>
+<div class="flex-1 px-1 py-2">
+<button class="w-full h-full bg-primary-container text-on-primary-container rounded-xl flex flex-col items-center justify-center border-b-4 border-on-primary-fixed-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">exercise</span>
+<span class="text-[10px] font-bold mt-1">Practice</span>
+</button>
+</div>
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px] font-bold mt-1">Rank</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold mt-1">Profile</span>
+</button>
+</nav>
+<script>
+        function toggleTask(btn) {
+            const seal = btn.querySelector('.hanko-seal');
+            seal.classList.toggle('checked');
+            if (seal.classList.contains('checked')) {
+                btn.classList.add('border-l-4', 'border-primary');
+            } else {
+                btn.classList.remove('border-l-4', 'border-primary');
+            }
+        }
+
+        let timerRunning = false;
+        let seconds = 60;
+        let interval;
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerBtn');
+            const label = btn.querySelector('span:last-child');
+            
+            if (timerRunning) {
+                clearInterval(interval);
+                label.innerText = 'START TIMER';
+                btn.classList.remove('opacity-80');
+                timerRunning = false;
+                seconds = 60;
+            } else {
+                timerRunning = true;
+                btn.classList.add('opacity-80');
+                interval = setInterval(() => {
+                    seconds--;
+                    label.innerText = `REST: ${seconds}s`;
+                    if (seconds <= 0) {
+                        clearInterval(interval);
+                        label.innerText = 'REST COMPLETE';
+                        timerRunning = false;
+                        seconds = 60;
+                        btn.classList.remove('opacity-80');
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body></html>

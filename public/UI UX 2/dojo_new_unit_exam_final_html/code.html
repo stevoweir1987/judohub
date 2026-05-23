@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unit Exam: White Belt Basics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "primary": "#004ac6",
+                "on-tertiary-container": "#bdffdb",
+                "surface-tint": "#0053db",
+                "surface-container-highest": "#d3e4fe",
+                "on-secondary-container": "#5c647a",
+                "background": "#f8f9ff",
+                "tertiary-container": "#007d55",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#003ea8",
+                "surface-container-low": "#eff4ff",
+                "on-error-container": "#93000a",
+                "tertiary-fixed": "#6ffbbe",
+                "surface-container-high": "#dce9ff",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#dae2fd",
+                "primary-container": "#2563eb",
+                "outline-variant": "#c3c6d7",
+                "on-secondary-fixed": "#131b2e",
+                "error": "#ba1a1a",
+                "on-primary-container": "#eeefff",
+                "tertiary-fixed-dim": "#4edea3",
+                "on-surface-variant": "#434655",
+                "on-surface": "#0b1c30",
+                "surface": "#f8f9ff",
+                "primary-fixed-dim": "#b4c5ff",
+                "on-tertiary-fixed-variant": "#005236",
+                "on-primary-fixed": "#00174b",
+                "error-container": "#ffdad6",
+                "secondary": "#565e74",
+                "on-secondary-fixed-variant": "#3f465c",
+                "outline": "#737686",
+                "inverse-primary": "#b4c5ff",
+                "on-error": "#ffffff",
+                "inverse-on-surface": "#eaf1ff",
+                "surface-variant": "#d3e4fe",
+                "surface-dim": "#cbdbf5",
+                "on-tertiary-fixed": "#002113",
+                "secondary-fixed": "#dae2fd",
+                "tertiary": "#006242",
+                "surface-bright": "#f8f9ff",
+                "on-background": "#0b1c30",
+                "surface-container": "#e5eeff",
+                "inverse-surface": "#213145",
+                "primary-fixed": "#dbe1ff",
+                "secondary-fixed-dim": "#bec6e0",
+                "on-tertiary": "#ffffff",
+                "on-primary": "#ffffff"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.5rem",
+                "lg": "0.75rem",
+                "xl": "1rem",
+                "full": "9999px"
+              },
+              "fontFamily": {
+                "headline": ["Plus Jakarta Sans"],
+                "display": ["Plus Jakarta Sans"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .option-selected {
+            border-color: #004ac6 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 1px #004ac6;
+        }
+        body {
+            min-height: 100dvh;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-white border-b border-outline-variant flex justify-between items-center w-full px-4 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border-2 border-primary">
+<img alt="Student Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD14zl06xYbxVQLbLJ9rAgf1ek_UqHHM3X8lUEpefJbjr-v2nw4dkPtJ9tZlFP6ptnWHo9uLIWseeNYkruVDNz2S5IFynwJd-wZiaoyhMGCnZdjIDyD_d723D64NRquq8l7l9QQ9SxRZqHlxL6ZHGk9yOGTM6SpRGyWGaCZeEod5MC4Z_nZ1wEtJL8nlSe5G9MMeW_FBn8J8dASga6UwDpis1UvNfQ7F11Quh6w1PjfZdaLxFoLt6NoWQVlspxse9oZzROmj8FR-pg"/>
+</div>
+<h1 class="font-headline text-lg font-bold text-primary tracking-tight">Dojo Master</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="bg-secondary-container/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+<span class="text-sm">❤️ 3</span>
+<span class="text-sm">🔥 12</span>
+<span class="text-sm font-bold text-primary">Lvl. 5</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant p-2">close</button>
+</div>
+</header>
+<!-- Progress Bar HUD -->
+<div class="w-full bg-surface px-4 py-4 flex items-center gap-3">
+<div class="flex-1 h-2.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4 rounded-full"></div>
+</div>
+<span class="text-sm font-bold text-primary">75%</span>
+</div>
+<!-- Main Content -->
+<main class="flex-1 max-w-2xl mx-auto w-full px-4 pb-24">
+<!-- Header Section -->
+<div class="text-center mt-4 mb-8">
+<h2 class="font-display text-3xl font-bold text-on-surface tracking-tight">White Belt Basics</h2>
+<p class="text-on-surface-variant text-sm mt-1">Unit Exam • Module 04: Throwing Foundations</p>
+</div>
+<!-- Video Card -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant mb-6">
+<div class="relative aspect-video bg-black flex items-center justify-center">
+<img alt="Technical Demo" class="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjWKDqM4_Yaqa3CUAasMmHNJzGMDKBVSeuDrjvQXVpgal4Eh02WxvSIr5Tub1SnOENwlfrHDkQ1uqCdyk_YIIKk4oFsi3FKoroJyigaHrPGYJXvNulV7unJOEysTkx3Yg6Pnoxe3y6_rlequZCfrI1ohJ6lIsBVfgW-_YI17oTHo0-3Ibfv5dhN9eG7OpJmt0EHxrDlvoF0UmEO51jSy7FuCvWLMr1aF69Rv1F_BrrLioeiD1uqoE24prsogNkr5bzI7o3zPvDgnM"/>
+<button class="absolute w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined !text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-md border border-white/20">
+<span class="text-white text-[10px] font-bold tracking-wider uppercase">TECHNICAL DEMO: OSOTO GARI</span>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined !text-xl">info</span>
+<span class="text-sm font-medium">Watch carefully for the foot placement.</span>
+</div>
+<span class="text-on-surface-variant text-sm font-medium">0:45 / 2:30</span>
+</div>
+</div>
+<!-- Question Card -->
+<div class="bg-surface-container-highest rounded-xl p-5 mb-4 border border-primary/5">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-7 h-7 rounded bg-primary text-white flex items-center justify-center text-sm font-bold">4</span>
+<span class="text-primary font-bold uppercase tracking-widest text-[10px]">Knowledge Check</span>
+</div>
+<h3 class="text-lg font-bold text-on-surface leading-snug">Which part of the foot is used for Osoto Gari?</h3>
+</div>
+<!-- Options List -->
+<div class="flex flex-col gap-3" id="options-container">
+<button class="option-btn flex items-center p-4 bg-white border border-outline-variant rounded-xl text-left transition-all" onclick="selectOption(this)">
+<div class="w-9 h-9 rounded-md bg-surface-container-low flex items-center justify-center mr-4">
+<span class="text-sm font-bold text-on-surface-variant">A</span>
+</div>
+<span class="text-base font-semibold text-on-surface">Heel</span>
+</button>
+<button class="option-btn flex items-center p-4 bg-white border border-outline-variant rounded-xl text-left transition-all" onclick="selectOption(this)">
+<div class="w-9 h-9 rounded-md bg-surface-container-low flex items-center justify-center mr-4">
+<span class="text-sm font-bold text-on-surface-variant">B</span>
+</div>
+<span class="text-base font-semibold text-on-surface">Ball of the foot</span>
+</button>
+<button class="option-btn flex items-center p-4 bg-white border border-outline-variant rounded-xl text-left transition-all" onclick="selectOption(this)">
+<div class="w-9 h-9 rounded-md bg-surface-container-low flex items-center justify-center mr-4">
+<span class="text-sm font-bold text-on-surface-variant">C</span>
+</div>
+<span class="text-base font-semibold text-on-surface">Outer edge</span>
+</button>
+</div>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="mt-auto bg-surface-container px-6 py-6 flex justify-center sticky bottom-0 z-40">
+<div class="w-full max-w-2xl">
+<button class="w-full py-4 bg-secondary text-on-secondary/50 rounded-xl font-bold text-base shadow-sm cursor-not-allowed transition-all duration-300" disabled="" id="check-button">
+                CHECK
+            </button>
+</div>
+</footer>
+<script>
+        let selectedElement = null;
+
+        function selectOption(el) {
+            // Reset all options
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('option-selected');
+                const indicator = btn.querySelector('div');
+                indicator.classList.remove('bg-primary', 'text-white');
+                indicator.classList.add('bg-surface-container-low');
+                indicator.querySelector('span').classList.remove('text-white');
+                indicator.querySelector('span').classList.add('text-on-surface-variant');
+            });
+
+            // Set current option
+            el.classList.add('option-selected');
+            const indicator = el.querySelector('div');
+            indicator.classList.remove('bg-surface-container-low');
+            indicator.classList.add('bg-primary');
+            indicator.querySelector('span').classList.remove('text-on-surface-variant');
+            indicator.querySelector('span').classList.add('text-white');
+
+            selectedElement = el;
+
+            // Enable Check Button
+            const checkBtn = document.getElementById('check-button');
+            checkBtn.disabled = false;
+            checkBtn.classList.remove('bg-secondary', 'text-on-secondary/50', 'cursor-not-allowed');
+            checkBtn.classList.add('bg-primary', 'text-white', 'active:scale-95');
+        }
+
+        document.getElementById('check-button').addEventListener('click', function() {
+            if (this.disabled) return;
+            
+            this.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+            setTimeout(() => {
+                this.innerHTML = 'CORRECT!';
+                this.classList.remove('bg-primary');
+                this.classList.add('bg-tertiary', 'text-white');
+                
+                if (selectedElement) {
+                    selectedElement.classList.add('bg-tertiary-container/20', 'border-tertiary');
+                }
+            }, 600);
+        });
+    </script>
+</body></html>

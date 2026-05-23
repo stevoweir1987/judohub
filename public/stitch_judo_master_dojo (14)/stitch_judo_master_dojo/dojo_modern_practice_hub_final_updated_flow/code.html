@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#201f1f",
+                    "secondary": "#b0c6ff",
+                    "secondary-fixed-dim": "#b0c6ff",
+                    "on-primary-container": "#5b0012",
+                    "surface-tint": "#ffb3b3",
+                    "on-tertiary-container": "#00302a",
+                    "tertiary-container": "#33a191",
+                    "surface-dim": "#131313",
+                    "on-secondary": "#002d6e",
+                    "tertiary-fixed": "#8ef5e2",
+                    "primary-fixed-dim": "#ffb3b3",
+                    "background": "#131313",
+                    "on-surface-variant": "#e5bdbd",
+                    "error-container": "#93000a",
+                    "on-primary-fixed-variant": "#920022",
+                    "surface-container-highest": "#353534",
+                    "inverse-on-surface": "#313030",
+                    "primary-container": "#ff5262",
+                    "secondary-fixed": "#d9e2ff",
+                    "inverse-primary": "#bf0030",
+                    "primary": "#ffb3b3",
+                    "on-tertiary": "#003730",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-tertiary-fixed-variant": "#005047",
+                    "inverse-surface": "#e5e2e1",
+                    "error": "#ffb4ab",
+                    "secondary-container": "#0068ed",
+                    "on-error-container": "#ffdad6",
+                    "on-primary-fixed": "#40000a",
+                    "tertiary-fixed-dim": "#71d8c6",
+                    "primary-fixed": "#ffdad9",
+                    "on-tertiary-fixed": "#00201c",
+                    "surface-container-high": "#2a2a2a",
+                    "on-secondary-fixed": "#001945",
+                    "surface-container-low": "#1c1b1b",
+                    "outline-variant": "#5c3f40",
+                    "surface": "#131313",
+                    "on-background": "#e5e2e1",
+                    "tertiary": "#71d8c6",
+                    "on-primary": "#680016",
+                    "on-error": "#690005",
+                    "outline": "#ac8888",
+                    "surface-variant": "#353534",
+                    "surface-bright": "#393939",
+                    "on-surface": "#e5e2e1",
+                    "on-secondary-fixed-variant": "#00429b",
+                    "on-secondary-container": "#f2f3ff",
+                    "custom-red": "#e62946"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "1rem"
+            },
+            "spacing": {
+                    "margin-mobile": "20px",
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "margin-desktop": "64px",
+                    "max-width": "1200px"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "title-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%);
+            background-size: 100% 100%, 40px 40px, 40px 40px, 40px 40px, 40px 40px;
+            background-position: 0 0, 0 0, 0 20px, 20px -20px, -20px 0px;
+            background-attachment: fixed;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .tactile-press:active {
+            transform: translateY(2px);
+            box-shadow: none !important;
+        }
+        .squishy-button {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 0 0 #920022;
+        }
+        .squishy-button:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 0 #920022;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .premium-border {
+            position: relative;
+            background: linear-gradient(#201f1f, #201f1f) padding-box,
+                        linear-gradient(135deg, #e62946, #33a191) border-box;
+            border: 1.5px solid transparent;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased min-h-screen pb-32">
+<!-- Top App Bar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-5 h-16 bg-background/95 backdrop-blur-sm border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-custom-red font-bold" data-icon="bolt">bolt</span>
+<span class="font-display-lg text-on-surface font-bold tracking-tight text-[22px]">DOJO MASTER</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 bg-surface-container-high px-2.5 py-1 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-orange-500 text-[18px]" data-icon="local_fire_department" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-caps text-[12px] font-bold text-on-surface">12</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-high px-2.5 py-1 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-custom-red text-[18px]" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-label-caps text-[12px] font-bold text-on-surface">5/5</span>
+</div>
+<div class="flex items-center gap-1.5 ml-1">
+<span class="font-label-caps text-[10px] text-custom-red font-bold">LVL 24</span>
+<div class="w-12 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-custom-red w-[60%]"></div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-24 px-5 max-w-2xl mx-auto space-y-10">
+<!-- Header HUD -->
+<header class="space-y-4">
+<div class="space-y-1">
+<p class="font-label-caps text-label-caps text-custom-red uppercase tracking-widest">Training Grounds</p>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile">Practice Hub</h1>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant flex items-center gap-4 shadow-lg">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-custom-red text-[28px]" data-icon="fitness_center">fitness_center</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-end mb-1">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Next Rank Up</p>
+<p class="font-label-caps text-[10px] text-on-surface">65%</p>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary to-secondary w-[65%]"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- Section: Grading Syllabus -->
+<section class="space-y-4">
+<h2 class="font-title-md text-title-md flex items-center gap-2">
+<span class="material-symbols-outlined text-custom-red" data-icon="school">school</span>
+                Grading Syllabus
+            </h2>
+<div class="premium-border rounded-xl p-5 shadow-2xl relative overflow-hidden group tactile-press">
+<div class="absolute -right-6 -top-6 opacity-10 rotate-12 transition-transform group-hover:rotate-45">
+<span class="material-symbols-outlined text-[100px] text-custom-red" data-icon="workspace_premium">workspace_premium</span>
+</div>
+<div class="relative z-10 space-y-3">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-title-md text-title-md text-on-surface">Black Belt Requirements</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1">Review the complete technical requirements and kata forms for your next promotion.</p>
+</div>
+</div>
+<div class="pt-2">
+<button class="w-full bg-custom-red text-white font-label-caps text-label-caps py-3 rounded-lg squishy-button flex items-center justify-center gap-2">
+                            OPEN SYLLABUS
+                            <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 1: Daily Drills -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md flex items-center gap-2">
+<span class="material-symbols-outlined text-custom-red" data-icon="rebase_edit">rebase_edit</span>
+                    Daily Drills
+                </h2>
+<button class="text-label-caps font-label-caps text-on-surface-variant hover:text-custom-red transition-colors">VIEW ALL</button>
+</div>
+<div class="space-y-4">
+<!-- Drill Card 1 -->
+<div class="group relative bg-surface-container border border-outline-variant p-5 rounded-xl tactile-press transition-all hover:border-custom-red/40 overflow-hidden shadow-md">
+<div class="relative z-10 space-y-3">
+<span class="inline-block px-2 py-0.5 bg-custom-red/10 text-custom-red font-label-caps text-[10px] rounded border border-custom-red/20 uppercase">Striking</span>
+<h3 class="font-title-md text-title-md">Shadow Boxing Flow</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Focus on hip rotation and breathing rhythm. 5 Rounds total intensity.</p>
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="schedule">schedule</span>
+<span class="font-label-caps text-[11px]">15 MIN</span>
+</div>
+<button class="bg-custom-red text-white font-label-caps text-label-caps px-6 py-2 rounded-lg squishy-button">START</button>
+</div>
+</div>
+</div>
+<!-- Drill Card 2 -->
+<div class="group relative bg-surface-container border border-outline-variant p-5 rounded-xl tactile-press transition-all hover:border-custom-red/40 overflow-hidden shadow-md">
+<div class="relative z-10 space-y-3">
+<span class="inline-block px-2 py-0.5 bg-tertiary/10 text-tertiary font-label-caps text-[10px] rounded border border-tertiary/20 uppercase">Grappling</span>
+<h3 class="font-title-md text-title-md">Hip Escape Series</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Fundamental defensive movements from the guard position. Drill for speed.</p>
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="schedule">schedule</span>
+<span class="font-label-caps text-[11px]">10 MIN</span>
+</div>
+<button class="bg-custom-red text-white font-label-caps text-label-caps px-6 py-2 rounded-lg squishy-button">START</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Technique Library -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="menu_book">menu_book</span>
+                    Technique Library
+                </h2>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container rounded-lg border border-outline-variant text-on-surface-variant tactile-press">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+</button>
+<button class="p-2 bg-surface-container rounded-lg border border-outline-variant text-on-surface-variant tactile-press">
+<span class="material-symbols-outlined text-[20px]" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar -mx-5 px-5">
+<!-- Technique 1 -->
+<div class="min-w-[240px] bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden group shadow-lg tactile-press">
+<div class="h-32 relative">
+<img alt="Judo throw technique demonstration" class="w-full h-full object-cover grayscale opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1Huj-IXk4c0i6k-Z0EHlBHl-Ebu_zh1MKcucFlqM8gDOLQ-htUuJOU8dOMjHereGiqDlEntgRZxy0nTCjh3bCHT12DasZGaRTlDfe7DDxAG5TP3n-5EUOp4QHMlXSrHA5KOpYAwsK9AsfUEP6vaJoh8YfZeFLbP87rLXCgxj3K8rM62q3PWLBYrMU2PHwERpFxeKGeMlgchUJrn8YVdP6DKjBqZWaxT79viOadrlSWNMObSuV8zMiP4rXgJzFLoMwB5hQW86GJeQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+<div class="absolute top-2 right-2 bg-background/60 backdrop-blur-sm p-1.5 rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="bookmark">bookmark</span>
+</div>
+</div>
+<div class="p-4 space-y-1">
+<span class="font-label-caps text-[10px] text-tertiary uppercase">Throwing</span>
+<h4 class="font-title-md text-[16px]">Osoto Gari</h4>
+<div class="flex items-center gap-1.5 text-[10px] font-label-caps text-on-surface-variant pt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="">ADVANCED</span>
+</div>
+</div>
+</div>
+<!-- Technique 2 -->
+<div class="min-w-[240px] bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden group shadow-lg tactile-press">
+<div class="h-32 relative">
+<img alt="Dojo interior" class="w-full h-full object-cover grayscale opacity-40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAArTjXy4NSHr0bw0iwjIeKaoszgzo9SAQ0-Nr0Ftz-D4_4aoMcpfx35bz2xdtuf2D0xkI5BKhgBcj6-pCkHARFzVBwRT3nFbuZ-wrQlmFAHV9q7qbeILphy-gWHR-sRCdBgJHeLbxbi0zilY9YRLRVbjqZW4-4XWLSidSqNw9vL_NTBAl_6KZDkM_MadCYlAEMTlmKGmcGP7fjaqo6up5flsG1q8RElwZ0h2pHt-eWeiVcquF3z2f2XpgrUlawkX8XojJPAu591UI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]" data-icon="lock">lock</span>
+</div>
+</div>
+<div class="p-4 space-y-1 opacity-50">
+<span class="font-label-caps text-[10px] text-on-surface-variant uppercase">Locked</span>
+<h4 class="font-title-md text-[16px]">Kimura Setup</h4>
+<div class="flex items-center gap-1.5 text-[10px] font-label-caps text-on-surface-variant pt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="lock_open">lock_open</span>
+<span class="">BLUE BELT REQ</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Mastery Footer Section -->
+<section class="bg-surface-container border border-custom-red/30 rounded-2xl p-6 relative overflow-hidden shadow-2xl">
+<div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[140px]" data-icon="award_star">award_star</span>
+</div>
+<div class="relative z-10 space-y-6">
+<div class="flex flex-col items-center gap-4">
+<div class="w-24 h-24 rounded-full border-2 border-custom-red p-1.5 relative">
+<div class="w-full h-full rounded-full bg-surface-container-highest border border-outline-variant flex flex-col items-center justify-center">
+<span class="font-display-lg text-[32px] leading-none text-on-surface">12</span>
+<span class="font-label-caps text-[9px] text-on-surface-variant">DAY STREAK</span>
+</div>
+</div>
+<div class="text-center space-y-1">
+<h3 class="font-title-md text-title-md">Mastery Progression</h3>
+<p class="font-body-md text-sm text-on-surface-variant">Complete 2 more drills this week to maintain "Dan" status.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-background/40 p-3 rounded-lg border border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px]" data-icon="history">history</span>
+<span class="font-label-caps text-[10px]">14.5H TOTAL</span>
+</div>
+<div class="bg-background/40 p-3 rounded-lg border border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-custom-red text-[18px]" data-icon="workspace_premium">workspace_premium</span>
+<span class="font-label-caps text-[10px]">BROWN BELT</span>
+</div>
+</div>
+<!-- START UNIT EXAM Button -->
+<button class="w-full bg-custom-red text-white font-label-caps text-label-caps py-4 rounded-lg squishy-button flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-[24px]" data-icon="quiz">quiz</span>
+                    START UNIT EXAM
+                </button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-6 pt-2 bg-surface-container/95 backdrop-blur-md border-t border-outline-variant rounded-t-2xl shadow-[0_-10px_20px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-2 px-4 hover:text-custom-red transition-all active:scale-95 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-caps text-[10px] font-bold uppercase tracking-wider">Study</span>
+</a>
+<a class="flex flex-col items-center justify-center text-custom-red py-2 px-6 transition-all relative group" href="#">
+<div class="absolute inset-0 bg-custom-red/10 rounded-xl m-1"></div>
+<span class="material-symbols-outlined mb-1 relative" data-icon="fitness_center" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-label-caps text-[10px] font-bold uppercase tracking-wider relative">Practice</span>
+<div class="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-custom-red"></div>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-2 px-4 hover:text-custom-red transition-all active:scale-95 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="temple_buddhist">temple_buddhist</span>
+<span class="font-label-caps text-[10px] font-bold uppercase tracking-wider">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-2 px-4 hover:text-custom-red transition-all active:scale-95 group" href="#">
+<span class="material-symbols-outlined mb-1 group-hover:scale-110 transition-transform" data-icon="person">person</span>
+<span class="font-label-caps text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+<!-- FAB -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-custom-red text-white rounded-full squishy-button flex items-center justify-center z-40 shadow-xl">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+<script>
+        // Micro-interactions for touch
+        document.querySelectorAll('.tactile-press').forEach(button => {
+            button.addEventListener('touchstart', () => {
+                button.classList.add('scale-[0.98]');
+            });
+            button.addEventListener('touchend', () => {
+                button.classList.remove('scale-[0.98]');
+            });
+        });
+
+        // Scroll reveal for top nav
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav.fixed.top-0');
+            if (window.scrollY > 20) {
+                nav.classList.add('bg-background/100', 'shadow-xl');
+            } else {
+                nav.classList.remove('bg-background/100', 'shadow-xl');
+            }
+        });
+    </script>
+</body></html>

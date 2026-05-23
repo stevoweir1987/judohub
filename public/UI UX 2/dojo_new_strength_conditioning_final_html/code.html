@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dojo Master - Uchikomi Bands</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#004ac6",
+                    "on-tertiary-container": "#bdffdb",
+                    "surface-tint": "#0053db",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-secondary-container": "#5c647a",
+                    "background": "#f8f9ff",
+                    "tertiary-container": "#007d55",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container-low": "#eff4ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#6ffbbe",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#dae2fd",
+                    "primary-container": "#2563eb",
+                    "outline-variant": "#c3c6d7",
+                    "on-secondary-fixed": "#131b2e",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#eeefff",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "on-surface-variant": "#434655",
+                    "on-surface": "#0b1c30",
+                    "surface": "#f8f9ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "on-primary-fixed": "#00174b",
+                    "error-container": "#ffdad6",
+                    "secondary": "#565e74",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "outline": "#737686",
+                    "inverse-primary": "#b4c5ff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-variant": "#d3e4fe",
+                    "surface-dim": "#cbdbf5",
+                    "on-tertiary-fixed": "#002113",
+                    "secondary-fixed": "#dae2fd",
+                    "tertiary": "#006242",
+                    "surface-bright": "#f8f9ff",
+                    "on-background": "#0b1c30",
+                    "surface-container": "#e5eeff",
+                    "inverse-surface": "#213145",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "display": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .enso-ring {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 42; /* 85% progress */
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-28">
+<!-- HUD / TopAppBar -->
+<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-6 py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant shadow-sm">
+<img alt="User avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDucz8uU4X6hC64KXOdRBZK3Z8onT9_d97-0JcNvweK-rYqDtYFpyi5_o48bo_jbSBXRKF1YiRWEymekiqjnVmjJgupUcU8G2NnbNFJ5fh843BR8O9ElPeHQJxrb8O0K8izLORfXUg6jfsEzwDNnYVLIHK3MsIPZ2VNBHomA8MXPl0M6j8D8NnXaCh9bXn3sUsvCv0_mbjufVHotyoH8q7Zz79lHgS6PP7a8elXTNkeD2EWvzdC3MdyM_oi2iXs0qaePdsmWj0hcbU"/>
+</div>
+<h1 class="font-headline text-lg font-bold text-primary">Dojo Master</h1>
+</div>
+<div class="flex items-center gap-3 text-sm font-bold text-primary">
+<span class="flex items-center gap-1">❤️ 3</span>
+<span class="flex items-center gap-1">🔥 12</span>
+<span>Lvl. 5</span>
+</div>
+</header>
+<main class="max-w-md mx-auto px-5 py-6 space-y-6">
+<!-- Stamina Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/30 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">STAMINA</span>
+<span class="text-3xl font-extrabold text-primary">85%</span>
+</div>
+<div class="relative w-20 h-20">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container-high stroke-current" cx="50" cy="50" fill="transparent" r="45" stroke-width="10"></circle>
+<circle class="text-primary stroke-current enso-ring" cx="50" cy="50" fill="transparent" r="45" stroke-linecap="round" stroke-width="10"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+</div>
+</div>
+<!-- Belt Streak Card -->
+<div class="bg-inverse-surface rounded-2xl p-6 flex items-center justify-between text-white shadow-lg">
+<div class="flex flex-col">
+<span class="text-xs font-bold opacity-60 uppercase tracking-widest">BELT STREAK</span>
+<span class="text-xl font-bold">3rd Dan</span>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="h-3 w-28 bg-black border-y border-primary-container rounded-sm"></div>
+<span class="text-xs italic opacity-80">Black Belt Mastery</span>
+</div>
+</div>
+<!-- Video Integration Card -->
+<div class="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-on-background shadow-xl">
+<img alt="Uchikomi Bands Training" class="w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-cgFljNqwW78uuUsdw_Lcpxqe2IFhZ9Pqd-NVPaUtPp9ZbwZSJoLikqRtmn0hRkp-eRySei8cbfAlILnVoAo-kT8fehrXHGVeUK7zO8tK8qIfFrGennh3IEb3zRIVGJ7_6klQiHGemJxmdF6N7CrINyl0QDbZ9pgOwBsh2EewnmG0yyZ5XFhBReZzQXbwBfUr3zNrJFh-xCrylxV-j7Q_ECvDN0r4GycUnDXi_QtaTpFopvDI-udNwKZ4vsTDbXKTSrWvIlM9F4c"/>
+<!-- Video Overlay -->
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<button class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white shadow-2xl active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<div class="mt-4 text-center">
+<h2 class="text-xl font-bold text-white">Uchikomi Bands</h2>
+<p class="text-sm text-surface-variant font-medium">Strength &amp; Conditioning • Phase 1</p>
+</div>
+</div>
+<!-- Duration Badge -->
+<div class="absolute top-4 right-4">
+<div class="bg-glass border border-white/20 px-3 py-1.5 rounded-lg flex items-center gap-2 text-white">
+<span class="material-symbols-outlined text-sm">timer</span>
+<span class="text-xs font-bold">15:00 Total</span>
+</div>
+</div>
+</div>
+<!-- Drill Specs -->
+<div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-5">
+<span class="material-symbols-outlined text-primary">fitness_center</span>
+<h3 class="font-bold text-on-surface">Drill Spec</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center pb-3 border-b border-outline-variant/50">
+<span class="text-on-surface-variant font-medium">Sets</span>
+<span class="text-lg font-bold text-primary">3</span>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-outline-variant/50">
+<span class="text-on-surface-variant font-medium">Reps</span>
+<span class="text-lg font-bold text-primary">20</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-medium">Rest</span>
+<span class="text-lg font-bold text-primary">60s</span>
+</div>
+</div>
+</div>
+<!-- Repetition Tracking (Objectives) -->
+<div class="space-y-4">
+<h3 class="font-bold text-on-surface ml-1">Daily Objectives</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-4 p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm active:bg-surface-container-low transition-colors">
+<input class="w-6 h-6 rounded-md border-outline text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-bold text-on-surface">Complete Set 1</span>
+<span class="ml-auto text-xs text-on-surface-variant opacity-60">20 Reps</span>
+</label>
+<label class="flex items-center gap-4 p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm active:bg-surface-container-low transition-colors">
+<input class="w-6 h-6 rounded-md border-outline text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm font-bold text-on-surface">Complete Set 2</span>
+<span class="ml-auto text-xs text-on-surface-variant opacity-60">20 Reps</span>
+</label>
+</div>
+</div>
+<!-- Sensei's Tip -->
+<div class="bg-surface-container rounded-2xl p-6 border-l-4 border-primary flex gap-4 items-start shadow-sm">
+<div class="w-12 h-12 rounded-full bg-white flex-shrink-0 flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Sensei's Tip</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed italic">
+                    "Focus on your hip rotation. The power of the Uchikomi comes from the grounded pivot, not just the arm pull. Keep your center low and stable."
+                </p>
+</div>
+</div>
+<!-- Start Button -->
+<div class="pt-4 flex justify-center">
+<button class="bg-primary hover:bg-surface-tint text-on-primary w-full py-4 rounded-full text-lg font-bold shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95" onclick="this.innerHTML = '&lt;span class=\'material-symbols-outlined animate-spin\'&gt;progress_activity&lt;/span&gt; 60s RESTING...'">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                START TIMER
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-low border-t border-outline-variant px-4 py-3 flex justify-around items-center">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="text-[10px] font-bold mt-1">Study</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-surface-container-high text-primary rounded-xl px-6 py-1.5" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">target</span>
+<span class="text-[10px] font-bold mt-1">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5" href="#">
+<span class="material-symbols-outlined">door_front</span>
+<span class="text-[10px] font-bold mt-1">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

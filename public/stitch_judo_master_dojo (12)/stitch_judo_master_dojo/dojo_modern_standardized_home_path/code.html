@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dojo Master - Home Path</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tatami-texture {
+            background-color: #131313;
+            background-image: 
+                linear-gradient(45deg, #1c1b1b 25%, transparent 25%), 
+                linear-gradient(-45deg, #1c1b1b 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1c1b1b 75%), 
+                linear-gradient(-45deg, transparent 75%, #1c1b1b 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+            opacity: 0.4;
+        }
+        /* Squishy / Tactile Card Effects */
+        .node-shadow {
+            box-shadow: 0 8px 0 0 rgba(146, 0, 34, 1);
+        }
+        .node-active:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 0 rgba(146, 0, 34, 1);
+        }
+        .node-locked-shadow {
+            box-shadow: 0 8px 0 0 rgba(28, 27, 27, 1);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "tertiary-container": "#33a191",
+                "inverse-on-surface": "#313030",
+                "tertiary-fixed": "#8ef5e2",
+                "surface-container-lowest": "#0e0e0e",
+                "primary-fixed-dim": "#ffb3b3",
+                "secondary-fixed": "#d9e2ff",
+                "on-secondary": "#002d6e",
+                "on-secondary-fixed-variant": "#00429b",
+                "background": "#131313",
+                "secondary": "#b0c6ff",
+                "tertiary": "#71d8c6",
+                "primary": "#ffb3b3",
+                "on-tertiary-fixed-variant": "#005047",
+                "on-error": "#690005",
+                "outline": "#ac8888",
+                "inverse-primary": "#bf0030",
+                "surface-variant": "#353534",
+                "error": "#ffb4ab",
+                "surface-container": "#201f1f",
+                "surface-dim": "#131313",
+                "surface-container-low": "#1c1b1b",
+                "on-primary-container": "#5b0012",
+                "outline-variant": "#5c3f40",
+                "on-tertiary-fixed": "#00201c",
+                "primary-container": "#ff5262",
+                "tertiary-fixed-dim": "#71d8c6",
+                "surface-container-high": "#2a2a2a",
+                "on-primary-fixed": "#40000a",
+                "surface-container-highest": "#353534",
+                "secondary-fixed-dim": "#b0c6ff",
+                "on-surface": "#e5e2e1",
+                "on-secondary-fixed": "#001945",
+                "on-surface-variant": "#e5bdbd",
+                "on-background": "#e5e2e1",
+                "surface-bright": "#393939",
+                "surface-tint": "#ffb3b3",
+                "on-secondary-container": "#f2f3ff",
+                "primary-fixed": "#ffdad9",
+                "on-primary-fixed-variant": "#920022",
+                "on-primary": "#680016",
+                "surface": "#131313",
+                "on-error-container": "#ffdad6",
+                "on-tertiary": "#003730",
+                "secondary-container": "#0068ed",
+                "on-tertiary-container": "#00302a",
+                "inverse-surface": "#e5e2e1",
+                "error-container": "#93000a"
+              },
+              "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              "spacing": {
+                "margin-mobile": "20px",
+                "max-width": "1200px",
+                "unit": "8px",
+                "margin-desktop": "64px",
+                "gutter": "16px"
+              },
+              "fontFamily": {
+                "body-lg": ["Plus Jakarta Sans"],
+                "title-md": ["Plus Jakarta Sans"],
+                "display-lg": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "body-md": ["Plus Jakarta Sans"],
+                "label-caps": ["Plus Jakarta Sans"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- STANDARDIZED HEADER -->
+<header class="fixed top-0 left-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-outline-variant/10">
+<div class="flex items-center justify-between px-4 h-16 max-w-md mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<h1 class="font-bold text-lg tracking-widest text-primary-container uppercase">DOJOMASTER</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="bg-surface-container-low px-3 py-1 rounded-lg border border-outline-variant/20 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-xs font-bold text-on-surface">5/5</span>
+</div>
+<div class="bg-surface-container-low px-3 py-1 rounded-lg border border-outline-variant/20 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-orange-400 text-sm" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="text-xs font-bold text-on-surface">5</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN CONTENT -->
+<main class="relative min-h-screen pt-20 pb-32">
+<!-- Persistent Background Texture -->
+<div class="fixed inset-0 tatami-texture pointer-events-none"></div>
+<div class="relative z-10 px-6 max-w-md mx-auto space-y-8">
+<!-- Intro Section -->
+<div class="text-center py-6">
+<h2 class="font-headline-lg text-on-surface">Grand Dojo Floor</h2>
+<p class="font-body-md text-on-surface-variant mt-2">Master each technique to progress from the White Belt Mats to the Central Shrine.</p>
+</div>
+<!-- Dojo Path Nodes -->
+<div class="flex flex-col gap-8">
+<!-- Area 1: Completed -->
+<div class="node-active transition-all cursor-pointer">
+<div class="bg-primary-container p-6 rounded-xl node-shadow relative overflow-hidden border border-on-primary-container/20">
+<div class="absolute top-0 right-0 w-24 h-24 bg-on-primary-container/5 rounded-bl-full pointer-events-none"></div>
+<span class="font-label-caps text-on-primary-container tracking-[0.2em] opacity-80">AREA 01</span>
+<h3 class="font-headline-lg-mobile text-on-primary-container mt-1">White Belt Basics</h3>
+<div class="flex items-center gap-2 mt-4 text-on-primary-container">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md font-semibold">Mastered • 12/12 Steps</span>
+</div>
+</div>
+</div>
+<!-- Area 2: Active (Squishy Highlight) -->
+<div class="node-active transition-all cursor-pointer">
+<div class="bg-surface-container-high p-6 rounded-xl node-shadow relative border-2 border-primary overflow-hidden">
+<div class="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
+<span class="font-label-caps text-primary tracking-[0.2em]">AREA 02</span>
+<h3 class="font-headline-lg-mobile text-on-surface mt-1">Nage-Waza</h3>
+<div class="mt-4 space-y-2">
+<div class="w-full bg-surface-container-lowest h-2.5 rounded-full overflow-hidden border border-outline-variant/10">
+<div class="h-full bg-primary w-2/3 shadow-[0_0_8px_rgba(255,179,179,0.5)]"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm font-body-md text-on-surface-variant">Throwing Techniques</span>
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Area 3: Locked -->
+<div class="opacity-50 grayscale select-none">
+<div class="bg-surface-container p-6 rounded-xl node-locked-shadow border border-outline-variant/20 flex items-center justify-between">
+<div>
+<span class="font-label-caps text-on-surface-variant tracking-[0.2em]">AREA 03</span>
+<h3 class="font-headline-lg-mobile text-on-surface-variant mt-1">Ne-Waza</h3>
+<p class="text-xs text-on-surface-variant/60 mt-1">Complete Nage-Waza to unlock</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">lock</span>
+</div>
+</div>
+<!-- Area 4: Locked -->
+<div class="opacity-50 grayscale select-none">
+<div class="bg-surface-container p-6 rounded-xl node-locked-shadow border border-outline-variant/20 flex items-center justify-between">
+<div>
+<span class="font-label-caps text-on-surface-variant tracking-[0.2em]">AREA 04</span>
+<h3 class="font-headline-lg-mobile text-on-surface-variant mt-1">Atemi-Waza</h3>
+<p class="text-xs text-on-surface-variant/60 mt-1">Unlock at Purple Belt level</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">lock</span>
+</div>
+</div>
+</div>
+<!-- Featured Technique (Mastery Challenge) -->
+<div class="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6 shadow-2xl space-y-6">
+<div class="aspect-square w-full rounded-xl overflow-hidden border border-outline-variant/30 shadow-lg relative">
+<img alt="Seoi-Nage Tutorial" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4rMJbyBv4IAdAEuPw_D7h9HqZQ_nBdmqnA7pEEvRZpQ7QZD3lH0gy7rxdvxw_EcKyxL4XZoERWoANFAJZhyquuBLaHtw7Qs9OJNeYk37iqxpn2SzMgwe05-3HMVD2H_EqQi3CQY9K4LziGZrZ7qtgWXqMa_RshMocwZx3Uq4wKdiY9gzZ-tq5XVDCDPuiUoeJZ9AD6-mDRUmOb5qYyu_zbuIUN0wopfa8yrmMMW-PUUERe1p7438QQ21V-dn9RyzAiKSrAgqFK-k"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-caps text-[10px] tracking-widest uppercase">Mastery Challenge</span>
+</div>
+<h4 class="font-headline-lg text-on-surface">The Perfect Seoi-Nage</h4>
+<p class="font-body-md text-on-surface-variant leading-relaxed">
+                    The shoulder throw is the cornerstone of classical judo. Master the off-balancing (Kuzushi) to earn your second stripe.
+                </p>
+<button class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl shadow-[0_4px_0_0_rgba(146,0,34,1)] active:translate-y-1 active:shadow-none transition-all uppercase tracking-wider text-sm">
+                    Start Drill
+                </button>
+</div>
+</div>
+</div>
+</main>
+<!-- STANDARDIZED BOTTOM NAVIGATION -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-high/95 backdrop-blur-md border-t border-outline-variant/10 pb-6 pt-2">
+<div class="flex w-full justify-around items-center max-w-md mx-auto px-4">
+<!-- LEARN (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl py-2.5 px-6 shadow-lg transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="text-[10px] font-bold uppercase mt-1 tracking-tighter">LEARN</span>
+</a>
+<!-- PRACTICE -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 py-2.5 px-4 hover:text-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="text-[10px] font-bold uppercase mt-1 tracking-tighter">PRACTICE</span>
+</a>
+<!-- DOJO -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 py-2.5 px-4 hover:text-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">temple_buddhist</span>
+<span class="text-[10px] font-bold uppercase mt-1 tracking-tighter">DOJO</span>
+</a>
+<!-- PROFILE -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 py-2.5 px-4 hover:text-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase mt-1 tracking-tighter">PROFILE</span>
+</a>
+</div>
+</nav>
+<!-- QUICK ACTION FAB -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 border-2 border-on-primary-container/20">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</button>
+<script>
+    // Subtle parallax effect on background
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const bg = document.querySelector('.tatami-texture');
+        if (bg) bg.style.transform = `translateY(${scrolled * 0.05}px)`;
+    });
+
+    // Add haptic-like feedback for interaction
+    document.querySelectorAll('.node-active').forEach(node => {
+        node.addEventListener('touchstart', () => {
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
+        });
+    });
+</script>
+</body></html>

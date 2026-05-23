@@ -112,6 +112,8 @@ function showView(name) {
 
   // Toggle dark body background for Training view
   document.body.classList.toggle('training-active', name === 'train');
+  // Toggle Stitch home mode (hides global header + nav)
+  document.body.classList.toggle('on-home', name === 'home');
 
   if (name === 'builder')  renderWeek();
   if (name === 'train')    renderTrain();
@@ -1670,6 +1672,6 @@ function renderTrainRandori() {
     + '<span style="font-size:22px">🧠</span>'
     + '<div style="flex:1">'
     + '<div style="color:#d97706;font-size:12px;font-weight:800">Open Full Randori Brain &#8594;</div>'
-    + '<div style="color:#555;font-size:10px;margin-top:2px">AI scenarios, live feedback &amp; sparring analysis</div>'
+    +     + '<div style="color:#555;font-size:10px;margin-top:2px">AI scenarios, live feedback &amp; sparring analysis</div>'
     + '</div></div></div>';
 }

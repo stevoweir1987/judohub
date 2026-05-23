@@ -1,595 +1,1214 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#c0392b">
-
-  <!-- iOS home screen -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="JudoHub">
-  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-
-  <!-- Android -->
-  <meta name="mobile-web-app-capable" content="yes">
-
-  <title>JudoHub</title>
-  <link rel="stylesheet" href="css/main.css?v=1779236145">
-  <style>
-    /* ── Train view hard overrides ── */
-    #view-train { background: #09090e !important; color: #f0f4ff !important; display: none !important; }
-    /* #view-train.active handled by inner-tab section below */
-    .tm-header { background: #0d0d12 !important; padding: 14px 16px 10px !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; }
-    .tm-header-top { display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 10px !important; min-height: 28px !important; }
-    .tm-header-label { font-size: 11px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #888 !important; }
-    .tm-header-day { font-size: 13px !important; font-weight: 800 !important; letter-spacing: .1em !important; color: #d97706 !important; }
-    .tm-refresh-btn { display: inline-flex !important; align-items: center !important; gap: 5px !important; background: rgba(217,119,6,.1) !important; border: 1px solid rgba(217,119,6,.25) !important; border-radius: 6px !important; color: #d97706 !important; font-size: 11px !important; font-weight: 700 !important; padding: 4px 9px !important; cursor: pointer !important; letter-spacing: .03em !important; flex-shrink: 0 !important; transition: background .15s !important; }
-    .tm-refresh-btn:active { background: rgba(217,119,6,.22) !important; }
-    .tm-progress-row { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 5px !important; }
-    .tm-progress-label { font-size: 10px !important; font-weight: 700 !important; letter-spacing: .09em !important; color: #555 !important; }
-    .tm-progress-pct { font-size: 11px !important; font-weight: 800 !important; color: #d97706 !important; }
-    .tm-progress-track { height: 5px !important; background: rgba(255,255,255,.07) !important; border-radius: 99px !important; overflow: hidden !important; margin-bottom: 10px !important; }
-    .tm-progress-fill { height: 100% !important; border-radius: 99px !important; background: linear-gradient(90deg,#dc2626,#d97706) !important; transition: width .4s !important; }
-    .tm-seg-ctrl { display: flex !important; background: rgba(255,255,255,.05) !important; border-radius: 8px !important; padding: 3px !important; gap: 3px !important; }
-    .tm-seg-btn { flex: 1 !important; background: transparent !important; border: none !important; color: #666 !important; font-size: 12px !important; font-weight: 700 !important; padding: 6px 0 !important; border-radius: 6px !important; cursor: pointer !important; letter-spacing: .04em !important; }
-    .tm-seg-btn.active { background: #1a1a2e !important; color: #fff !important; box-shadow: 0 1px 4px rgba(0,0,0,.4) !important; }
-    .tm-cards { padding: 10px 14px 90px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; }
-
-    /* Card — no left bar */
-    .tm-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; overflow: hidden !important; cursor: pointer !important; box-shadow: 0 2px 10px rgba(0,0,0,.3) !important; transition: border-color .2s !important; }
-    .tm-card-open { border-color: rgba(255,255,255,.18) !important; }
-    .tm-card-bar { display: none !important; }
-    .tm-card-main { display: flex !important; align-items: center !important; padding: 13px 12px !important; gap: 10px !important; }
-    .tm-card-icon { font-size: 24px !important; flex-shrink: 0 !important; width: 36px !important; text-align: center !important; }
-    .tm-card-body { flex: 1 !important; min-width: 0 !important; }
-    .tm-card-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .13em !important; text-transform: uppercase !important; color: #888 !important; margin-bottom: 2px !important; display: flex !important; align-items: center !important; gap: 5px !important; }
-    .tm-today-badge { background: #d97706 !important; color: #000 !important; font-size: 8px !important; font-weight: 900 !important; padding: 1px 5px !important; border-radius: 4px !important; }
-    .tm-card-title { font-size: 15px !important; font-weight: 800 !important; color: #f0f4ff !important; letter-spacing: -.2px !important; }
-    .tm-card-focus { font-size: 11px !important; color: #555 !important; margin-top: 2px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-
-    /* Circular progress */
-    .tm-card-circ { position: relative !important; flex-shrink: 0 !important; width: 40px !important; height: 40px !important; }
-    .tm-card-circ svg { position: absolute !important; inset: 0 !important; }
-    .tm-card-circ-txt { position: absolute !important; inset: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 9px !important; font-weight: 800 !important; color: #aaa !important; }
-    .tm-card-cycle { background: none !important; border: none !important; color: rgba(255,255,255,.3) !important; padding: 6px 4px !important; cursor: pointer !important; display: flex !important; align-items: center !important; flex-shrink: 0 !important; transition: color .15s !important; -webkit-tap-highlight-color: transparent !important; }
-    .tm-card-cycle:active { color: #d97706 !important; }
-
-    /* Checklist */
-    .tm-card-items { padding: 4px 14px 14px !important; display: flex !important; flex-direction: column !important; gap: 9px !important; border-top: 1px solid rgba(255,255,255,.06) !important; }
-    .tm-item { display: flex !important; align-items: center !important; gap: 10px !important; font-size: 13px !important; color: #ccc !important; cursor: pointer !important; padding: 3px 0 !important; }
-    .tm-item-done { color: #444 !important; }
-    .tm-item-done span { text-decoration: line-through !important; }
-    .tm-item-check { width: 20px !important; height: 20px !important; border-radius: 6px !important; border: 2px solid !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: background .15s !important; }
-    .tm-item-text { flex: 1 !important; }
-    .tm-item-wrap { display: flex !important; flex-direction: column !important; gap: 0 !important; }
-    .tm-item-play { flex-shrink: 0 !important; background: none !important; border: none !important; padding: 4px !important; cursor: pointer !important; opacity: .55 !important; transition: opacity .15s !important; display: flex !important; align-items: center !important; -webkit-tap-highlight-color: transparent !important; }
-    .tm-item-play:active, .tm-item-play-active { opacity: 1 !important; }
-    .tm-inline-video { border-radius: 10px !important; overflow: hidden !important; aspect-ratio: 16/9 !important; background: #000 !important; margin: 6px 0 4px !important; }
-    .tm-inline-video iframe { width: 100% !important; height: 100% !important; display: block !important; border: none !important; }
-
-    /* Play button row */
-    .tm-play-row { padding: 4px 14px 10px !important; border-top: 1px solid rgba(255,255,255,.06) !important; }
-    .tm-play-btn { display: inline-flex !important; align-items: center !important; gap: 8px !important; background: rgba(255,255,255,.07) !important; border: 1.5px solid rgba(255,255,255,.12) !important; border-radius: 8px !important; color: #f0f4ff !important; font-size: 13px !important; font-weight: 700 !important; padding: 9px 14px !important; cursor: pointer !important; transition: background .15s !important; }
-    .tm-play-btn:active { background: rgba(255,255,255,.13) !important; }
-
-    /* Quiz */
-    .tm-quiz-wrap { padding: 4px 14px 14px !important; border-top: 1px solid rgba(255,255,255,.06) !important; }
-    .tm-quiz-q { margin-bottom: 14px !important; }
-    .tm-quiz-q:last-child { margin-bottom: 0 !important; }
-    .tm-quiz-scenario { font-size: 13px !important; font-weight: 600 !important; color: #dde !important; line-height: 1.4 !important; margin-bottom: 10px !important; padding-top: 10px !important; }
-    .tm-quiz-options { display: flex !important; flex-direction: column !important; gap: 7px !important; }
-    .tm-quiz-opt { background: rgba(255,255,255,.05) !important; border: 1.5px solid rgba(255,255,255,.1) !important; border-radius: 8px !important; color: #f0f4ff !important; font-size: 12px !important; font-weight: 600 !important; padding: 9px 12px !important; text-align: left !important; cursor: pointer !important; transition: border-color .18s, background .18s !important; line-height: 1.35 !important; }
-    .tm-quiz-opt:active { opacity: .8 !important; }
-    .tm-quiz-correct { border-color: #16a34a !important; background: rgba(22,163,74,.15) !important; color: #4ade80 !important; }
-    .tm-quiz-wrong { border-color: #dc2626 !important; background: rgba(220,38,38,.12) !important; color: #f87171 !important; }
-    .tm-quiz-correct-reveal { border-color: rgba(22,163,74,.4) !important; background: rgba(22,163,74,.07) !important; color: #555 !important; }
-    .tm-quiz-explain { font-size: 12px !important; color: #888 !important; font-style: italic !important; line-height: 1.45 !important; margin-top: 9px !important; padding: 9px 12px !important; background: rgba(255,255,255,.03) !important; border-radius: 8px !important; border-left: 3px solid #d97706 !important; }
-
-    /* ── Training inner tabs ── */
-    /* view-train: hidden by default, flex column only when active */
-    #view-train.active { display: flex !important; flex-direction: column !important; overflow: hidden !important;
-      position: fixed !important; top: 54px !important; left: 0 !important; right: 0 !important; bottom: 68px !important;
-      background: #09090e !important; color: #f0f4ff !important; }
-    .train-tabs { display: flex !important; background: #0d0d12 !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; flex-shrink: 0 !important; }
-    .train-tab { flex: 1 !important; background: none !important; border: none !important; border-bottom: 2px solid transparent !important; color: #555 !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .05em !important; padding: 11px 2px !important; cursor: pointer !important; transition: color .15s, border-color .15s !important; }
-    .train-tab.active { color: #d97706 !important; border-bottom-color: #d97706 !important; }
-    .train-panel { display: none !important; }
-    .train-panel.active { display: block !important; flex: 1 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; height: 100% !important; }
-    /* Techniques panel belt chips — force 4-col grid inside train panel */
-    #tr-tech-chips { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; margin: 6px 0 4px !important; }
-    #tr-tech-chips .tbc { min-width: 0 !important; font-size: 10px !important; padding: 6px 4px !important; }
-    #tp-techniques .tech-filter-bar { padding-top: 10px !important; }
-
-    /* ── Training Hub cards ── */
-    .hub-cards-wrap { padding: 8px 0 90px !important; }
-    .hub-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; margin: 8px 14px !important; padding: 16px 14px !important; display: flex !important; align-items: center !important; gap: 12px !important; cursor: pointer !important; transition: border-color .2s !important; }
-    .hub-card:active { border-color: rgba(255,255,255,.2) !important; }
-    .hub-card-rec { border-color: rgba(217,119,6,.4) !important; background: rgba(217,119,6,.06) !important; }
-    .hub-card-done { border-color: rgba(74,222,128,.3) !important; background: rgba(74,222,128,.04) !important; opacity: 0.8 !important; }
-    .hub-done-badge { display: inline-block !important; background: rgba(74,222,128,.15) !important; color: #4ade80 !important; font-size: 8px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: .05em !important; margin-bottom: 4px !important; }
-    .hub-card-icon { font-size: 26px !important; flex-shrink: 0 !important; width: 38px !important; text-align: center !important; }
-    .hub-card-body { flex: 1 !important; min-width: 0 !important; }
-    .hub-rec-badge { display: inline-block !important; background: #d97706 !important; color: #000 !important; font-size: 8px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; letter-spacing: .05em !important; margin-bottom: 4px !important; }
-    .hub-card-title { font-size: 15px !important; font-weight: 800 !important; color: #f0f4ff !important; }
-    .hub-card-sub { font-size: 11px !important; color: #555 !important; margin-top: 2px !important; }
-    .hub-card-xp { background: rgba(217,119,6,.12) !important; border: 1px solid rgba(217,119,6,.28) !important; color: #d97706 !important; font-size: 11px !important; font-weight: 800 !important; padding: 4px 9px !important; border-radius: 20px !important; flex-shrink: 0 !important; }
-    .hub-card-arr { color: #444 !important; font-size: 20px !important; flex-shrink: 0 !important; line-height: 1 !important; }
-    .hub-streak-banner { background: #13131c !important; border: 1px solid rgba(217,119,6,.2) !important; border-radius: 14px !important; margin: 4px 14px 90px !important; padding: 14px !important; }
-    .hub-week-badge { margin-left: auto !important; font-size: 24px !important; filter: drop-shadow(0 0 6px rgba(217,119,6,.6)) !important; }
-
-    /* ── Session panel ── */
-    .train-session-panel { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: #09090e !important; z-index: 1100 !important; display: flex !important; flex-direction: column !important; transform: translateY(100%) !important; transition: transform .3s cubic-bezier(.22,1,.36,1) !important; overflow: hidden !important; }
-    .train-session-panel.open { transform: translateY(0) !important; }
-
-    /* ── TECHNIQUE DETAIL PANEL ── */
-    .tech-detail-panel{position:fixed;inset:0;background:#09090e;z-index:1200;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);overflow:hidden}
-    .tech-detail-panel.open{transform:translateY(0)}
-    .tdp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex-shrink:0;background:#09090e;border-bottom:1px solid rgba(255,255,255,.06)}
-    .tdp-back{background:none;border:none;color:#e63946;font-size:15px;font-weight:700;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
-    .tdp-kodokan{font-size:10px;font-weight:700;color:#f1c40f;background:rgba(241,196,15,.12);border:1px solid rgba(241,196,15,.3);padding:3px 8px;border-radius:6px;display:none}
-    .tdp-kodokan.show{display:block}
-    .tdp-video{width:100%;aspect-ratio:16/9;max-height:42vh;background:#000;flex-shrink:0;overflow:hidden}
-    .tdp-video iframe{width:100%;height:100%;border:none;display:block}
-    .tdp-video-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:.3}
-    .tdp-body{flex:1;overflow-y:auto;padding:16px 16px 32px;-webkit-overflow-scrolling:touch}
-    .tdp-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-    .tdp-name{font-size:22px;font-weight:900;color:#f0f4ff;letter-spacing:-.4px;line-height:1.1;margin-bottom:3px}
-    .tdp-en{font-size:13px;color:#6b7280;margin-bottom:8px}
-    .tdp-hook{font-size:13px;color:#9ca3af;line-height:1.5;margin-bottom:16px;padding:10px 12px;background:rgba(230,57,70,.06);border-left:3px solid #e63946;border-radius:0 8px 8px 0}
-    .tdp-section{margin-bottom:14px}
-    .tdp-section-label{font-size:11px;font-weight:800;color:#e63946;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
-    .tdp-section-text{font-size:13px;color:#cbd5e1;line-height:1.6}
-    .tdp-list{margin:0;padding-left:18px;color:#cbd5e1;font-size:13px;line-height:1.8}
-    .tdp-divider{height:1px;background:rgba(255,255,255,.06);margin:14px 0}
-    .tdp-notes-ta{width:100%;box-sizing:border-box;background:#13131c;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#f0f4ff;font-size:13px;padding:10px 12px;resize:none;height:80px;margin-top:6px;font-family:inherit}
-    .tdp-notes-ta:focus{outline:none;border-color:rgba(230,57,70,.5)}
-    .tdp-add-btn{width:100%;margin-top:14px;padding:13px;background:#e63946;border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.2px}
-    .tdp-empty{padding:40px 20px;text-align:center;color:#4b5563;font-size:14px}
-
-    /* ── Body + #main background override for dark training view ── */
-    body.training-active { background: #09090e !important; }
-    body.training-active #main { background: #09090e !important; }
-
-    /* Header: name pill stays right on all pages (default margin-left:auto) */
-    #view-train { z-index: 10 !important; }
-
-    /* ── Desktop phone-frame constraint ── */
-    @media (min-width: 640px) {
-      #view-train.active {
-        left: calc(50vw - 215px) !important;
-        right: calc(50vw - 215px) !important;
-        width: 430px !important;
-      }
-      .train-session-panel {
-        left: calc(50vw - 215px) !important;
-        right: calc(50vw - 215px) !important;
-        width: 430px !important;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Dojo Master</title>
+<link rel="manifest" href="manifest.json"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#004ac6","on-primary": "#ffffff","primary-container": "#2563eb","on-primary-container": "#eeefff",
+        "secondary": "#565e74","on-secondary": "#ffffff","secondary-container": "#dae2fd","on-secondary-container": "#5c647a",
+        "tertiary": "#006242","on-tertiary": "#ffffff","tertiary-container": "#007d55","on-tertiary-container": "#bdffdb",
+        "error": "#ba1a1a","on-error": "#ffffff","error-container": "#ffdad6","on-error-container": "#93000a",
+        "background": "#f8f9ff","on-background": "#0b1c30","surface": "#f8f9ff","on-surface": "#0b1c30",
+        "surface-variant": "#d3e4fe","on-surface-variant": "#434655","outline": "#737686","outline-variant": "#c3c6d7",
+        "surface-container-lowest": "#ffffff","surface-container-low": "#eff4ff","surface-container": "#e5eeff",
+        "surface-container-high": "#dce9ff","surface-container-highest": "#d3e4fe","surface-bright": "#f8f9ff",
+        "surface-dim": "#cbdbf5","surface-tint": "#0053db","inverse-primary": "#b4c5ff","inverse-surface": "#213145","inverse-on-surface": "#eaf1ff"
+      },
+      borderRadius: { "DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","2xl":"1rem","3xl":"1.5rem","full":"9999px" },
+      fontFamily: { sans: ["Plus Jakarta Sans","sans-serif"] },
+      fontSize: {
+        "display-lg":         ["48px",{ lineHeight:"56px", letterSpacing:"-0.02em", fontWeight:"800" }],
+        "headline-lg":        ["32px",{ lineHeight:"40px", letterSpacing:"-0.01em", fontWeight:"700" }],
+        "headline-lg-mobile": ["28px",{ lineHeight:"36px", fontWeight:"700" }],
+        "title-md":           ["20px",{ lineHeight:"28px", fontWeight:"600" }],
+        "body-lg":            ["18px",{ lineHeight:"28px", fontWeight:"400" }],
+        "body-md":            ["16px",{ lineHeight:"24px", fontWeight:"400" }],
+        "label-caps":         ["12px",{ lineHeight:"16px", letterSpacing:"0.1em", fontWeight:"700" }]
       }
     }
-    .tsp-header { background: #0d0d12 !important; padding: 14px 16px !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; display: flex !important; align-items: center !important; gap: 12px !important; flex-shrink: 0 !important; }
-    .tsp-back { background: none !important; border: none !important; color: #888 !important; font-size: 13px !important; font-weight: 700 !important; cursor: pointer !important; flex-shrink: 0 !important; padding: 4px 0 !important; -webkit-tap-highlight-color: transparent !important; }
-    .tsp-title { flex: 1 !important; font-size: 15px !important; font-weight: 800 !important; color: #f0f4ff !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-    .tsp-xp-badge { background: rgba(217,119,6,.12) !important; border: 1px solid rgba(217,119,6,.28) !important; color: #d97706 !important; font-size: 11px !important; font-weight: 800 !important; padding: 4px 9px !important; border-radius: 20px !important; flex-shrink: 0 !important; }
-    .tsp-tabs { display: flex !important; background: #0d0d12 !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; flex-shrink: 0 !important; }
-    .tsp-tab { flex: 1 !important; background: none !important; border: none !important; border-bottom: 2px solid transparent !important; color: #555 !important; font-size: 12px !important; font-weight: 700 !important; padding: 10px 4px !important; cursor: pointer !important; letter-spacing: .04em !important; transition: color .15s, border-color .15s !important; }
-    .tsp-tab.active { color: #d97706 !important; border-bottom-color: #d97706 !important; }
-    .tsp-body { flex: 1 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; }
-    .tsp-footer { padding: 14px 16px calc(14px + env(safe-area-inset-bottom)) !important; background: #0d0d12 !important; border-top: 1px solid rgba(255,255,255,.07) !important; flex-shrink: 0 !important; }
-    .tsp-complete-btn { width: 100% !important; padding: 16px !important; background: linear-gradient(135deg,#dc2626,#d97706) !important; color: #fff !important; border: none !important; border-radius: 12px !important; font-size: 16px !important; font-weight: 800 !important; cursor: pointer !important; letter-spacing: .02em !important; transition: opacity .15s !important; }
-    .tsp-complete-btn:active { opacity: .85 !important; }
-    .tsp-complete-btn.done { background: #16a34a !important; }
-    @keyframes xpFlash { 0%{transform:translateX(-50%) scale(.8);opacity:0} 40%{transform:translateX(-50%) scale(1.15);opacity:1} 100%{transform:translateX(-50%) translateY(-50px) scale(1);opacity:0} }
-    .xp-flash { position: fixed !important; bottom: 110px !important; left: 50% !important; transform: translateX(-50%) !important; background: linear-gradient(135deg,#d97706,#dc2626) !important; color: #fff !important; font-size: 20px !important; font-weight: 900 !important; padding: 10px 24px !important; border-radius: 40px !important; animation: xpFlash 1.5s forwards !important; pointer-events: none !important; z-index: 300 !important; white-space: nowrap !important; }
-
-    /* ── Overview tab ── */
-    .ov-scroll { padding: 12px 14px 90px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; }
-    .ov-grade-card { background: linear-gradient(135deg,#1a0a0a,#0d0d12) !important; border: 1px solid rgba(220,38,38,.25) !important; border-radius: 16px !important; padding: 18px 16px !important; display: flex !important; align-items: center !important; gap: 16px !important; }
-    .ov-belt-img { width: 72px !important; height: 72px !important; object-fit: contain !important; }
-    .ov-grade-body { flex: 1 !important; min-width: 0 !important; }
-    .ov-grade-name { font-size: 18px !important; font-weight: 900 !important; color: #f0f4ff !important; }
-    .ov-grade-next { font-size: 11px !important; color: #888 !important; margin-top: 2px !important; }
-    .ov-grade-bar { height: 6px !important; background: rgba(255,255,255,.08) !important; border-radius: 99px !important; margin-top: 8px !important; overflow: hidden !important; }
-    .ov-grade-bar-fill { height: 100% !important; border-radius: 99px !important; background: linear-gradient(90deg,#dc2626,#d97706) !important; }
-    .ov-grade-pct { font-size: 11px !important; font-weight: 800 !important; color: #d97706 !important; margin-top: 4px !important; }
-    .ov-focus-card { background: #13131c !important; border: 1px solid rgba(217,119,6,.2) !important; border-radius: 14px !important; padding: 14px 16px !important; cursor: pointer !important; }
-    .ov-focus-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #888 !important; margin-bottom: 6px !important; }
-    .ov-focus-title { font-size: 17px !important; font-weight: 800 !important; color: #d97706 !important; }
-    .ov-focus-sub { font-size: 12px !important; color: #666 !important; margin-top: 3px !important; }
-    .ov-row { display: flex !important; gap: 10px !important; }
-    .ov-week-card { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 14px !important; padding: 14px 10px !important; flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
-    .ov-week-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .1em !important; color: #888 !important; margin-bottom: 8px !important; }
-    .ov-week-sub { font-size: 11px !important; color: #555 !important; margin-top: 6px !important; text-align: center !important; line-height: 1.4 !important; }
-    .ov-stats { display: flex !important; flex-direction: column !important; gap: 8px !important; flex: 1 !important; }
-    .ov-stat { background: #13131c !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 10px !important; padding: 10px 12px !important; }
-    .ov-stat-val { font-size: 16px !important; font-weight: 900 !important; color: #f0f4ff !important; }
-    .ov-stat-label { font-size: 10px !important; color: #666 !important; margin-top: 1px !important; }
-    .ov-tip-card { background: rgba(217,119,6,.06) !important; border: 1px solid rgba(217,119,6,.15) !important; border-radius: 14px !important; padding: 14px 16px !important; }
-    .ov-tip-label { font-size: 9px !important; font-weight: 800 !important; letter-spacing: .12em !important; color: #d97706 !important; margin-bottom: 6px !important; }
-    .ov-tip-text { font-size: 13px !important; color: #ccc !important; line-height: 1.55 !important; font-style: italic !important; }
-
-    /* ── Randori Brain dark theme ── */
-    #view-randori { background: #09090e !important; }
-    #view-randori .view-body,
-    #view-randori #rb-body { background: #09090e !important; color: #f0f4ff !important; }
-    #view-randori .rb-stat { background: #13131c !important; border-color: rgba(255,255,255,.08) !important; }
-    #view-randori .rb-stat-val { color: #d97706 !important; }
-    #view-randori .rb-stat-lbl { color: #666 !important; }
-    #view-randori .rb-cat-card { background: #13131c !important; border-color: rgba(255,255,255,.08) !important; }
-    #view-randori .rb-cat-card:hover { border-color: rgba(217,119,6,.5) !important; background: #1a1a2e !important; }
-    #view-randori .rb-cat-all { background: rgba(220,38,38,.08) !important; border-color: rgba(220,38,38,.3) !important; }
-    #view-randori .rb-cat-name { color: #f0f4ff !important; }
-    #view-randori .rb-cat-desc { color: #666 !important; }
-    #view-randori .rb-cat-count { color: #555 !important; }
-    #view-randori .rb-cat-arr { color: #d97706 !important; }
-    #view-randori .rb-card { background: #13131c !important; border-color: rgba(255,255,255,.08) !important; }
-    #view-randori .rb-situation { color: #dde !important; }
-    #view-randori .rb-back { background: #13131c !important; border-color: rgba(255,255,255,.1) !important; color: #888 !important; }
-    #view-randori .rb-back:hover { border-color: #d97706 !important; color: #d97706 !important; }
-    #view-randori .rb-option { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.1) !important; color: #dde !important; }
-    #view-randori .rb-option:hover:not(:disabled) { border-color: #d97706 !important; background: rgba(217,119,6,.06) !important; }
-    #view-randori .rb-prog-bar { background: rgba(255,255,255,.08) !important; }
-    #view-randori .rb-prog-fill { background: #d97706 !important; }
-    #view-randori .rb-prog-lbl { color: #666 !important; }
-    #view-randori .rb-live-score { color: #f0f4ff !important; }
-
-    /* ── Session checklist items ── */
-    .sp-item { display: flex !important; align-items: flex-start !important; gap: 10px !important; padding: 12px 0 !important; border-bottom: 1px solid rgba(255,255,255,.05) !important; }
-    .sp-item:last-child { border-bottom: none !important; }
-    .sp-check { width: 22px !important; height: 22px !important; border-radius: 7px !important; border: 2px solid #d97706 !important; flex-shrink: 0 !important; margin-top: 1px !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: background .15s !important; cursor: pointer !important; }
-    .sp-item-body { flex: 1 !important; }
-    .sp-item-text { font-size: 14px !important; color: #dde !important; line-height: 1.4 !important; }
-    .sp-item-done .sp-item-text { text-decoration: line-through !important; color: #444 !important; }
-    .sp-item-meta { display: flex !important; align-items: center !important; gap: 8px !important; margin-top: 5px !important; }
-    .sp-diff-tag { font-size: 10px !important; font-weight: 700 !important; padding: 2px 7px !important; border-radius: 4px !important; }
-    .sp-play-btn { background: rgba(217,119,6,.1) !important; border: 1px solid rgba(217,119,6,.25) !important; border-radius: 50% !important; width: 30px !important; height: 30px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; cursor: pointer !important; transition: background .15s !important; margin-top: 2px !important; padding: 0 !important; }
-    .sp-play-btn:active { background: rgba(217,119,6,.3) !important; }
-    .sp-play-btn:active { color: #d97706 !important; }
-/* ── Progress redesign ── */
-.prog-seg-btn{flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
-.prog-seg-btn.active{background:#e53935;color:#fff}
-.prog-seg-btn:not(.active){background:transparent;color:#555}
-.prog-sub-btn{flex:1;padding:7px 4px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
-.prog-sub-btn.active{background:#e53935;color:#fff}
-.prog-sub-btn:not(.active){background:transparent;color:#555}
-.p-card{background:#13131c;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:0.5px solid rgba(255,255,255,.06)}
-.p-label{color:#666;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;display:block}
-.p-pbar-bg{background:rgba(255,255,255,.07);border-radius:4px;height:5px}
-.p-pbar-fill{height:5px;border-radius:4px}
-.p-stat{background:#0f0f1a;border-radius:12px;padding:12px;border:0.5px solid rgba(255,255,255,.05)}
-.p-chip{padding:5px 10px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:0.5px solid rgba(255,255,255,.08);color:#666;background:#0f0f1a;white-space:nowrap}
-.p-chip.on{background:#e53935;color:#fff;border-color:#e53935}
-.p-req-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,.04)}
-.p-cta{background:#e53935;color:#fff;border:none;border-radius:9px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-top:10px;display:block;text-align:center}
-.p-cta-ghost{background:transparent;color:#e53935;border:0.5px solid #e53935;border-radius:9px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;display:block;text-align:center}
-#view-progress{background:#09090e !important}
-#progress-body{background:#09090e !important;padding:0 !important}
-
-/* ── Phase 3: Technique Coach Cards ── */
-.tc-coach{background:#13131c;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;cursor:pointer;margin-bottom:10px;transition:border-color .2s}
-.tc-coach.expanded{border-color:rgba(230,57,70,.35)}
-.tc-thumb-wrap{position:relative;width:100%;height:130px;background:#0d0d12;overflow:hidden;flex-shrink:0}
-.tc-thumb-img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
-.tc-thumb-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.3}
-.tc-thumb-play{position:absolute;bottom:8px;right:8px;width:36px;height:36px;background:rgba(230,57,70,.9);border:none;border-radius:50%;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding-left:2px;backdrop-filter:blur(4px)}
-.tc-kodokan-badge{position:absolute;top:7px;left:7px;background:rgba(0,0,0,.7);color:#d97706;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.4px;border:1px solid rgba(217,119,6,.3)}
-.tc-body{padding:11px 13px 12px}
-.tc-header-row{display:flex;align-items:flex-start;gap:8px}
-.tc-belt-pill{display:inline-block;border:1px solid;border-radius:5px;padding:2px 7px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
-.tc-cat-pill{display:inline-block;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:2px 7px;font-size:9px;font-weight:600;color:#666;margin-bottom:5px;letter-spacing:.3px}
-.tc-name{font-size:16px;font-weight:800;color:#f0f4ff;letter-spacing:-.3px;line-height:1.15;margin-bottom:2px}
-.tc-en{font-size:11px;color:#555;margin-bottom:5px}
-.tc-hook{font-size:11px;color:#888;line-height:1.45;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.tc-chevron{font-size:16px;color:#444;flex-shrink:0;margin-top:2px;transition:transform .2s}
-.tc-chevron-open{transform:rotate(180deg)}
-.tc-depth{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
-.tc-section{margin-bottom:12px}
-.tc-section-label{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#555;margin-bottom:5px}
-.tc-section-text{font-size:12px;color:#aaa;line-height:1.55}
-.tc-list{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:5px}
-.tc-list li{font-size:12px;color:#aaa;line-height:1.45}
-  </style>
+  }
+}
+</script>
+<style>
+*{font-family:'Plus Jakarta Sans',sans-serif;box-sizing:border-box}
+.tatami-bg{background-color:#f0f4ff}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle}
+.ms-fill{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+.btn-tactile{transition:transform .1s ease,box-shadow .1s ease;box-shadow:0 6px 0 0 #1e40af}
+.btn-tactile:active{transform:translateY(4px);box-shadow:0 2px 0 0 #1e40af}
+.node-shadow{box-shadow:0 8px 0 0 rgba(30,64,175,0.6);cursor:pointer;transition:transform .1s,box-shadow .1s}
+.node-shadow:active{transform:translateY(4px);box-shadow:0 4px 0 0 rgba(30,64,175,0.6)}
+.node-locked-shadow{box-shadow:0 8px 0 0 rgba(195,198,215,1)}
+.screen{display:none}.screen.active{display:block}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#e5eeff}::-webkit-scrollbar-thumb{background:#93b4f0;border-radius:10px}.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}.scrollbar-hide::-webkit-scrollbar{display:none}
+@keyframes heart-shake{0%,100%{transform:translateX(0) scale(1)}15%{transform:translateX(-4px) scale(1.3)}30%{transform:translateX(4px) scale(1.2)}45%{transform:translateX(-3px)}60%{transform:translateX(3px)}75%{transform:translateX(-1px)}}
+.heart-shake{animation:heart-shake .5s ease}
+@keyframes toast-up{0%{opacity:0;transform:translateY(16px)}15%{opacity:1;transform:translateY(0)}80%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-8px)}}
+.xp-toast{animation:toast-up 2.4s ease forwards;pointer-events:none}
+.kanji-glow{text-shadow:0 0 30px rgba(37,99,235,.5),0 0 60px rgba(37,99,235,.2)}
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:999;animation:confetti-fall linear forwards}
+@keyframes confetti-fall{0%{transform:translateY(-10vh) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.xp-bar{transition:width 1.5s ease-out}
+.pip-glow{box-shadow:0 0 10px rgba(37,99,235,.4)}
+.glow-pulse{animation:pulse-glow 3s infinite ease-in-out}
+@keyframes pulse-glow{0%,100%{filter:drop-shadow(0 0 20px rgba(255,218,0,.3));transform:scale(1)}50%{filter:drop-shadow(0 0 40px rgba(255,218,0,.6));transform:scale(1.02)}}
+.hanko-seal{border:3px solid #2563eb;color:#2563eb;display:inline-block;font-weight:800;padding:2px 8px}
+.quiz-opt{border:2px solid #c3c6d7;background:#ffffff;border-radius:.75rem;padding:16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.quiz-opt:hover{background:#eff4ff;border-color:#2563eb}
+.quiz-opt.selected{border-color:#2563eb;background:rgba(37,99,235,.06)}
+.quiz-opt.correct{border-color:#006242;background:rgba(0,98,66,.08)}
+.quiz-opt.incorrect{border-color:#ba1a1a;background:rgba(186,26,26,.06);animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.pb-safe{padding-bottom:max(8px,env(safe-area-inset-bottom,8px))}
+.stub-screen{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:80px 24px 120px;text-align:center}
+</style>
 </head>
-<body>
+<body class="tatami-bg text-on-background overflow-x-hidden">
 
-<div id="error-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#e02d2d;color:#fff;padding:10px 16px;font-size:13px;font-family:monospace;white-space:pre-wrap;"></div>
-<div id="toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1e2e;color:#f0f4ff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9000;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 20px rgba(0,0,0,.4)"></div>
-<style>#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}</style>
-
-<!-- ── ONBOARDING (shown until profile set) ── -->
-<div id="onboarding-screen"></div>
-
-<div id="app-wrap">
-
-  <!-- ── APP HEADER ── -->
-  <header id="app-header">
-    <div class="app-header-inner">
-      <div class="app-header-logo" onclick="showView('home')" style="cursor:pointer">
-        <img src="images/homeicon.png" class="app-header-logo-img" onerror="this.style.display='none'">
-        <div class="app-header-logo-text">
-          <span class="app-header-logo-name">JudoHub</span>
-          <span class="app-header-logo-sub">TRAINING</span>
-        </div>
+<!-- STANDARDIZED HEADER -->
+<header id="app-header" class="fixed top-0 left-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-outline-variant/10">
+  <div class="flex items-center justify-between px-4 h-16 max-w-md mx-auto">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="showScreen('home')">
+      <span class="material-symbols-outlined ms-fill text-primary-container" style="font-size:20px">bolt</span>
+      <h1 class="font-extrabold text-base tracking-widest text-primary-container uppercase">DOJOMASTER</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <div id="hud-hearts-pill" class="bg-surface-container-low px-3 py-1 rounded-lg border border-outline-variant/20 flex items-center gap-0.5" id="hud-hearts-pill">
+        <span class="material-symbols-outlined ms-fill text-primary" style="font-size:14px" id="h1">favorite</span>
+        <span class="material-symbols-outlined ms-fill text-primary" style="font-size:14px" id="h2">favorite</span>
+        <span class="material-symbols-outlined ms-fill text-primary" style="font-size:14px" id="h3">favorite</span>
+        <span class="material-symbols-outlined ms-fill text-primary" style="font-size:14px" id="h4">favorite</span>
+        <span class="material-symbols-outlined ms-fill text-primary" style="font-size:14px" id="h5">favorite</span>
+        <span class="text-xs font-bold text-on-surface ml-1" id="hud-hearts" style="display:none">5/5</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
-        <div class="app-header-name-pill" onclick="showTypePicker()">
-          <span id="app-header-belt-dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#e8e8e8;flex-shrink:0"></span>
-          <span id="app-header-name-text">Judoka</span>
-          <span class="app-header-pill-arrow">&#9662;</span>
-        </div>
-        <button class="app-header-envelope" onclick="openFeedbackModal()" title="Send Feedback">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-            <polyline points="22,6 12,13 2,6"/>
-          </svg>
-        </button>
+      <div class="bg-surface-container-low px-3 py-1 rounded-lg border border-outline-variant/20 flex items-center gap-1.5">
+        <span class="material-symbols-outlined ms-fill text-orange-400" style="font-size:14px">local_fire_department</span>
+        <span class="text-xs font-bold text-on-surface" id="hud-streak">0</span>
       </div>
-    </div>
-  </header>
-
-  <!-- ── MAIN VIEWS ── -->
-  <main id="main">
-
-    <!-- HOME -->
-    <div class="view active" id="view-home">
-      <div class="view-body home-view-body" id="home-body"></div>
-    </div>
-
-    <!-- TECHNIQUES -->
-    <div class="view" id="view-techniques">
-      <div class="view-body">
-        <div class="tech-filter-bar">
-          <input type="text" id="tech-search" placeholder="Search techniques…" oninput="filterTechniques()">
-          <div class="tech-belt-chips" id="tech-belt-chips">
-            <button class="tbc active" data-belt="" onclick="selectTechBelt(this,'')">All</button>
-            <button class="tbc" data-belt="toRed"    onclick="selectTechBelt(this,'toRed')"   ><img class="tbc-belt" src="images/belt-red.png">Red</button>
-            <button class="tbc" data-belt="toYellow" onclick="selectTechBelt(this,'toYellow')"><img class="tbc-belt" src="images/belt-yellow.png">Yellow</button>
-            <button class="tbc" data-belt="toOrange" onclick="selectTechBelt(this,'toOrange')"><img class="tbc-belt" src="images/belt-orange.png">Orange</button>
-            <button class="tbc" data-belt="toGreen"  onclick="selectTechBelt(this,'toGreen')" ><img class="tbc-belt" src="images/belt-green.png">Green</button>
-            <button class="tbc" data-belt="toBlue"   onclick="selectTechBelt(this,'toBlue')"  ><img class="tbc-belt" src="images/belt-blue.png">Blue</button>
-            <button class="tbc" data-belt="toBrown"  onclick="selectTechBelt(this,'toBrown')" ><img class="tbc-belt" src="images/belt-brown.png">Brown</button>
-          </div>
-          <div class="tech-count-bar"><span id="tech-count"></span></div>
-        </div>
-        <div class="tech-grid" id="tech-grid"></div>
-      </div>
-    </div>
-
-    <!-- GRADES -->
-    <div class="view" id="view-belt">
-      <div class="view-body" id="belt-body">
-        <div class="belt-tab-bar">
-          <button class="belt-tab active" id="btab-senior" onclick="switchBeltTab('senior')">⚫ Senior Grades</button>
-          <button class="belt-tab" id="btab-junior" onclick="switchBeltTab('junior')">⭐ Mon Grades</button>
-        </div>
-
-      <div id="belt-tab-content"></div>
-      </div>
-    </div>
-
-    <!-- PROGRESS -->
-    <div class="view" id="view-progress">
-      <div class="view-body" id="progress-body"></div>
-    </div>
-
-    <!-- PERSONAL TRAINING -->
-    <div class="view" id="view-pt">
-      <div class="view-body pt-view-body" id="pt-body"></div>
-    </div>
-
-    <!-- RANDORI BRAIN -->
-    <div class="view" id="view-randori">
-      <div class="view-body" id="rb-body"></div>
-    </div>
-
-    <!-- TRAINING BUILDER -->
-    <div class="view" id="view-builder">
-      <div class="view-body" style="overflow:hidden;height:100%;display:flex;flex-direction:column;">
-        <div class="builder-layout" style="flex:1;min-height:0;">
-          <div class="builder-panel">
-            <div class="builder-panel-header">
-              <h3>Technique Library</h3>
-              <p>Drag onto any day</p>
-            </div>
-            <div class="builder-search">
-              <input type="text" id="builder-search" placeholder="Filter techniques…" oninput="filterBuilderList()">
-            </div>
-            <div class="builder-list" id="builder-list"></div>
-          </div>
-          <div class="builder-main">
-            <div class="week-controls">
-              <button onclick="prevWeek()">← Prev</button>
-              <span class="week-label" id="week-label"></span>
-              <button onclick="nextWeek()">Next →</button>
-              <button class="btn-primary" onclick="clearWeek()">Clear Week</button>
-            </div>
-            <div class="week-grid" id="week-grid"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- ── BOTTOM NAV ── -->
-  <nav id="bottom-nav">
-    <button class="bnav-btn active" onclick="showView('home')" data-view="home">
-      <span class="bnav-icon"><img src="images/home.png" class="bnav-icon-img" alt=""></span>
-      <span class="bnav-label">Home</span>
-    </button>
-    <button class="bnav-btn" onclick="showView('belt')" data-view="belt">
-      <span class="bnav-icon"><img src="images/grades.png" class="bnav-icon-img" alt=""></span>
-      <span class="bnav-label">Grades</span>
-    </button>
-    <button class="bnav-btn" onclick="showView('progress')" data-view="progress">
-      <span class="bnav-icon"><img src="images/progress.png" class="bnav-icon-img" alt=""></span>
-      <span class="bnav-label">Progress</span>
-    </button>
-    <button class="bnav-btn" id="bnav-train" onclick="showView('train')" data-view="train">
-      <span class="bnav-icon"><img src="images/more.png" class="bnav-icon-img" alt=""></span>
-      <span class="bnav-label">Training</span>
-    </button>
-  </nav>
-
-
-  <!-- ── JUNIOR VIEWS ── -->
-  <div class="view" id="view-junior-home">
-    <div class="jh-view-body" id="junior-home-body"></div>
-  </div>
-  <div class="view" id="view-junior-grades">
-    <div class="view-body" id="junior-grades-body"></div>
-  </div>
-  <div class="view" id="view-junior-progress">
-    <div class="view-body" id="junior-progress-body"></div>
-  </div>
-
-  <!-- ── JUNIOR BOTTOM NAV (3 items) ── -->
-  <nav id="junior-nav" style="display:none">
-    <button class="jnav-btn active" onclick="showJuniorView('junior-home')" data-jview="junior-home">
-      <span class="jnav-icon">🏠</span>
-      <span class="jnav-label">Home</span>
-    </button>
-    <button class="jnav-btn" onclick="showJuniorView('junior-grades')" data-jview="junior-grades">
-      <span class="jnav-icon">🏅</span>
-      <span class="jnav-label">My Belt</span>
-    </button>
-    <button class="jnav-btn" onclick="showJuniorView('junior-progress')" data-jview="junior-progress">
-      <span class="jnav-icon">⭐</span>
-      <span class="jnav-label">My Badges</span>
-    </button>
-  </nav>
-
-  <!-- ── TRAINING VIEW ── -->
-    <div class="view" id="view-train">
-      <!-- Inner tab strip -->
-      <div class="train-tabs">
-        <button class="train-tab" id="ttab-overview"   onclick="switchTrainTab('overview')">Overview</button>
-        <button class="train-tab" id="ttab-training"   onclick="switchTrainTab('training')">Training</button>
-        <button class="train-tab" id="ttab-techniques" onclick="switchTrainTab('techniques')">Techniques</button>
-        <button class="train-tab" id="ttab-randori"    onclick="switchTrainTab('randori')">Randori</button>
-      </div>
-      <!-- Overview panel (rendered by JS) -->
-      <div class="train-panel" id="tp-overview"></div>
-      <!-- Training Hub panel -->
-      <div class="train-panel" id="tp-training">
-        <div class="tm-seg-ctrl" style="margin:12px 16px 4px">
-          <button class="tm-seg-btn active" id="tm-seg-adult"  onclick="tmSetMode('adult')">Adult</button>
-          <button class="tm-seg-btn"        id="tm-seg-junior" onclick="tmSetMode('junior')">Junior</button>
-        </div>
-        <div id="train-hub-cards"></div>
-      </div>
-      <!-- Techniques panel -->
-      <div class="train-panel" id="tp-techniques">
-        <div class="tech-filter-bar" style="position:sticky;top:0;z-index:10;background:#09090e">
-          <input type="text" id="tr-tech-search" placeholder="Search techniques…" oninput="filterTrainTech()">
-          <div class="tech-belt-chips" id="tr-tech-chips">
-            <button class="tbc active" data-cat="" onclick="selectTrainTechCat(this,'')">All</button>
-            <button class="tbc" data-cat="Te-waza"        onclick="selectTrainTechCat(this,'Te-waza')">Te-waza</button>
-            <button class="tbc" data-cat="Koshi-waza"     onclick="selectTrainTechCat(this,'Koshi-waza')">Koshi-waza</button>
-            <button class="tbc" data-cat="Ashi-waza"      onclick="selectTrainTechCat(this,'Ashi-waza')">Ashi-waza</button>
-            <button class="tbc" data-cat="Ne-waza"        onclick="selectTrainTechCat(this,'Ne-waza')">Ne-waza</button>
-            <button class="tbc" data-cat="Katame-waza"    onclick="selectTrainTechCat(this,'Katame-waza')">Katame</button>
-            <button class="tbc" data-cat="Ma-sutemi-waza" onclick="selectTrainTechCat(this,'Ma-sutemi-waza')">Sutemi</button>
-          </div>
-          <div class="tech-count-bar"><span id="tr-tech-count"></span></div>
-        </div>
-        <div id="tr-tech-grid" style="padding:10px 12px 80px"></div>
-      </div>
-      <!-- Randori Brain panel -->
-      <div class="train-panel" id="tp-randori"></div>
-    </div>
-
-  <!-- ── TRAINING SESSION PANEL (full-screen slide-up) ── -->
-  <div id="train-session-panel" class="train-session-panel">
-    <div class="tsp-header">
-      <button class="tsp-back" onclick="closeTrainSession()">&#8592; Training</button>
-      <div class="tsp-title" id="tsp-title"></div>
-      <div class="tsp-xp-badge" id="tsp-xp">+30 XP</div>
-    </div>
-    <div class="tsp-tabs">
-      <button class="tsp-tab" id="tsp-tab-checklist" onclick="switchSessionTab('checklist')">Checklist</button>
-      <button class="tsp-tab" id="tsp-tab-video"     onclick="switchSessionTab('video')">Video</button>
-      <button class="tsp-tab" id="tsp-tab-notes"     onclick="switchSessionTab('notes')">Notes</button>
-    </div>
-    <div class="tsp-body" id="tsp-body"></div>
-    <div class="tsp-footer">
-      <button class="tsp-complete-btn" id="tsp-complete-btn" onclick="completeTrainSession()">Complete Drill &#10003;</button>
     </div>
   </div>
+</header>
 
-  <!-- ── TECHNIQUE DETAIL PANEL (full-screen slide-up) ── -->
-  <div id="tech-detail-panel" class="tech-detail-panel">
-    <div class="tdp-header">
-      <button class="tdp-back" onclick="closeTechDetail()">&#8592; Techniques</button>
-      <div class="tdp-kodokan" id="tdp-kodokan"></div>
+<!-- HEARTS DEPLETED OVERLAY -->
+<div id="hearts-depleted-overlay" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6" style="background:rgba(11,28,48,0.7);backdrop-filter:blur(4px)">
+  <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+    <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-5">
+      <span class="material-symbols-outlined text-red-400 ms-fill" style="font-size:44px">heart_broken</span>
     </div>
-    <div class="tdp-video" id="tdp-video"></div>
-    <div class="tdp-body" id="tdp-body"></div>
-  </div>
-
-    <!-- ── TYPE / PROFILE PICKER OVERLAY ── -->
-  <div id="type-picker-overlay" onclick="closeTypePicker(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;align-items:flex-end;justify-content:center">
-    <div style="background:#13131c;border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-width:480px;box-sizing:border-box" onclick="event.stopPropagation()">
-      <div style="width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 16px"></div>
-      <div style="font-size:16px;font-weight:800;color:#f0f4ff;margin-bottom:14px">Your Profile</div>
-
-      <!-- Belt picker -->
-      <div style="font-size:10px;font-weight:700;color:#666;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">CURRENT BELT</div>
-      <div id="belt-picker-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
-
-      <!-- Adult / Junior toggle -->
-      <div style="font-size:10px;font-weight:700;color:#666;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">TRAINING MODE</div>
-      <div style="display:flex;background:rgba(255,255,255,.05);border-radius:10px;padding:3px;gap:3px">
-        <button class="type-picker-btn" onclick="setUserType('adult')" style="flex:1;background:transparent;border:none;color:#888;font-size:13px;font-weight:700;padding:9px 0;border-radius:8px;cursor:pointer">Adult</button>
-        <button class="type-picker-btn" onclick="setUserType('junior')" style="flex:1;background:transparent;border:none;color:#888;font-size:13px;font-weight:700;padding:9px 0;border-radius:8px;cursor:pointer">Junior</button>
-      </div>
-
-      <button onclick="closeTypePicker()" style="width:100%;margin-top:16px;padding:12px;background:rgba(255,255,255,.06);border:none;border-radius:12px;color:#888;font-size:13px;font-weight:700;cursor:pointer">Done</button>
+    <h2 class="text-xl font-extrabold text-on-surface mb-2">Hearts Depleted</h2>
+    <p class="text-sm text-on-surface-variant mb-6">You've used all your hearts. Take a break and come back tomorrow — they refill at midnight.</p>
+    <div class="bg-surface-container-low rounded-2xl px-6 py-4 mb-6 border border-outline-variant/20">
+      <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Refills in</p>
+      <p class="text-3xl font-extrabold text-primary" id="hearts-countdown">--:--:--</p>
     </div>
-  </div>
-
-  <!-- ── MORE DRAWER ── -->
-  <div id="more-overlay" onclick="closeMoreDrawer()"></div>
-  <div id="more-drawer">
-    <div class="more-drawer-handle"></div>
-    <div class="more-drawer-title">More</div>
-    <button class="more-drawer-item" onclick="showView('techniques');closeMoreDrawer()">
-      <span class="more-drawer-icon">📖</span>
-      <div class="more-drawer-text">
-        <div class="more-drawer-name">Technique Library</div>
-        <div class="more-drawer-desc">Browse &amp; watch all techniques</div>
-      </div>
-      <span class="more-drawer-arrow">›</span>
+    <button onclick="document.getElementById('hearts-depleted-overlay').classList.add('hidden');showScreen('home')"
+      class="w-full bg-surface-container text-on-surface font-bold py-3 rounded-xl border border-outline-variant/30 text-sm">
+      Back to Learn
     </button>
-    <a class="more-drawer-item" href="mailto:judohub@outlook.com?subject=JudoHub Feedback" style="text-decoration:none">
-      <span class="more-drawer-icon">✉️</span>
-      <div class="more-drawer-text">
-        <div class="more-drawer-name">Send Feedback</div>
-        <div class="more-drawer-desc">Tell us what you think</div>
-      </div>
-    </a>
   </div>
 </div>
 
-  <script src="js/data.js?v=1779236145"></script>
-  <script src="js/tech_depth.js?v=1779236145"></script>
-  <script src="js/onboarding.js?v=1779236145"></script>
-  <script src="js/app.js?v=1779236145"></script>
-  <script src="js/techniques.js?v=1779236145"></script>
-  <script src="js/tech_detail.js?v=1779236145"></script>
-  <script src="js/belt.js?v=1779236145"></script>
-  <script src="js/grading.js?v=1779236145"></script>
-  <script src="js/builder.js?v=1779236145"></script>
-  <script src="js/home.js?v=1779236145"></script>
-  <script src="js/mon.js?v=1779236145"></script>
-  <script src="js/junior-grades.js?v=1779236145"></script>
-  <script src="js/junior-home.js?v=1779236145"></script>
-  <script src="js/junior-progress.js?v=1779236145"></script>
-  <script src="js/progress.js?v=1779236145"></script>
-  <script src="js/pt.js?v=1779236145"></script>
-  <script src="js/randori.js?v=1779236145"></script>
+<!-- XP TOAST -->
+<div id="xp-toast" class="hidden fixed z-[150] left-1/2 -translate-x-1/2 top-20 px-4 py-2 rounded-full font-bold text-sm text-white flex items-center gap-2 xp-toast"
+  style="background:#004ac6;box-shadow:0 4px 20px rgba(0,74,198,0.4)">
+  <span class="material-symbols-outlined ms-fill" style="font-size:16px">bolt</span>
+  <span id="xp-toast-text">+50 XP</span>
+</div>
+
+<!-- SCREEN: ONBOARDING -->
+<div id="screen-onboarding" class="screen">
+  <main class="min-h-svh tatami-bg overflow-y-auto pb-12">
+    <div class="px-5 max-w-md mx-auto pt-12 pb-8 flex flex-col items-center">
+
+      <!-- Brand mark -->
+      <div class="flex items-center gap-2 mb-10">
+        <span class="material-symbols-outlined ms-fill text-primary-container" style="font-size:24px">bolt</span>
+        <span class="font-extrabold text-lg tracking-widest text-primary-container uppercase">DOJOMASTER</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-headline-lg-mobile font-bold text-on-surface text-center leading-tight mb-1">Enter the Dojo</h1>
+      <p class="text-on-surface-variant text-sm text-center mb-8">Tell us about your judo journey to get started</p>
+
+      <!-- Avatar upload -->
+      <div class="relative mb-8" onclick="document.getElementById('avatar-input').click()">
+        <div id="avatar-preview"
+          class="w-28 h-28 rounded-full border-4 border-primary-container/40 bg-surface-container-high flex items-center justify-center overflow-hidden cursor-pointer transition-all hover:border-primary-container"
+          style="box-shadow:0 0 0 2px #ff526240">
+          <span class="material-symbols-outlined text-on-surface-variant/40" style="font-size:52px" id="avatar-icon">add_a_photo</span>
+          <img id="avatar-img" class="hidden w-full h-full object-cover" src="" alt="avatar"/>
+        </div>
+        <div class="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary-container flex items-center justify-center border-2 border-background shadow-lg">
+          <span class="material-symbols-outlined text-on-primary-container" style="font-size:16px">edit</span>
+        </div>
+        <input id="avatar-input" type="file" accept="image/*" class="hidden" onchange="DojoOnboarding.handleAvatar(this)"/>
+      </div>
+
+      <!-- Warrior name -->
+      <div class="w-full mb-8">
+        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Your Name</label>
+        <input id="onboarding-name" type="text" maxlength="24" placeholder="e.g. Steve, Sensei Jones…"
+          class="w-full bg-surface-container-low border-2 border-outline-variant rounded-xl px-4 py-4 text-on-surface font-semibold text-base placeholder-on-surface-variant/30 outline-none transition-all focus:border-primary-container"
+          style="background:#f0f4ff"
+          oninput="DojoOnboarding.updateCTA()"/>
+      </div>
+
+      <!-- Belt selection carousel -->
+      <div class="w-full mb-8">
+        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Current Belt</label>
+        <div id="belt-carousel" class="grid gap-3" style="grid-template-columns:repeat(4,1fr)"></div>
+      </div>
+
+      <!-- Stats bento -->
+      <div class="w-full grid grid-cols-2 gap-3 mb-8" id="onboarding-bento">
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
+          <p class="text-2xl font-bold text-primary" id="bento-techniques">0</p>
+          <p class="text-xs text-on-surface-variant uppercase tracking-wider mt-1">Techniques ahead</p>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
+          <p class="text-2xl font-bold text-secondary" id="bento-groups">0</p>
+          <p class="text-xs text-on-surface-variant uppercase tracking-wider mt-1">Training groups</p>
+        </div>
+      </div>
+
+      <!-- Goal selection -->
+      <div class="w-full mb-8">
+        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">My Main Goal</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button id="goal-belt" onclick="DojoOnboarding.selectGoal('belt')"
+            class="goal-btn flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-outline-variant/30 bg-surface-container-low transition-all active:scale-95">
+            <span class="material-symbols-outlined ms-fill text-primary" style="font-size:28px">military_tech</span>
+            <span class="text-on-surface font-bold text-center leading-tight" style="font-size:10px">PASS NEXT BELT</span>
+          </button>
+          <button id="goal-training" onclick="DojoOnboarding.selectGoal('training')"
+            class="goal-btn flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-outline-variant/30 bg-surface-container-low transition-all active:scale-95">
+            <span class="material-symbols-outlined ms-fill text-secondary" style="font-size:28px">fitness_center</span>
+            <span class="text-on-surface font-bold text-center leading-tight" style="font-size:10px">SHARPEN TRAINING</span>
+          </button>
+          <button id="goal-culture" onclick="DojoOnboarding.selectGoal('culture')"
+            class="goal-btn flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-outline-variant/30 bg-surface-container-low transition-all active:scale-95">
+            <span class="material-symbols-outlined ms-fill text-tertiary" style="font-size:28px">temple_buddhist</span>
+            <span class="text-on-surface font-bold text-center leading-tight" style="font-size:10px">EXPLORE JUDO</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CTA button -->
+      <button id="onboarding-cta" onclick="DojoOnboarding.saveAndEnter()"
+        class="btn-tactile w-full bg-primary-container text-on-primary-container font-bold text-base py-5 rounded-2xl flex items-center justify-center gap-3 uppercase tracking-widest opacity-40 pointer-events-none transition-all">
+        <span class="material-symbols-outlined ms-fill" style="font-size:22px">sports_kabaddi</span>
+        START MY JUDO JOURNEY
+      </button>
+
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: HOME -->
+<div id="screen-home" class="screen active">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto space-y-6">
+      <div class="text-center py-4">
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface">The Path</h2>
+        <p class="text-body-md text-on-surface-variant mt-1">Work through each technique to achieve your next rank.</p>
+      </div>
+      <div id="home-path-container"></div>
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: GRADING CHECKLIST -->
+<!-- ══ BELT PATH SCREEN ══════════════════════════════════════════ -->
+<div id="screen-belt-path" class="screen">
+  <header class="fixed top-0 left-0 w-full z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/10">
+    <div class="flex items-center gap-3 px-4 py-3 max-w-md mx-auto">
+      <button onclick="showScreen('home')" class="flex items-center gap-1 text-on-surface-variant active:scale-95 transition-transform">
+        <span class="material-symbols-outlined" style="font-size:20px">arrow_back_ios</span>
+        <span class="text-xs font-bold uppercase tracking-wider">Learn</span>
+      </button>
+      <div class="flex-1 min-w-0 text-center">
+        <p class="font-bold text-on-surface text-sm truncate" id="belt-path-header-label">Belt Path</p>
+        <p class="text-xs text-on-surface-variant" id="belt-path-header-sub"></p>
+      </div>
+      <button onclick="showScreen('grading')" class="flex items-center gap-1 text-primary active:scale-95 transition-transform">
+        <span class="material-symbols-outlined" style="font-size:18px">checklist</span>
+      </button>
+    </div>
+    <!-- Progress bar -->
+    <div class="h-1 bg-outline-variant/20 w-full">
+      <div id="belt-path-header-bar" class="h-full rounded-full transition-all duration-700" style="width:0%"></div>
+    </div>
+  </header>
+  <main class="min-h-svh pt-16 pb-32 overflow-y-auto">
+    <div class="px-5 max-w-md mx-auto py-4">
+      <div id="belt-path-container"></div>
+    </div>
+  </main>
+</div>
+
+<div id="screen-grading" class="screen">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto py-4 space-y-5">
+      <!-- Back -->
+      <button onclick="showScreen('home')" class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+        <span class="font-bold uppercase tracking-wider" style="font-size:11px">Back to Learn</span>
+      </button>
+      <!-- Header -->
+      <div>
+        <p class="text-primary font-bold uppercase tracking-widest mb-0.5" style="font-size:11px">YOUR PROGRESS</p>
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface">Grading Checklist</h2>
+        <p class="text-sm text-on-surface-variant mt-1">Everything you need to demonstrate for your next belt.</p>
+      </div>
+      <!-- Readiness banner -->
+      <div id="grading-banner" class="rounded-2xl p-5 border-2 flex items-center gap-4"></div>
+      <!-- Group list -->
+      <div id="grading-groups" class="space-y-3"></div>
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: LESSON -->
+<div id="screen-lesson" class="screen">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto space-y-5 py-4">
+      <button onclick="DojoLesson.goBack()" class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+        <span id="lesson-back-label" class="font-bold uppercase tracking-wider" style="font-size:11px">Back</span>
+      </button>
+      <div>
+        <p class="text-primary font-bold uppercase tracking-widest" style="font-size:11px" id="lesson-area-label">AREA 02</p>
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface mt-1" id="lesson-technique-name">Technique</h2>
+        <p class="text-body-md text-on-surface-variant" id="lesson-technique-en">Translation</p>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-outline-variant/30 shadow-2xl bg-surface-container-lowest">
+        <div class="aspect-video w-full relative bg-surface-container-high">
+          <div id="lesson-video-thumb" class="absolute inset-0 flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:64px">sports_kabaddi</span>
+          </div>
+          <iframe id="lesson-iframe" class="w-full h-full absolute inset-0 hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          <button id="lesson-play-btn" onclick="playLesson()" class="absolute inset-0 flex items-center justify-center group z-10">
+            <div class="w-20 h-20 bg-primary/20 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-primary/50 group-hover:scale-110 transition-transform shadow-[0_0_40px_rgba(255,179,179,0.4)]">
+              <span class="material-symbols-outlined ms-fill text-primary" style="font-size:48px">play_arrow</span>
+            </div>
+          </button>
+        </div>
+        <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-high/80 border-t border-outline-variant/20">
+          <span class="material-symbols-outlined ms-fill text-red-500" style="font-size:18px">smart_display</span>
+          <span class="text-xs font-bold text-white/60 tracking-tighter">YouTube</span>
+          <span class="ml-auto text-on-surface-variant font-bold uppercase tracking-wider" style="font-size:10px" id="lesson-sub-cat"></span>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <h3 class="text-title-md font-semibold text-on-surface">Technical Breakdown</h3>
+        <div class="grid grid-cols-3 gap-3" id="lesson-breakdown-cards"></div>
+      </div>
+      <div class="bg-surface-container-low border border-outline-variant p-5 rounded-xl">
+        <h3 class="font-semibold text-on-surface mb-4 flex items-center gap-2 text-base">
+          <span class="material-symbols-outlined text-error" style="font-size:20px">warning</span> Common Mistakes
+        </h3>
+        <ul class="space-y-4" id="lesson-mistakes"></ul>
+      </div>
+      <div class="bg-surface-container border border-outline-variant p-6 rounded-xl relative overflow-hidden">
+        <span class="material-symbols-outlined absolute -bottom-8 -right-8 text-white/[0.025] pointer-events-none select-none" style="font-size:160px">quiz</span>
+        <div class="mb-5">
+          <div class="flex items-center gap-2 mb-1">
+            <p class="text-primary font-bold uppercase tracking-widest" style="font-size:11px">Knowledge Check</p>
+            <span id="quiz-type-badge" class="hidden text-xs font-bold px-2 py-0.5 rounded-full" style="background:#eff4ff;color:#2563eb;border:1px solid #c7d7f5"></span>
+          </div>
+          <h3 class="text-headline-lg-mobile font-bold text-on-surface mt-1" id="quiz-question">What does this technique mean?</h3>
+        </div>
+        <div class="flex flex-col gap-3" id="quiz-options"></div>
+        <div class="mt-7">
+          <button id="check-btn" onclick="handleCheck()" disabled
+            class="w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl border-b-[5px] border-on-primary-container/40 active:border-b-0 active:translate-y-[5px] transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider opacity-40 pointer-events-none">
+            <span class="material-symbols-outlined" style="font-size:18px">done_all</span> CHECK
+          </button>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-4 bg-surface-container-low/50 border-l-4 border-tertiary rounded-r-lg mb-4">
+        <span class="material-symbols-outlined text-tertiary mt-0.5 shrink-0" style="font-size:20px">info</span>
+        <div>
+          <p class="text-tertiary font-bold uppercase tracking-wider mb-1" style="font-size:11px">Sensei's Tip</p>
+          <p class="text-on-surface-variant text-sm leading-relaxed" id="lesson-tip">Focus on kuzushi before committing.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: SUCCESS -->
+<div id="screen-success" class="screen">
+  <div id="confetti-container" class="fixed inset-0 pointer-events-none z-0"></div>
+  <main class="relative z-10 min-h-svh pt-20 pb-36 px-5 max-w-sm mx-auto flex flex-col items-center">
+    <div class="flex flex-col items-center text-center mt-6 mb-8">
+      <div class="relative w-56 h-56 mb-7">
+        <div class="absolute inset-0 rounded-full bg-primary/20 blur-[60px] animate-pulse"></div>
+        <div class="relative w-full h-full rounded-[2rem] bg-surface-container-highest border-4 border-primary/20 flex items-center justify-center overflow-hidden">
+          <span class="material-symbols-outlined absolute -bottom-4 -right-4 opacity-10 text-primary rotate-12 select-none" style="font-size:120px">military_tech</span>
+          <div class="text-primary font-bold kanji-glow select-none z-10" style="font-size:80px">成功</div>
+        </div>
+        <div class="absolute -top-3 -right-3 w-14 h-14 bg-surface-container-high border-2 border-primary/40 rounded-2xl flex items-center justify-center shadow-2xl animate-bounce" style="animation-duration:3s">
+          <span class="material-symbols-outlined ms-fill text-primary" style="font-size:24px">grade</span>
+        </div>
+      </div>
+      <h1 class="text-headline-lg font-bold text-primary uppercase tracking-tight">TECHNIQUE MASTERED</h1>
+      <p class="text-body-md text-on-surface-variant mt-2 leading-relaxed">Your <strong class="text-on-surface underline decoration-primary/40 decoration-2 underline-offset-4" id="success-tech-name">technique</strong> execution has reached the required proficiency level.</p>
+    </div>
+    <div class="w-full space-y-4 mb-8">
+      <div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant shadow-xl relative overflow-hidden">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <p class="text-on-surface-variant font-bold uppercase tracking-[0.2em] mb-1" style="font-size:11px">XP Gained</p>
+            <div class="flex items-baseline gap-2">
+              <h3 class="text-3xl font-bold text-primary" id="success-xp">+50 XP</h3>
+              <span class="px-2 py-0.5 bg-primary/10 rounded text-primary font-black uppercase tracking-widest border border-primary/20" style="font-size:10px">Bonus</span>
+            </div>
+          </div>
+          <div class="bg-surface-container-high w-12 h-12 rounded-2xl border border-outline-variant flex items-center justify-center">
+            <span class="material-symbols-outlined ms-fill text-primary" style="font-size:24px">stars</span>
+          </div>
+        </div>
+        <div class="relative w-full h-4 bg-surface-container-highest rounded-full overflow-hidden border border-outline-variant/30">
+          <div class="xp-bar absolute inset-y-0 left-0 bg-gradient-to-r from-tertiary via-secondary-container to-secondary shadow-[0_0_15px_rgba(113,216,198,0.5)]" id="success-xp-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant shadow-xl">
+        <div class="flex justify-between items-center mb-5">
+          <div>
+            <p class="text-on-surface-variant font-bold uppercase tracking-[0.2em] mb-1" style="font-size:11px">Dan Status</p>
+            <h3 class="text-2xl font-bold text-secondary" id="success-dan">1 Day Dan</h3>
+          </div>
+          <div class="bg-black border-2 border-outline-variant rounded-xl px-2 py-1.5 flex gap-1.5 shadow-inner">
+            <div class="w-2 h-6 bg-secondary/30 rounded-full"></div>
+            <div class="w-2 h-6 bg-secondary/30 rounded-full"></div>
+            <div class="w-2 h-6 bg-secondary/30 rounded-full"></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center gap-1.5 px-1" id="success-dan-pips"></div>
+      </div>
+    </div>
+    <div class="w-full space-y-3">
+      <button onclick="handleSuccessNext()"
+        class="btn-tactile w-full bg-primary text-on-primary font-bold text-base py-5 px-8 rounded-2xl flex items-center justify-center gap-3 uppercase tracking-widest"
+        id="success-next-btn">
+        <span class="material-symbols-outlined ms-fill" style="font-size:22px">skip_next</span>
+        Next Technique
+      </button>
+      <button onclick="handleSuccessContinue()"
+        class="w-full border-2 border-outline-variant/50 text-on-surface-variant font-bold text-sm py-3 px-8 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+        <span class="material-symbols-outlined" style="font-size:18px">home</span>
+        Back to Path
+      </button>
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: BELT PROMOTION -->
+<div id="screen-belt-promo" class="screen">
+  <main class="min-h-svh pt-20 pb-32 px-5 max-w-sm mx-auto flex flex-col items-center">
+    <div class="text-center mt-6 mb-5">
+      <p class="text-primary-container font-bold uppercase tracking-widest mb-2" style="font-size:11px">RANK UP!</p>
+      <h1 class="text-headline-lg-mobile font-bold text-on-surface" id="promo-belt-name">Yellow Belt Achieved</h1>
+      <p class="text-body-md text-on-surface-variant mt-1 opacity-70" id="promo-kyu-level">5th Kyu Mastery Level</p>
+    </div>
+    <div class="relative w-full max-w-xs aspect-square flex items-center justify-center mb-6">
+      <div class="absolute inset-0 border border-primary-container/30 rounded-full scale-75 animate-ping opacity-30"></div>
+      <div class="relative z-10 glow-pulse flex flex-col items-center">
+        <img id="promo-belt-img" alt="Belt" class="w-64 h-auto drop-shadow-[0_0_20px_rgba(255,218,0,0.4)]" src="images/belt-yellow.png"/>
+        <div class="hanko-seal absolute -top-4 -right-8 text-xl px-3 py-1 rotate-12 bg-background/60 backdrop-blur-sm shadow-lg border-4 animate-pulse" id="promo-kanji">合格</div>
+        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-on-surface text-background font-bold px-4 py-1 rounded-full text-xs shadow-lg" id="promo-kyu-badge">5TH KYU</div>
+      </div>
+    </div>
+    <div class="w-full max-w-md bg-surface-container p-6 rounded-xl border-t border-surface-bright shadow-[6px_6px_0px_0px_rgba(0,0,0,0.5)] relative overflow-hidden mb-8">
+      <div class="absolute top-0 right-0 w-14 h-14 pointer-events-none overflow-hidden">
+        <div class="absolute top-0 right-0 w-full h-full bg-surface-variant origin-top-right rotate-45 translate-x-7 -translate-y-7 border-l border-b border-outline-variant"></div>
+      </div>
+      <h3 class="font-semibold mb-5 flex items-center gap-2 text-base">
+        <span class="material-symbols-outlined text-primary" style="font-size:20px">military_tech</span> Mastery Metrics
+      </h3>
+      <div class="space-y-5" id="promo-metrics"></div>
+      <div class="mt-6 pt-5 border-t border-surface-variant flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Total Rewards</span>
+          <div class="text-3xl font-black text-on-surface" id="promo-total-xp">800 XP</div>
+        </div>
+        <div class="hanko-seal text-sm px-3 py-1">合格 PASSED</div>
+      </div>
+    </div>
+    <button onclick="handlePromoBack()" class="btn-tactile w-full bg-primary-container text-on-primary-container font-bold text-base py-4 rounded-xl flex items-center justify-center gap-2 uppercase tracking-wider mb-8">
+      BACK TO THE FLOOR <span class="material-symbols-outlined" style="font-size:20px">sports_kabaddi</span>
+    </button>
+  </main>
+</div>
+
+<!-- SCREEN: PRACTICE HUB -->
+<div id="screen-practice" class="screen">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto space-y-6 py-4">
+
+      <!-- Header -->
+      <div>
+        <p class="text-primary font-bold uppercase tracking-widest mb-0.5" style="font-size:10px">TRAINING GROUNDS</p>
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface">Practice Hub</h2>
+      </div>
+
+      <!-- Readiness card -->
+      <div class="bg-surface-container-low border border-outline-variant/20 p-4 rounded-2xl flex items-center gap-4 shadow-lg">
+        <div class="w-12 h-12 bg-surface-container-high rounded-xl flex items-center justify-center border border-outline-variant/30 shrink-0">
+          <span class="material-symbols-outlined ms-fill text-primary-container" style="font-size:28px">fitness_center</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-end mb-1">
+            <p class="font-bold uppercase tracking-wider text-on-surface-variant" style="font-size:10px">Readiness — <span id="practice-belt-label">Next Belt</span></p>
+            <p class="font-bold text-on-surface text-sm" id="practice-readiness-pct">0%</p>
+          </div>
+          <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden border border-outline-variant/10">
+            <div id="practice-readiness-bar" class="h-full rounded-full transition-all duration-700"
+              style="width:0%;background:linear-gradient(90deg,#71d8c6,#b0c6ff)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grading Syllabus card -->
+      <div class="relative bg-surface-container border border-primary-container/30 rounded-2xl p-5 overflow-hidden shadow-xl cursor-pointer active:scale-[0.99] transition-all"
+        onclick="DojoPractice.renderSyllabus();showScreen('syllabus')">
+        <div class="absolute -right-5 -top-5 opacity-10 pointer-events-none rotate-12">
+          <span class="material-symbols-outlined text-primary-container" style="font-size:100px">workspace_premium</span>
+        </div>
+        <div class="relative z-10 space-y-3">
+          <div>
+            <p class="font-bold uppercase tracking-widest text-primary mb-1" style="font-size:10px">GRADING SYLLABUS</p>
+            <h3 class="font-bold text-on-surface text-base">Belt Requirements</h3>
+            <p class="text-on-surface-variant text-sm mt-1">Review the complete technical requirements for your next promotion.</p>
+          </div>
+          <div class="btn-tactile bg-primary-container text-on-primary-container font-bold py-3 rounded-xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+            OPEN SYLLABUS <span class="material-symbols-outlined" style="font-size:16px">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Drills -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-bold text-on-surface flex items-center gap-2 text-base">
+            <span class="material-symbols-outlined text-primary-container" style="font-size:20px">repeat</span>
+            Daily Drills
+          </h2>
+        </div>
+        <div id="practice-drills-list" class="space-y-3"></div>
+      </div>
+
+      <!-- Technique Library -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-bold text-on-surface flex items-center gap-2 text-base">
+            <span class="material-symbols-outlined text-tertiary" style="font-size:20px">menu_book</span>
+            Technique Library
+          </h2>
+          <button onclick="DojoPractice.openFilter()"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container border border-outline-variant/30 rounded-lg text-on-surface-variant text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
+            <span class="material-symbols-outlined" style="font-size:16px">filter_list</span>
+            Filter
+          </button>
+        </div>
+
+        <!-- Filter panel -->
+        <div id="practice-filter-panel" class="hidden bg-surface-container border border-outline-variant/30 rounded-2xl p-4 mb-3 shadow-xl space-y-4">
+
+          <!-- Search -->
+          <div>
+            <p class="text-on-surface-variant font-bold uppercase tracking-widest mb-2" style="font-size:10px">Search Techniques</p>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" style="font-size:18px">search</span>
+              <input id="tech-search-input" type="text" placeholder="e.g. Osoto-gari, hip throw…"
+                class="w-full bg-surface-container-low border-2 border-outline-variant rounded-xl pl-9 pr-9 py-3 text-on-surface font-semibold text-sm placeholder-on-surface-variant/30 outline-none transition-all focus:border-primary-container"
+                style="background:#f0f4ff"
+                oninput="DojoPractice.searchTech(this.value)"/>
+              <button id="tech-search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 hidden"
+                onclick="DojoPractice.clearSearch()">
+                <span class="material-symbols-outlined text-on-surface-variant/50 hover:text-primary transition-colors" style="font-size:18px">close</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Category chips -->
+          <div>
+            <p class="text-on-surface-variant font-bold uppercase tracking-widest mb-2" style="font-size:10px">Filter by Category</p>
+            <div class="flex flex-wrap gap-2">
+              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
+                data-cat="Tachi-waza" onclick="DojoPractice.filterBy('Tachi-waza')">Tachi-waza</button>
+              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
+                data-cat="Osaekomi-waza" onclick="DojoPractice.filterBy('Osaekomi-waza')">Osaekomi-waza</button>
+              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
+                data-cat="Ne-waza" onclick="DojoPractice.filterBy('Ne-waza')">Ne-waza</button>
+              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
+                data-cat="Kansetsu-waza" onclick="DojoPractice.filterBy('Kansetsu-waza')">Kansetsu-waza</button>
+              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
+                data-cat="Shime-waza" onclick="DojoPractice.filterBy('Shime-waza')">Shime-waza</button>
+              <button class="filter-cat-btn px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-wide transition-all border-outline-variant/30 text-on-surface-variant"
+                data-cat="Ukemi" onclick="DojoPractice.filterBy('Ukemi')">Ukemi</button>
+            </div>
+          </div>
+
+          <button onclick="DojoPractice.clearSearch();DojoPractice.filterBy(null)"
+            class="text-xs text-primary font-bold uppercase tracking-wider">Clear all</button>
+        </div>
+
+        <!-- Technique scroll row with arrow controls -->
+        <div class="relative -mx-5">
+          <!-- Left arrow -->
+          <button id="tech-scroll-left"
+            class="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-surface-container-high/90 border border-outline-variant/40 flex items-center justify-center shadow-lg active:scale-95 transition-all"
+            onclick="document.getElementById('practice-tech-list').scrollBy({left:-200,behavior:'smooth'})">
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">chevron_left</span>
+          </button>
+          <!-- Right arrow -->
+          <button id="tech-scroll-right"
+            class="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-surface-container-high/90 border border-outline-variant/40 flex items-center justify-center shadow-lg active:scale-95 transition-all"
+            onclick="document.getElementById('practice-tech-list').scrollBy({left:200,behavior:'smooth'})">
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">chevron_right</span>
+          </button>
+          <div id="practice-tech-list" class="flex gap-3 pb-3 px-5" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap"></div>
+        </div>
+      </div>
+
+      <!-- Mastery footer -->
+      <div class="bg-surface-container border border-primary-container/20 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+          <span class="material-symbols-outlined" style="font-size:140px">award_star</span>
+        </div>
+        <div class="relative z-10 space-y-5">
+          <div class="flex items-center gap-4">
+            <div class="w-20 h-20 rounded-full border-2 border-primary-container/50 p-1.5 shrink-0">
+              <div class="w-full h-full rounded-full bg-surface-container-highest border border-outline-variant flex flex-col items-center justify-center">
+                <span class="font-extrabold text-on-surface leading-none" style="font-size:28px" id="practice-streak-num">0</span>
+                <span class="text-on-surface-variant font-bold uppercase" style="font-size:8px" id="practice-streak-label">DAY STREAK</span>
+              </div>
+            </div>
+            <div>
+              <h3 class="font-bold text-on-surface text-base">Mastery Progression</h3>
+              <p class="text-on-surface-variant text-sm mt-1">Complete drills daily to build your streak and Dan status.</p>
+            </div>
+          </div>
+          <button onclick="DojoPractice.startUnitExam()"
+            class="btn-tactile w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
+            <span class="material-symbols-outlined ms-fill" style="font-size:22px">military_tech</span>
+            START UNIT EXAM
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: PRACTICE DRILL -->
+<div id="screen-practice-drill" class="screen">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto space-y-5 py-4">
+
+      <!-- Back -->
+      <button onclick="showScreen('practice')" class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+        <span class="font-bold uppercase tracking-wider" style="font-size:11px">Back to Practice</span>
+      </button>
+
+      <!-- Title -->
+      <div>
+        <p class="text-primary font-bold uppercase tracking-widest mb-1" style="font-size:11px" id="drill-cat-label">DRILL</p>
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface" id="drill-title">Drill Name</h2>
+      </div>
+
+      <!-- Video (same frame as lesson) -->
+      <div class="rounded-xl overflow-hidden border border-outline-variant/30 shadow-2xl bg-surface-container-lowest">
+        <div class="aspect-video w-full relative bg-surface-container-high">
+          <div id="drill-video-thumb" class="absolute inset-0 flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:64px">sports_kabaddi</span>
+          </div>
+          <iframe id="drill-iframe" class="w-full h-full absolute inset-0 hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          <button id="drill-play-btn" onclick="playDrillVideo()" class="absolute inset-0 flex items-center justify-center group z-10">
+            <div class="w-20 h-20 bg-primary/20 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-primary/50 group-hover:scale-110 transition-transform shadow-[0_0_40px_rgba(255,179,179,0.4)]">
+              <span class="material-symbols-outlined ms-fill text-primary" style="font-size:48px">play_arrow</span>
+            </div>
+          </button>
+        </div>
+        <div class="flex items-center gap-3 px-4 py-2 bg-surface-container-high/80 border-t border-outline-variant/20">
+          <span class="material-symbols-outlined ms-fill text-red-500" style="font-size:18px">smart_display</span>
+          <span class="text-xs font-bold text-white/60 tracking-tighter">YouTube</span>
+        </div>
+      </div>
+
+      <!-- Dynamic content (uchikomi or conditioning) -->
+      <div id="drill-content" class="space-y-5"></div>
+
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: GRADING SYLLABUS -->
+<div id="screen-syllabus" class="screen">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto py-4">
+      <button onclick="showScreen('practice')" class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm mb-5">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+        <span class="font-bold uppercase tracking-wider" style="font-size:11px">Back to Practice</span>
+      </button>
+      <div class="mb-6">
+        <p class="text-primary font-bold uppercase tracking-widest mb-0.5" style="font-size:10px">BJA REQUIREMENTS</p>
+        <h2 class="text-headline-lg-mobile font-bold text-on-surface">Grading Syllabus</h2>
+        <p class="text-on-surface-variant text-sm mt-1">Select a belt to view its full requirements.</p>
+      </div>
+      <!-- Belt cards grid — rendered by JS -->
+      <div id="syllabus-belt-cards" class="grid grid-cols-2 gap-4"></div>
+    </div>
+  </main>
+
+  <!-- Drawer backdrop -->
+  <div id="syllabus-backdrop"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300"
+    onclick="DojoPractice.closeBeltDrawer()"></div>
+
+  <!-- Slide-in drawer -->
+  <div id="syllabus-drawer"
+    class="fixed top-0 right-0 h-full w-full max-w-sm z-50 flex flex-col overflow-hidden transition-transform duration-300 translate-x-full"
+    style="background:#eff4ff;border-left:1px solid #93b4f040">
+    <!-- Drawer header -->
+    <div id="syllabus-drawer-header"
+      class="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20 shrink-0">
+      <div>
+        <p class="font-bold uppercase tracking-widest text-primary" style="font-size:10px" id="drawer-kyu-label">6TH KYU</p>
+        <h3 class="font-bold text-on-surface text-lg leading-tight" id="drawer-belt-name">Red Belt</h3>
+      </div>
+      <button onclick="DojoPractice.closeBeltDrawer()"
+        class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center border border-outline-variant/30 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px">close</span>
+      </button>
+    </div>
+    <!-- Readiness bar -->
+    <div class="px-5 py-3 border-b border-outline-variant/10 shrink-0">
+      <div class="flex justify-between items-center mb-1.5">
+        <span class="text-on-surface-variant font-bold uppercase tracking-widest" style="font-size:10px">Readiness</span>
+        <span class="font-bold text-sm text-on-surface" id="drawer-readiness-pct">0%</span>
+      </div>
+      <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+        <div id="drawer-readiness-bar" class="h-full rounded-full transition-all duration-700" style="width:0%"></div>
+      </div>
+    </div>
+    <!-- Scrollable path content -->
+    <div id="syllabus-drawer-content" class="flex-1 overflow-y-auto px-4 py-4 space-y-2"></div>
+  </div>
+</div>
+
+<!-- SCREEN: UNIT EXAM -->
+<div id="screen-unit-exam" class="screen">
+  <main class="min-h-svh pt-20 pb-32">
+    <div class="px-5 max-w-md mx-auto py-4">
+      <button onclick="showScreen('practice')" class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm mb-6">
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+        <span class="font-bold uppercase tracking-wider" style="font-size:11px">Back to Practice</span>
+      </button>
+      <div class="flex flex-col items-center text-center mt-8 space-y-6">
+        <div class="relative w-40 h-40">
+          <div class="absolute inset-0 rounded-full bg-yellow-400/10 blur-3xl animate-pulse"></div>
+          <div class="relative w-full h-full rounded-3xl bg-surface-container-highest border-4 border-yellow-400/20 flex items-center justify-center">
+            <span class="material-symbols-outlined ms-fill text-yellow-400" style="font-size:72px">military_tech</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-yellow-400 font-bold uppercase tracking-widest mb-2" style="font-size:11px">BELT ASSESSMENT</p>
+          <h2 class="text-headline-lg-mobile font-bold text-on-surface">Unit Exam</h2>
+          <p class="text-on-surface-variant text-sm mt-3 max-w-xs mx-auto leading-relaxed">
+            A comprehensive test covering all techniques in your current syllabus. Complete all tiles on the Learn path to unlock your exam.
+          </p>
+        </div>
+        <div class="w-full bg-surface-container border border-outline-variant/30 rounded-2xl p-5 text-left space-y-3">
+          <p class="font-bold text-on-surface-variant uppercase tracking-widest" style="font-size:10px">Coming next</p>
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-tertiary" style="font-size:20px">quiz</span>
+            <span class="text-on-surface text-sm font-semibold">Full technique knowledge test</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary" style="font-size:20px">videocam</span>
+            <span class="text-on-surface text-sm font-semibold">Video demonstration review</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary" style="font-size:20px">workspace_premium</span>
+            <span class="text-on-surface text-sm font-semibold">Belt promotion confirmation</span>
+          </div>
+        </div>
+        <button onclick="showScreen('home')"
+          class="btn-tactile w-full bg-primary-container text-on-primary-container font-bold py-4 rounded-xl uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined" style="font-size:20px">school</span>
+          CONTINUE LEARNING
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- SCREEN: DOJO (wrapper — routes to sub-screens) -->
+<div id="screen-dojo" class="screen"></div>
+
+<!-- DOJO SUB-SCREEN: HUB -->
+<div id="screen-dojo-hub" class="screen">
+  <main class="min-h-svh pt-16 pb-32 max-w-md mx-auto">
+    <div id="dojo-hub-content"></div>
+  </main>
+</div>
+
+<!-- DOJO SUB-SCREEN: MORAL CODE -->
+<div id="screen-dojo-moral" class="screen">
+  <main class="min-h-svh pt-16 pb-32 max-w-md mx-auto">
+    <!-- Sub-header -->
+    <div class="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-outline-variant/20 px-5 py-3 flex items-center gap-3">
+      <button onclick="DojoDojo.open('hub')" class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span>
+      </button>
+      <div class="w-px h-5 bg-outline-variant/40"></div>
+      <span class="font-bold text-on-surface uppercase tracking-widest" style="font-size:11px">MORAL CODE</span>
+    </div>
+    <div id="dojo-moral-content"></div>
+  </main>
+</div>
+
+<!-- DOJO SUB-SCREEN: TERMINOLOGY -->
+<div id="screen-dojo-terms" class="screen">
+  <main class="min-h-svh pt-16 pb-32 max-w-md mx-auto">
+    <div class="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-outline-variant/20 px-5 py-3 flex items-center gap-3">
+      <button onclick="DojoDojo.open('hub')" class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span>
+      </button>
+      <div class="w-px h-5 bg-outline-variant/40"></div>
+      <span class="font-bold text-on-surface uppercase tracking-widest" style="font-size:11px">TERMINOLOGY</span>
+    </div>
+    <div id="dojo-terms-content"></div>
+  </main>
+</div>
+
+<!-- DOJO SUB-SCREEN: HISTORY -->
+<div id="screen-dojo-history" class="screen">
+  <main class="min-h-svh pt-16 pb-32 max-w-md mx-auto">
+    <div class="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-outline-variant/20 px-5 py-3 flex items-center gap-3">
+      <button onclick="DojoDojo.open('hub')" class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span>
+      </button>
+      <div class="w-px h-5 bg-outline-variant/40"></div>
+      <span class="font-bold text-on-surface uppercase tracking-widest" style="font-size:11px">JUDO HISTORY</span>
+    </div>
+    <div id="dojo-history-content"></div>
+  </main>
+</div>
+
+<!-- DOJO SUB-SCREEN: KATA -->
+<div id="screen-dojo-kata" class="screen">
+  <main class="min-h-svh pt-16 pb-32 max-w-md mx-auto">
+    <div class="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-outline-variant/20 px-5 py-3 flex items-center gap-3">
+      <button onclick="DojoDojo.open('hub')" class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors">
+        <span class="material-symbols-outlined" style="font-size:20px">arrow_back</span>
+      </button>
+      <div class="w-px h-5 bg-outline-variant/40"></div>
+      <span class="font-bold text-on-surface uppercase tracking-widest" style="font-size:11px">KATA</span>
+    </div>
+    <div id="dojo-kata-content"></div>
+  </main>
+</div>
+
+<!-- SCREEN: PROFILE -->
+
+<!-- ══ KNOWLEDGE ITEM SCREEN ══════════════════════════════════════ -->
+<div id="screen-knowledge" class="screen">
+  <header class="fixed top-0 left-0 w-full z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/10">
+    <div class="flex items-center gap-3 px-4 py-3 max-w-md mx-auto">
+      <button onclick="DojoKnowledge.back()" class="flex items-center gap-1 text-on-surface-variant active:scale-95 transition-transform">
+        <span class="material-symbols-outlined" style="font-size:20px">arrow_back_ios</span>
+        <span class="text-xs font-bold uppercase tracking-wider" id="knowledge-back-label">Back</span>
+      </button>
+      <div class="flex-1 text-center">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant" id="knowledge-area-label">AREA 01</p>
+      </div>
+      <div class="w-16"></div>
+    </div>
+  </header>
+
+  <main class="min-h-svh pt-16 pb-32 overflow-y-auto">
+    <div class="px-5 max-w-md mx-auto py-4 space-y-4">
+
+      <!-- Group badge -->
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined ms-fill text-primary" style="font-size:18px" id="knowledge-group-icon">menu_book</span>
+        <span class="text-xs font-bold uppercase tracking-widest text-primary" id="knowledge-group-label">Knowledge</span>
+      </div>
+
+      <!-- Content area — swapped out by JS -->
+      <div id="knowledge-content"></div>
+
+      <!-- Got it button -->
+      <button id="knowledge-done-btn" onclick="DojoKnowledge.markDone()"
+        class="btn-tactile w-full bg-primary text-on-primary font-black py-5 rounded-2xl text-base uppercase tracking-widest flex items-center justify-center gap-3">
+        <span class="material-symbols-outlined ms-fill" style="font-size:22px">check_circle</span>
+        Got It!
+      </button>
+
+    </div>
+  </main>
+</div>
+
+<div id="screen-profile" class="screen">
+  <main class="min-h-svh pt-20 pb-32 overflow-y-auto">
+    <div class="px-5 max-w-md mx-auto">
+
+      <!-- Avatar + name card -->
+      <div class="flex flex-col items-center py-6">
+        <div class="relative mb-3">
+          <div class="w-24 h-24 rounded-full border-4 border-primary-container/40 bg-surface-container-high overflow-hidden flex items-center justify-center"
+               style="box-shadow:0 0 0 2px #ff526240">
+            <img id="profile-avatar" class="hidden w-full h-full object-cover" src="" alt="avatar"/>
+            <span id="profile-avatar-icon" class="material-symbols-outlined text-on-surface-variant/40" style="font-size:48px">person</span>
+          </div>
+        </div>
+        <h2 class="text-xl font-bold text-on-surface" id="profile-name">Judoka</h2>
+        <p class="text-xs text-on-surface-variant/60 uppercase tracking-widest mt-0.5" id="profile-belt">White Belt</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
+          <p class="text-2xl font-bold text-primary" id="profile-xp">0</p>
+          <p class="text-xs text-on-surface-variant uppercase tracking-wider mt-1">Total XP</p>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
+          <p class="text-2xl font-bold text-orange-400" id="profile-streak">0</p>
+          <p class="text-xs text-on-surface-variant uppercase tracking-wider mt-1">Day Streak</p>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
+          <p class="text-2xl font-bold text-secondary" id="profile-techniques">0</p>
+          <p class="text-xs text-on-surface-variant uppercase tracking-wider mt-1">Techniques</p>
+        </div>
+        <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
+          <p class="text-2xl font-bold text-tertiary" id="profile-readiness">0%</p>
+          <p class="text-xs text-on-surface-variant uppercase tracking-wider mt-1">Belt Readiness</p>
+        </div>
+      </div>
+
+      <!-- Goal card -->
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 mb-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">My Goal</p>
+        <div class="flex gap-2">
+          <button onclick="DojoProfile.setGoal('belt')" id="pg-belt"
+            class="profile-goal-btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-outline-variant/30 transition-all active:scale-95">
+            <span class="material-symbols-outlined ms-fill text-primary" style="font-size:22px">military_tech</span>
+            <span style="font-size:9px" class="font-bold uppercase tracking-wide text-center leading-tight text-on-surface">PASS BELT</span>
+          </button>
+          <button onclick="DojoProfile.setGoal('training')" id="pg-training"
+            class="profile-goal-btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-outline-variant/30 transition-all active:scale-95">
+            <span class="material-symbols-outlined ms-fill text-secondary" style="font-size:22px">fitness_center</span>
+            <span style="font-size:9px" class="font-bold uppercase tracking-wide text-center leading-tight text-on-surface">TRAINING</span>
+          </button>
+          <button onclick="DojoProfile.setGoal('culture')" id="pg-culture"
+            class="profile-goal-btn flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-outline-variant/30 transition-all active:scale-95">
+            <span class="material-symbols-outlined ms-fill text-tertiary" style="font-size:22px">temple_buddhist</span>
+            <span style="font-size:9px" class="font-bold uppercase tracking-wide text-center leading-tight text-on-surface">CULTURE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Belt Progress -->
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 mb-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Belt Progress</p>
+        <div id="profile-belt-progress"></div>
+      </div>
+
+      <!-- Category Mastery -->
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 mb-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Category Mastery</p>
+        <div id="profile-category-mastery" class="space-y-2.5"></div>
+      </div>
+
+      <!-- Badges -->
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 mb-4">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Badges</p>
+        <div id="profile-badges" class="grid grid-cols-3 gap-4 py-1"></div>
+      </div>
+
+      <!-- Reset progress -->
+      <button onclick="if(confirm('Reset all progress and start over?')){localStorage.clear();location.reload();}"
+        class="w-full border border-error/30 text-error/70 font-bold text-sm py-3 rounded-xl transition-all active:scale-95 mb-2">
+        Reset Progress
+      </button>
+
+    </div>
+  </main>
+</div>
+
+<!-- STANDARDIZED BOTTOM NAV -->
+<nav id="app-nav" class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-high/95 backdrop-blur-md border-t border-outline-variant/10 pb-safe">
+  <div class="flex w-full justify-around items-center max-w-md mx-auto px-2 py-2">
+    <button onclick="showScreen('home')" data-nav="home"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:22px">school</span>
+      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">LEARN</span>
+    </button>
+    <button onclick="showScreen('practice')" data-nav="practice"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:22px">fitness_center</span>
+      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">PRACTICE</span>
+    </button>
+    <button onclick="showScreen('dojo')" data-nav="dojo"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:22px">temple_buddhist</span>
+      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">DOJO</span>
+    </button>
+    <button onclick="showScreen('profile')" data-nav="profile"
+      class="nav-btn flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all active:scale-95">
+      <span class="material-symbols-outlined nav-icon" style="font-size:22px">person</span>
+      <span class="font-bold uppercase tracking-tighter mt-0.5" style="font-size:10px">PROFILE</span>
+    </button>
+  </div>
+</nav>
+
+<script src="js/data.js?v=4"></script>
+<script src="js/dojo_state.js?v=6"></script>
+<script src="js/dojo_home.js?v=14"></script>
+
+<script src="js/dojo_lesson.js?v=12"></script>
+<script src="js/dojo_celebration.js?v=5"></script>
+<script src="js/dojo_practice.js?v=6"></script>
+<script src="js/dojo_dojo.js?v=4"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  Screen routing
+// ═══════════════════════════════════════════════════
+const SCREEN_IDS = ['onboarding','home','belt-path','grading','lesson','knowledge','success','belt-promo','practice','practice-drill','syllabus','unit-exam','dojo','dojo-hub','dojo-moral','dojo-terms','dojo-history','dojo-kata','profile'];
+
+function updateNavHighlight(navName) {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const active = btn.dataset.nav === navName;
+    btn.classList.toggle('bg-primary-container',       active);
+    btn.classList.toggle('text-on-primary-container',  active);
+    btn.classList.toggle('shadow-md',                  active);
+    btn.classList.toggle('text-on-surface-variant',    !active);
+    btn.style.opacity = active ? '1' : '0.55';
+    btn.querySelectorAll('.nav-icon').forEach(ic => ic.classList.toggle('ms-fill', active));
+  });
+}
+
+function showScreen(name) {
+  SCREEN_IDS.forEach(id => {
+    const el = document.getElementById('screen-' + id);
+    if (el) el.classList.toggle('active', id === name);
+  });
+  // Always reset scroll to top on screen change
+  const activeEl = document.getElementById('screen-' + name);
+  if (activeEl) {
+    const main = activeEl.querySelector('main') || activeEl;
+    main.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  // Hide chrome on onboarding
+  const isOnboarding = name === 'onboarding';
+  const hdr = document.getElementById('app-header');
+  const nav = document.getElementById('app-nav');
+  if (hdr) hdr.classList.toggle('hidden', isOnboarding);
+  if (nav) nav.classList.toggle('hidden', isOnboarding);
+  // Nav highlight — lesson/success/promo inherit from return screen
+  let navName;
+  if (['lesson','success','belt-promo'].includes(name)) {
+    const ret = (typeof DojoLesson !== 'undefined') ? DojoLesson.getReturnScreen() : 'home';
+    navName = ret === 'practice' ? 'practice' : 'home';
+  } else {
+    navName = (['practice-drill','syllabus','unit-exam'].includes(name)) ? 'practice'
+            : (['grading','belt-path'].includes(name)) ? 'home'
+            : (['dojo-hub','dojo-moral','dojo-terms','dojo-history','dojo-kata'].includes(name)) ? 'dojo'
+            : name;
+  }
+  updateNavHighlight(navName);
+  // On-enter hooks
+  if (name === 'home')      DojoHome.render();
+  if (name === 'belt-path') DojoHome.renderBeltPath();
+  if (name === 'grading')   DojoHome.renderChecklist();
+  if (name === 'practice')  DojoPractice.renderHub();
+  if (name === 'syllabus')  DojoPractice.renderSyllabus();
+  if (name === 'dojo')      { DojoDojo.renderForDojo(); return; }
+  if (name === 'profile')   renderProfile();
+}
+
+// ═══════════════════════════════════════════════════
+//  Onboarding
+// ═══════════════════════════════════════════════════
+const DojoOnboarding = (() => {
+  const BELTS = [
+    { key: 'WHITE',  label: 'White',  img: 'images/belt-white.png',  color: '#e5e2e1' },
+    { key: 'RED',    label: 'Red',    img: 'images/belt-red.png',    color: '#ef4444' },
+    { key: 'YELLOW', label: 'Yellow', img: 'images/belt-yellow.png', color: '#eab308' },
+    { key: 'ORANGE', label: 'Orange', img: 'images/belt-orange.png', color: '#f97316' },
+    { key: 'GREEN',  label: 'Green',  img: 'images/belt-green.png',  color: '#22c55e' },
+    { key: 'BLUE',   label: 'Blue',   img: 'images/belt-blue.png',   color: '#3b82f6' },
+    { key: 'BROWN',  label: 'Brown',  img: 'images/belt-brown.png',  color: '#a16207' },
+  ];
+
+  // Maps belt held → index in BELT_DATA they are now WORKING ON
+  // e.g. if you HOLD Orange, you've completed toRed(0), toYellow(1), toOrange(2)
+  // and are now working on toGreen(3)
+  const BELT_WORK_INDEX = { WHITE:0, RED:1, YELLOW:2, ORANGE:3, GREEN:4, BLUE:5, BROWN:5, BLACK:5 };
+
+  let _selectedBelt  = null;
+  let _selectedGoal  = null;
+  let _avatarDataUrl = null;
+
+  function init() {
+    _renderBelts();
+    _updateBento(null);
+  }
+
+  function _renderBelts() {
+    const grid = document.getElementById('belt-carousel');
+    if (!grid) return;
+    grid.innerHTML = BELTS.map(b => `
+      <button onclick="DojoOnboarding.selectBelt('${b.key}')" id="belt-btn-${b.key}"
+        class="flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 border-outline-variant/30 bg-surface-container-low transition-all active:scale-95">
+        <div class="w-10 h-10 rounded-full border-2 flex items-center justify-center overflow-hidden"
+          style="border-color:${b.color}40;background:${b.color}18">
+          <img src="${b.img}" class="w-8 h-8 object-contain" onerror="this.style.display='none'"/>
+        </div>
+        <span class="text-on-surface-variant font-bold uppercase tracking-wider" style="font-size:9px">${b.label}</span>
+      </button>
+    `).join('');
+  }
+
+  function selectBelt(key) {
+    _selectedBelt = key;
+    BELTS.forEach(b => {
+      const btn = document.getElementById('belt-btn-' + b.key);
+      if (!btn) return;
+      if (b.key === key) {
+        btn.classList.add('border-primary-container');
+        btn.classList.remove('border-outline-variant/30');
+        btn.style.background = 'rgba(255,82,98,0.1)';
+      } else {
+        btn.classList.remove('border-primary-container');
+        btn.classList.add('border-outline-variant/30');
+        btn.style.background = '';
+      }
+    });
+    _updateBento(key);
+    updateCTA();
+  }
+
+  function selectGoal(goal) {
+    _selectedGoal = goal;
+    ['belt','training','culture'].forEach(g => {
+      const btn = document.getElementById('goal-' + g);
+      if (!btn) return;
+      if (g === goal) {
+        btn.classList.add('border-primary-container');
+        btn.style.background = 'rgba(255,82,98,0.1)';
+      } else {
+        btn.classList.remove('border-primary-container');
+        btn.style.background = '';
+      }
+    });
+    updateCTA();
+  }
+
+  function _updateBento(beltKey) {
+    if (typeof BELT_DATA === 'undefined') return;
+    const workIdx = beltKey ? (BELT_WORK_INDEX[beltKey] ?? 0) : 0;
+    let techAhead = 0, groupsAhead = 0;
+    for (let i = workIdx; i < BELT_DATA.length; i++) {
+      const belt = BELT_DATA[i];
+      groupsAhead += belt.groups.length;
+      techAhead   += belt.groups.flatMap(g => g.items).length;
+    }
+    const t = document.getElementById('bento-techniques');
+    const g = document.getElementById('bento-groups');
+    if (t) t.textContent = techAhead;
+    if (g) g.textContent = groupsAhead;
+  }
+
+  function handleAvatar(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      _avatarDataUrl = e.target.result;
+      const img  = document.getElementById('avatar-img');
+      const icon = document.getElementById('avatar-icon');
+      if (img)  { img.src = _avatarDataUrl; img.classList.remove('hidden'); }
+      if (icon) icon.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateCTA() {
+    const nameEl = document.getElementById('onboarding-name');
+    const btn    = document.getElementById('onboarding-cta');
+    if (!btn) return;
+    const ready = _selectedBelt && _selectedGoal && nameEl && nameEl.value.trim().length > 0;
+    btn.disabled = !ready;
+    btn.classList.toggle('opacity-40', !ready);
+    btn.classList.toggle('pointer-events-none', !ready);
+  }
+
+  function _prefillCompletedBelts(beltKey) {
+    if (typeof BELT_DATA === 'undefined') return;
+    const workIdx = BELT_WORK_INDEX[beltKey] ?? 0;
+    if (workIdx === 0) return;
+    const progress = {};
+    for (let i = 0; i < workIdx; i++) {
+      const belt = BELT_DATA[i];
+      if (!belt) continue;
+      belt.groups.forEach(group => {
+        group.items.forEach(item => {
+          progress[belt.id + '::' + item] = true;
+        });
+      });
+    }
+    localStorage.setItem('dojo_progress', JSON.stringify(progress));
+  }
+
+  function saveAndEnter() {
+    const nameEl = document.getElementById('onboarding-name');
+    const name   = nameEl ? nameEl.value.trim() : '';
+    if (!name || !_selectedBelt) return;
+    _prefillCompletedBelts(_selectedBelt);
+    DojoState.saveProfile({ name, belt: _selectedBelt, goal: _selectedGoal || 'belt', avatarDataUrl: _avatarDataUrl || null });
+    DojoState.init();
+    const goalScreen = { belt: 'home', training: 'practice', culture: 'dojo' }[_selectedGoal] || 'home';
+    showScreen(goalScreen);
+  }
+
+  return { init, selectBelt, selectGoal, handleAvatar, updateCTA, saveAndEnter };
+})();
+
+// ═══════════════════════════════════════════════════
+//  Profile renderer
+// ═══════════════════════════════════════════════════
+function renderProfile() { DojoProfile.render(); }
+
+// ═══════════════════════════════════════════════════
+//  App init
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  DojoState.init();
+  if (DojoState.hasProfile()) {
+    const p = DojoState.getProfile();
+    const goalScreen = { belt: 'home', training: 'practice', culture: 'dojo' }[p.goal] || 'home';
+    showScreen(goalScreen);
+  } else {
+    showScreen('onboarding');
+    DojoOnboarding.init();
+  }
+});
+</script>
 </body>
 </html>

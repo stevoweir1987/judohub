@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Courtesy (Rei) - Dojo Master</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "on-tertiary-container": "#bdffdb",
+                        "surface-tint": "#0053db",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-container": "#5c647a",
+                        "background": "#f8f9ff",
+                        "tertiary-container": "#007d55",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "primary-container": "#2563eb",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed": "#131b2e",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-surface-variant": "#434655",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#00174b",
+                        "error-container": "#ffdad6",
+                        "secondary": "#565e74",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "outline": "#737686",
+                        "inverse-primary": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed": "#002113",
+                        "secondary-fixed": "#dae2fd",
+                        "tertiary": "#006242",
+                        "surface-bright": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kanji-glow {
+            text-shadow: 0 0 40px rgba(0, 74, 198, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 1);
+            border: 1px solid rgba(229, 238, 255, 0.5);
+        }
+        @keyframes subtle-float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: subtle-float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-4 py-3 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<button class="hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<h1 class="font-headline text-lg font-bold text-on-surface tracking-tight uppercase">DOJO MASTER</h1>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container rounded-full border border-primary/10">
+<span class="material-symbols-outlined text-primary text-[18px] font-bold">bolt</span>
+<span class="font-label text-sm font-bold text-primary">12 🔥</span>
+</div>
+</div>
+</header>
+<main class="pt-20 px-4 max-w-md mx-auto">
+<!-- Hero Section -->
+<section class="flex flex-col items-center py-12 text-center">
+<div class="relative mb-8 animate-float">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-3xl scale-150"></div>
+<div class="h-40 w-40 rounded-full border-[1px] border-primary/10 flex items-center justify-center relative">
+<span class="text-[80px] font-medium text-primary/30 kanji-glow select-none">礼</span>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="h-32 w-32 rounded-full border-[1px] border-primary/20"></div>
+</div>
+</div>
+</div>
+<p class="text-primary font-bold tracking-[0.15em] mb-2 uppercase text-xs">The Third Principle</p>
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface mb-4">COURTESY (REI)</h2>
+<div class="flex gap-2 mb-4">
+<span class="bg-tertiary text-on-tertiary px-4 py-1 rounded-full text-xs font-bold">ETHICAL</span>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full text-xs font-bold">INTERACTION</span>
+</div>
+</section>
+<!-- Content Stack -->
+<div class="flex flex-col gap-4 mb-12">
+<!-- Philosophy Card -->
+<div class="glass-card rounded-xl p-8 shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary font-bold">psychology</span>
+<h3 class="text-xl font-bold text-on-surface">Philosophy</h3>
+</div>
+<div class="space-y-6 text-on-surface-variant leading-relaxed text-[17px] font-body">
+<p>
+                        In the Dojo, <span class="font-bold text-primary">Rei</span> or Courtesy is not merely a polite greeting; it is the physical expression of a spiritual attitude. It signifies respect for one's self, one's opponent, and the path itself. Without courtesy, the martial arts descend into mere violence. 
+                    </p>
+<p>
+                        True courtesy is born of strength, not weakness. It is the ability to maintain one's composure and dignity while extending grace to others, regardless of their status or the circumstances of the encounter.
+                    </p>
+</div>
+</div>
+<!-- Sensei Quote -->
+<div class="bg-on-surface text-surface rounded-xl p-8 flex flex-col justify-center relative overflow-hidden">
+<div class="absolute -top-4 -right-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]">format_quote</span>
+</div>
+<p class="italic text-lg mb-6 relative z-10 leading-relaxed font-medium">
+                    "A martial artist is measured not by how many opponents they can defeat, but by the sincerity of their bow."
+                </p>
+<div class="relative z-10">
+<p class="font-bold text-surface">Sensei Hiroshi Nakamura</p>
+<p class="text-outline-variant text-xs uppercase tracking-widest mt-1">Master of the Open Mind</p>
+</div>
+</div>
+<!-- Practical Applications -->
+<div class="glass-card rounded-xl p-8 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary font-bold">verified</span>
+<h3 class="text-xl font-bold text-on-surface">Practical Applications</h3>
+</div>
+<div class="flex flex-col gap-6">
+<div class="p-5 rounded-lg border border-outline-variant/40">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-xl">groups</span>
+</div>
+<h4 class="font-bold mb-2">Social Awareness</h4>
+<p class="text-[15px] text-on-surface-variant leading-snug">Practicing active listening and validating others' perspectives before responding.</p>
+</div>
+<div class="p-5 rounded-lg border border-outline-variant/40">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-xl">front_hand</span>
+</div>
+<h4 class="font-bold mb-2">Conflict De-escalation</h4>
+<p class="text-[15px] text-on-surface-variant leading-snug">Using soft power and respectful language to neutralize aggressive verbal energy.</p>
+</div>
+<div class="p-5 rounded-lg border border-outline-variant/40">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/50 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-xl">self_improvement</span>
+</div>
+<h4 class="font-bold mb-2">Internal Respect</h4>
+<p class="text-[15px] text-on-surface-variant leading-snug">Maintaining self-discipline in speech and thought, even when alone or unobserved.</p>
+</div>
+</div>
+</div>
+<!-- Visual Context Image -->
+<div class="rounded-xl overflow-hidden relative h-[300px]">
+<img alt="Dojo atmosphere" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhrqTK2U0haqa0NlE8NyUlHaX6jMHn0QOYIeP_VTREO2we0yxId-103f0TVd-moYM5gHscg63DEXOSNjKcQpP-QFOjdvbMIYv7t6OEq1lY_ctUSVvx9yh0MCAWKwcuMpWHhs7Fz5h63oiTmZvFxHfwALbYRwyLNgPu82YmDgQwmnUiaWclBdUuruuzzQBSwdjQW9p6WY4EkslnGxXFo6MpeR4mDuYmtj3hQXa1EQaQgKS8VwDWL-Bh45b6mIfNJkPp4jEscSPB-B8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/90 via-on-surface/20 to-transparent flex flex-col justify-end p-8">
+<p class="text-surface font-body text-lg italic leading-relaxed">"Respect starts where the ego ends."</p>
+</div>
+</div>
+</div>
+<!-- Mastery Action -->
+<div class="flex flex-col items-center mb-24">
+<button class="w-full bg-primary text-on-primary font-bold py-5 rounded-xl shadow-lg hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined font-bold">award_star</span>
+                Mark Principle as Mastered
+            </button>
+<p class="mt-4 text-outline text-sm font-medium">Completing this unlocks the 'Honor' module</p>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 bg-background border-t border-outline-variant/30">
+<div class="flex justify-around items-center w-full px-2 py-3 pb-safe">
+<!-- Study -->
+<a class="flex flex-col items-center justify-center text-outline px-4 py-2 hover:bg-surface-container rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">book</span>
+<span class="font-label text-xs font-semibold">Study</span>
+</a>
+<!-- Practice -->
+<a class="flex flex-col items-center justify-center text-outline px-4 py-2 hover:bg-surface-container rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">target</span>
+<span class="font-label text-xs font-semibold">Practice</span>
+</a>
+<!-- Dojo (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-2xl px-6 py-2 shadow-md shadow-primary/20" href="#">
+<span class="material-symbols-outlined mb-0.5" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-label text-xs font-bold">Dojo</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-outline px-4 py-2 hover:bg-surface-container rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label text-xs font-semibold">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

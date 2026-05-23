@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dojo Master - The Sanctuary of Focus</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "on-tertiary-container": "#bdffdb",
+                        "surface-tint": "#0053db",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-container": "#5c647a",
+                        "background": "#f8f9ff",
+                        "tertiary-container": "#007d55",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "primary-container": "#2563eb",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed": "#131b2e",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-surface-variant": "#434655",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#00174b",
+                        "error-container": "#ffdad6",
+                        "secondary": "#565e74",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "outline": "#737686",
+                        "inverse-primary": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed": "#002113",
+                        "secondary-fixed": "#dae2fd",
+                        "tertiary": "#006242",
+                        "surface-bright": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8f9ff;
+            color: #0b1c30;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-overlay {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 20px -4px rgba(0, 74, 198, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-28">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-4 py-4 w-full max-w-xl mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">bolt</span>
+<h1 class="text-xl font-extrabold text-on-surface tracking-tight uppercase">DOJO MASTER</h1>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full shadow-sm">
+<span class="text-sm font-bold text-primary">12</span>
+<span class="text-sm">🔥</span>
+</div>
+</div>
+</header>
+<main class="pt-24 px-4 max-w-xl mx-auto space-y-8">
+<!-- Welcoming Header -->
+<section class="text-center space-y-3 px-4">
+<h2 class="text-4xl font-extrabold text-on-surface tracking-tight leading-[1.1]">
+                The Sanctuary of Focus
+            </h2>
+<p class="text-[17px] text-on-surface-variant leading-relaxed font-medium opacity-70">
+                Step away from the noise. This is your space for deep contemplation, mastery of principles, and the study of the ancient way.
+            </p>
+</section>
+<!-- Featured Card (Origins) -->
+<section class="relative h-[280px] rounded-2xl overflow-hidden group shadow-lg">
+<img alt="Judo Origins" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrW5UD0Hb3guN-78mazUFfindxeJPCCwcOTrMUKSsXDt_K5qwGiiKpZV4V5wfrtZfhLEaRZ92w3ixOWWi8QkEpxOxTX6ohqS9WGFknJKmKrtc5duzr00AjGfA13mQhZ6rrX0xtsh6ZGxd4SaHEgh_HapFCmSRWxSaHp6yCePbBdSCqwAELn_IZzFxI7l9hlMok1CuQvSuxHjGj6komMjNOkUINfZyDC_J_hYtX5W-aoW6Xvb-uKwR5e3lGom7QOjFUIdqNNmP7zQA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 space-y-3">
+<h3 class="text-3xl font-bold text-white tracking-tight leading-none">Origins &amp; Evolution</h3>
+<p class="text-white/80 text-sm font-medium max-w-[280px]">
+                    Explore the transformation from ancient Ju-Jutsu to the Olympic modern sport founded by Kano Jigoro.
+                </p>
+<button class="w-fit px-8 py-3 bg-primary text-white rounded-lg font-bold text-sm shadow-xl active:scale-95 transition-all">
+                    Enter History
+                </button>
+</div>
+</section>
+<!-- Glossary Section -->
+<section class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/30 space-y-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">translate</span>
+</div>
+<h3 class="text-xl font-bold text-on-surface">Glossary</h3>
+</div>
+<div class="space-y-3">
+<div class="p-4 bg-white rounded-xl shadow-soft">
+<p class="font-bold text-primary">Rei (礼)</p>
+<p class="text-sm text-on-surface-variant font-medium mt-1">The bow; a sign of respect and courtesy.</p>
+</div>
+<div class="p-4 bg-white rounded-xl shadow-soft">
+<p class="font-bold text-primary">Ukemi (受身)</p>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Breakfall; the art of receiving a throw safely.</p>
+</div>
+<div class="p-4 bg-white rounded-xl shadow-soft">
+<p class="font-bold text-primary">Randori (乱取り)</p>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Free practice or sparring.</p>
+</div>
+</div>
+<button class="flex items-center gap-1.5 text-primary font-bold text-sm">
+                View All Terms 
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+</section>
+<!-- Moral Code Section -->
+<section class="bg-on-background rounded-2xl p-8 text-white space-y-8">
+<div class="text-center space-y-2">
+<h3 class="text-3xl font-bold tracking-tight">The Moral Code</h3>
+<p class="text-white/60 text-sm font-medium">The eight pillars that define a true Judoka.</p>
+</div>
+<button class="w-full py-4 bg-white/5 border border-white/20 rounded-xl font-bold text-sm hover:bg-white/10 transition-colors">
+                Study Principles
+            </button>
+<div class="grid grid-cols-2 gap-y-10">
+<!-- Grid Items -->
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">1</div>
+<span class="text-sm font-medium text-white/80">Courage</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">2</div>
+<span class="text-sm font-medium text-white/80">Respect</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">3</div>
+<span class="text-sm font-medium text-white/80">Modesty</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">4</div>
+<span class="text-sm font-medium text-white/80">Honesty</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">5</div>
+<span class="text-sm font-medium text-white/80">Friendship</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">6</div>
+<span class="text-sm font-medium text-white/80">Self-Control</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">7</div>
+<span class="text-sm font-medium text-white/80">Honor</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-sm font-bold bg-white/5">8</div>
+<span class="text-sm font-medium text-white/80">Courtesy</span>
+</div>
+</div>
+</section>
+<!-- Kata Card -->
+<section class="flex bg-white rounded-2xl overflow-hidden border border-outline-variant/30 h-60 shadow-soft">
+<div class="w-[35%] shrink-0">
+<img alt="Kata Focus" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkhl0eyfRNs19Dlbn5MxVAjdaCeajwDJnJKiTAZVkCGh0Ehf0nWmiIjKTcC4XRZDbw4ealJk9oSzpbtkxBH2QYaI3IblRCuMkVdIeP9bV-l5VXp9xS54xeF7gzZpxJuVZaFcsQISAypU1_d3C8ZKW4czaOo9z8nvQ3Fnux9yv8Cd2Vn9wPaQgdfmLP8xZ7jLOtp0I2UFA2WhVg-d9f8dua4vX2JF9JyArMAPnmXGIi564_DJ_2v55l1h6T11Iz4GnEQq8d1MvZeJo"/>
+</div>
+<div class="flex-1 p-6 flex flex-col justify-center gap-3">
+<h4 class="text-xl font-bold text-on-surface leading-tight">Kata: Formal Forms</h4>
+<p class="text-sm text-on-surface-variant font-medium leading-relaxed">
+                    Learn the pre-arranged patterns of movement that preserve the soul of Judo.
+                </p>
+<button class="flex items-center gap-1.5 text-primary font-bold text-sm mt-1">
+                    Discover Kata
+                    <span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Etiquette Card -->
+<section class="bg-tertiary-container/5 rounded-2xl p-6 border border-tertiary-container/10 flex flex-col items-center text-center gap-4">
+<div class="w-16 h-16 rounded-full bg-tertiary-container/10 flex items-center justify-center border border-tertiary-container/20">
+<span class="material-symbols-outlined text-tertiary text-3xl">shield</span>
+</div>
+<div class="space-y-1">
+<h4 class="text-lg font-bold text-tertiary">Dojo Etiquette</h4>
+<p class="text-sm text-on-surface-variant font-medium leading-relaxed">
+                    The unwritten rules of the mat. Essential for every practitioner's conduct.
+                </p>
+</div>
+<button class="text-tertiary font-bold text-sm underline underline-offset-4 decoration-2">
+                Read Guidelines
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-white border-t border-outline-variant/30 pb-safe shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+<div class="flex justify-around items-center w-full max-w-xl mx-auto px-4 py-3">
+<!-- Study -->
+<a class="flex flex-col items-center gap-1 text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-[26px]">book</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Study</span>
+</a>
+<!-- Practice -->
+<a class="flex flex-col items-center gap-1 text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-[26px]">radio_button_checked</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Practice</span>
+</a>
+<!-- Dojo (ACTIVE) -->
+<a class="flex flex-col items-center gap-1 bg-primary text-white rounded-xl px-6 py-2 shadow-lg shadow-primary/20 active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Dojo</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center gap-1 text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-[26px]">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</div>
+</nav>
+<script>
+        // Smooth entrance animations for cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-0', 'translate-y-8');
+            observer.observe(section);
+        });
+    </script>
+</body></html>

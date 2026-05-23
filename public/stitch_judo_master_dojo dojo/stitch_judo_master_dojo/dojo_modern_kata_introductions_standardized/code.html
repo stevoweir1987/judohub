@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kata Introductions | DOJO MASTER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #131313;
+            background-image: 
+                linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255,255,255,0.02) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.02) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.02) 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .tactile-button {
+            transition: all 0.1s ease-out;
+        }
+
+        .tactile-button:active {
+            transform: translateY(2px);
+            box-shadow: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ac8888;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "primary": "#ffb3b3",
+                "secondary-fixed": "#d9e2ff",
+                "on-tertiary-fixed-variant": "#005047",
+                "inverse-primary": "#bf0030",
+                "primary-container": "#ff5262",
+                "surface-bright": "#393939",
+                "tertiary": "#71d8c6",
+                "outline": "#ac8888",
+                "inverse-on-surface": "#313030",
+                "on-surface-variant": "#e5bdbd",
+                "surface-variant": "#353534",
+                "surface-dim": "#131313",
+                "secondary-container": "#0068ed",
+                "tertiary-container": "#33a191",
+                "on-error-container": "#ffdad6",
+                "primary-fixed-dim": "#ffb3b3",
+                "on-tertiary-fixed": "#00201c",
+                "outline-variant": "#5c3f40",
+                "on-secondary-container": "#f2f3ff",
+                "error": "#ffb4ab",
+                "error-container": "#93000a",
+                "on-tertiary": "#003730",
+                "on-error": "#690005",
+                "on-primary-fixed": "#40000a",
+                "background": "#131313",
+                "secondary-fixed-dim": "#b0c6ff",
+                "primary-fixed": "#ffdad9",
+                "on-secondary": "#002d6e",
+                "surface-container": "#201f1f",
+                "on-tertiary-container": "#00302a",
+                "surface-container-low": "#1c1b1b",
+                "on-surface": "#e5e2e1",
+                "surface": "#131313",
+                "tertiary-fixed-dim": "#71d8c6",
+                "surface-container-lowest": "#0e0e0e",
+                "secondary": "#b0c6ff",
+                "on-secondary-fixed-variant": "#00429b",
+                "on-primary-fixed-variant": "#920022",
+                "on-primary-container": "#5b0012",
+                "on-primary": "#680016",
+                "surface-tint": "#ffb3b3",
+                "surface-container-highest": "#353534",
+                "on-background": "#e5e2e1",
+                "on-secondary-fixed": "#001945",
+                "tertiary-fixed": "#8ef5e2",
+                "surface-container-high": "#2a2a2a",
+                "inverse-surface": "#e5e2e1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "unit": "8px",
+                "margin-mobile": "20px",
+                "gutter": "16px",
+                "max-width": "1200px",
+                "margin-desktop": "64px"
+        },
+        "fontFamily": {
+                "display-lg": ["Plus Jakarta Sans"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"],
+                "body-md": ["Plus Jakarta Sans"],
+                "body-lg": ["Plus Jakarta Sans"],
+                "title-md": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "label-caps": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}]
+        }
+      },
+    },
+  }
+</script>
+</head>
+<body class="text-on-background min-h-screen pb-32">
+<!-- TopAppBar (Standardized HUD) -->
+<header class="w-full top-0 sticky z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-3"><a class="mr-2 p-1 hover:bg-surface-container-highest rounded-full transition-colors flex items-center justify-center" href="#">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</a>
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">temple_buddhist</span>
+<h1 class="font-display-lg text-title-md text-primary tracking-tighter uppercase">DOJO MASTER</h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-highest px-3 py-1 rounded-full border border-outline-variant flex items-center gap-2">
+<span class="text-sm font-bold flex items-center gap-1">12 <span class="text-orange-500">🔥</span></span>
+<span class="w-[1px] h-3 bg-outline-variant"></span>
+<span class="text-sm font-bold flex items-center gap-1">5/5 <span class="text-red-500">❤️</span></span>
+</div>
+</div>
+</header>
+<main class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop mt-8">
+<!-- Hero Section -->
+<section class="mb-12 relative overflow-hidden rounded-xl bg-surface-container-high p-8 border border-outline-variant">
+<div class="relative z-10 md:w-2/3">
+<span class="font-label-caps text-label-caps text-tertiary mb-2 block">TRADITION &amp; MASTERY</span>
+<h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg mb-4 text-on-surface">Kata Library</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+                Kata are pre-arranged patterns of techniques that embody the fundamental principles of Judo. They are the grammar of our martial art, preserving the efficiency and harmony of Jigoro Kano's vision.
+            </p>
+<div class="flex flex-wrap gap-4">
+<div class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+<span class="font-label-caps text-label-caps text-on-surface">7 FORMAL KATA</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-tertiary">verified</span>
+<span class="font-label-caps text-label-caps text-on-surface">KODOKAN CERTIFIED</span>
+</div>
+</div>
+</div>
+<!-- Atmospheric background element -->
+<div class="absolute right-[-40px] top-[-20px] opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'wght' 100;">temple_buddhist</span>
+</div>
+</section>
+<!-- Purpose Section (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="md:col-span-2 bg-surface-container-low p-6 rounded-xl border-l-4 border-primary shadow-[4px_0_0_0_#920022]">
+<h3 class="font-title-md text-title-md text-on-surface mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined">lightbulb</span>
+                The Purpose of Kata
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                While Randori (free practice) focuses on application, Kata focuses on the "perfect form." It allows practitioners to study high-level techniques safely, including those too dangerous for competition, ensuring the full technical spectrum of Judo is never lost.
+            </p>
+</div>
+<div class="bg-primary-container p-6 rounded-xl border border-outline-variant flex flex-col justify-between">
+<div>
+<h3 class="font-title-md text-title-md text-on-primary-container mb-2">Sensei's Tip</h3>
+<p class="font-body-md text-body-md text-on-primary-container opacity-90 italic text-lg leading-snug">
+                    "Kata is not just a performance; it is a live conversation between Tori and Uke."
+                </p>
+</div>
+<span class="material-symbols-outlined text-on-primary-container self-end text-4xl opacity-50">format_quote</span>
+</div>
+</div>
+<!-- Kata Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+<!-- Nage-no-kata Card -->
+<div class="group flex flex-col bg-surface-container-high rounded-xl border border-outline-variant overflow-hidden hover:border-primary transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img alt="Nage-no-kata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz8_TAT1FEVSlHEzDKaJRsz3jdPRAZW6D3On-okBI0zgGAM7p_aSGxeHf5p7-STZF05KxVHLEfvWDf_6opj4pItsoR0fNqr49MJ1sYd2rqJ5HCQ3rWFhdVI1b_6wRemtNWECAVW_vxcRFpdyL2oqKRbDVv9Od7v9WpRUZF0TRJRwzuvhVNJ-6-ViGaQcEJkE3i-cPFNJkC-vvGEF_qE3NdSnvc3bvtyWmG-vjpn-NItYasQf9LKoen0rkdQ5BkrZURB3X5u1MPh9Y"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-transparent to-transparent"></div>
+<div class="absolute top-4 right-4 bg-primary text-on-primary font-label-caps text-[10px] px-2 py-1 rounded shadow-[0_2px_0_0_#920022]">
+                    LEVEL: INTERMEDIATE
+                </div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Nage-no-kata</h4>
+<span class="font-label-caps text-label-caps text-outline">Forms of Throwing</span>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl">sports_martial_arts</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 flex-grow">
+                    Comprising 15 fundamental throwing techniques, this Kata is divided into five sets: Te-waza, Koshi-waza, Ashi-waza, Ma-sutemi-waza, and Yoko-sutemi-waza.
+                </p>
+<button class="tactile-button w-full bg-primary-container text-on-primary-container font-title-md text-title-md py-4 rounded-xl shadow-[0_4px_0_0_#920022] hover:brightness-110 active:shadow-none active:translate-y-1 transition-all flex justify-center items-center gap-2">
+<span class="">Learn the Form</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Katame-no-kata Card -->
+<div class="group flex flex-col bg-surface-container-high rounded-xl border border-outline-variant overflow-hidden hover:border-tertiary transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img alt="Katame-no-kata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlBNh0D42ar49_2zOrbwnbTW16hmFQdNANFu00kTM7gMLH6NnV_z2Mk0I7ltCQDCIEG6SUFmi_VjcWlz-DPW1zYa4jVc_H5E8eLXNOEWLPhLXR8y3hn1_AYI5t1fTyUYcfqSeZpoG1-ERLNizq9-0nr-jbzaVCSBQxC_uglW_DGBlqJKf9VS26RLXWGOCURUU-sbR28LwOodIjBGLTqpnoE2cDHGrUTPCOmHGToIHuO41eLKjWa913LoO3kxp-YlKo70rsRjO_VHI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-transparent to-transparent"></div>
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary font-label-caps text-[10px] px-2 py-1 rounded shadow-[0_2px_0_0_#005047]">
+                    LEVEL: ADVANCED
+                </div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Katame-no-kata</h4>
+<span class="font-label-caps text-label-caps text-outline">Forms of Grappling</span>
+</div>
+<span class="material-symbols-outlined text-tertiary text-3xl">hub</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 flex-grow">
+                    Focuses on the three pillars of Newaza: Osaekomi-waza (pins), Shime-waza (strangles), and Kansetsu-waza (joint locks). A masterclass in control and pressure.
+                </p>
+<button class="tactile-button w-full bg-tertiary-container text-on-tertiary-container font-title-md text-title-md py-4 rounded-xl shadow-[0_4px_0_0_#005047] hover:brightness-110 active:shadow-none active:translate-y-1 transition-all flex justify-center items-center gap-2">
+<span class="">Learn the Form</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Ju-no-kata Card (Asymmetric) -->
+<div class="lg:col-span-2 group flex flex-col md:flex-row bg-surface-container-high rounded-xl border border-outline-variant overflow-hidden hover:border-on-surface-variant transition-all duration-300">
+<div class="relative md:w-1/2 h-64 md:h-auto overflow-hidden">
+<img alt="Ju-no-kata" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh5tS3cWQpIckxi0spYE7iFX_bXKE5tXjurQfBdm1spTes5GgLiOQKCwYAQ8pxHMJKXnT4y4amwIKOgplRX1TXBxzdTKEo5NMY_qUDUr6dJU8z2DlULld-AnIpjGXlpMXYjcHRuzKY76ZTszzKWgKW22rq74rkXv3QtlnX5xqONOfDdDbZ_aRaRKaYDAo92L60Awgyq0OEZGgeVGEZBAM3NIo4FrUHJiz9sXj48GONfg3dvhKOMNyCUyJBYQfH42nid4I0INtEwlI"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface-container-high/80 to-transparent hidden md:block"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-transparent to-transparent md:hidden"></div>
+</div>
+<div class="p-8 md:w-1/2 flex flex-col justify-center relative bg-surface-container-high">
+<div class="mb-6">
+<span class="font-label-caps text-label-caps text-secondary">YIELDING &amp; HARMONY</span>
+<h4 class="font-headline-lg text-headline-lg text-on-surface mt-2">Ju-no-kata</h4>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8">
+                    The "Forms of Gentleness." Unlike others, this is performed without throwing, emphasizing the principle of 'Ju' (yielding) to an opponent's force to gain victory.
+                </p>
+<div class="flex gap-4">
+<button class="tactile-button flex-1 bg-surface-container-highest text-on-surface font-title-md text-title-md py-3 rounded-lg border border-outline-variant shadow-[0_4px_0_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-y-1">
+                        Details
+                    </button>
+<button class="tactile-button flex-[2] bg-on-background text-surface font-title-md text-title-md py-3 rounded-lg shadow-[0_4px_0_0_#313030] active:shadow-none active:translate-y-1">
+                        Start Session
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Progress Tracking -->
+<section class="mt-16 mb-8 bg-surface-container-low p-8 rounded-2xl border-2 border-dashed border-outline-variant text-center">
+<span class="material-symbols-outlined text-outline text-5xl mb-4">analytics</span>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Mastery Progress</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 max-w-md mx-auto">
+            Complete all 7 formal Kodokan Kata to earn the 'Scroll Keeper' achievement and unlock the advanced Dan-grade syllabus.
+        </p>
+<div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden max-w-xl mx-auto mb-2">
+<div class="h-full bg-gradient-to-r from-tertiary to-secondary" style="width: 28.5%;"></div>
+</div>
+<span class="font-label-caps text-label-caps text-outline">2 / 7 Kata Completed</span>
+</section>
+</main>
+<!-- BottomNavBar (Standardized Dojo Active) -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe bg-surface/90 backdrop-blur-md z-50 border-t border-outline-variant">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-[10px] mt-1">Study</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-all" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-caps text-[10px] mt-1">Practice</span>
+</a>
+<!-- Selected 'Dojo' Tab -->
+<a class="flex flex-col items-center justify-center relative" href="#">
+<div class="bg-primary-container text-on-primary-container rounded-xl px-6 py-2 shadow-[0_4px_0_0_#920022] flex flex-col items-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">temple_buddhist</span>
+<span class="font-label-caps text-[10px] mt-1 font-bold">Dojo</span>
+</div>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-[10px] mt-1">Profile</span>
+</a>
+</nav>
+<script>
+    // Micro-interactions for tactile feel
+    document.querySelectorAll('.tactile-button').forEach(button => {
+        button.addEventListener('touchstart', function() {
+            this.style.transform = 'translateY(2px)';
+            this.style.boxShadow = 'none';
+        });
+        button.addEventListener('touchend', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const heroIcon = document.querySelector('.absolute.opacity-10 span');
+        if (heroIcon) {
+            heroIcon.style.transform = `translateY(${scrolled * 0.1}px) rotate(${scrolled * 0.02}deg)`;
+        }
+    });
+</script>
+</body></html>

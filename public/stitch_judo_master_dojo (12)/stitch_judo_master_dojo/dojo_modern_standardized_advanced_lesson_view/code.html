@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dojo Master - Lesson View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #131313;
+        }
+        /* Tatami Texture Overlay */
+        .tatami-texture {
+            background-image: 
+                linear-gradient(45deg, rgba(255, 255, 255, 0.01) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255, 255, 255, 0.01) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.01) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.01) 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px 20px, 20px 0;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5c3f40;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#ffb3b3",
+                        "on-primary": "#680016",
+                        "primary-container": "#ff5262",
+                        "on-primary-container": "#5b0012",
+                        "secondary": "#b0c6ff",
+                        "on-secondary": "#002d6e",
+                        "secondary-container": "#0068ed",
+                        "on-secondary-container": "#f2f3ff",
+                        "tertiary": "#71d8c6",
+                        "on-tertiary": "#003730",
+                        "tertiary-container": "#33a191",
+                        "on-tertiary-container": "#00302a",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-background": "#e5e2e1",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-surface-variant": "#e5bdbd",
+                        "outline": "#ac8888",
+                        "outline-variant": "#5c3f40",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container": "#201f1f",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-highest": "#353534"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "max-width": "1200px",
+                        "margin-mobile": "20px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface tatami-texture min-h-screen flex flex-col">
+<!-- TopAppBar: Standardized -->
+<header class="fixed top-0 left-0 w-full z-50 pt-4 pb-2 bg-background/95 backdrop-blur-sm">
+<div class="flex flex-col gap-2 w-full max-w-screen-xl mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-xl">devices</span>
+<span class="">Dojo Floor: Home Path</span>
+</div>
+<div class="flex justify-between items-center bg-surface-container-high border border-outline-variant rounded-lg px-4 h-12 shadow-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl fill-icon">bolt</span>
+<h1 class="font-display text-[16px] text-on-surface-variant tracking-wider uppercase font-extrabold">DOJO MASTER</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3">
+<!-- Hearts -->
+<div class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-sm fill-icon">favorite</span>
+<span class="font-label-caps text-on-surface-variant">5/5</span>
+</div>
+<!-- Streak -->
+<div class="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant">
+<span class="material-symbols-outlined text-tertiary text-sm fill-icon">local_fire_department</span>
+<span class="font-label-caps text-on-surface-variant">5</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-32 pb-32 px-margin-mobile md:px-margin-desktop max-w-screen-xl mx-auto w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Technique Illustration Area -->
+<section class="lg:col-span-7 flex flex-col gap-6">
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+<div class="relative bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden shadow-2xl">
+<div class="aspect-video w-full bg-black relative flex items-center justify-center overflow-hidden">
+<img alt="Osoto Gari Technique Video" class="w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtc_znv6J7CfculwhyTLYIlmtzJJWtmp6dqVMaNfI7J1Rp0PY7MvLRu4a43I5y9FWypBScjDh5U6HwzSCI_pd07XLikh7X2GAuk2ykX_BujSlMgHI1JBDDW0Bk8fKqRbjXiYW-kJowq6KcLyJhIBjjWzf30TQKlCHgHPvT-03r2R0LapppGps35bFDrsD6UW-caz5mB-Zqt4cNwG-tDHZqIIe7-Fy3xxr3_nNkK_UGEJRWq6M9xIqpUJL1guiGHREmqeNsAqubOXA"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<div class="w-20 h-20 bg-primary/30 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-primary/60 cursor-pointer hover:scale-110 transition-transform shadow-[0_0_40px_rgba(255,179,179,0.4)]">
+<span class="material-symbols-outlined text-primary text-5xl fill-icon">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+<div class="w-full h-1.5 bg-white/20 rounded-full mb-3 cursor-pointer group/progress">
+<div class="h-full w-[65%] bg-primary rounded-full relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full shadow-[0_0_10px_rgba(255,179,179,0.8)] scale-0 group-hover/progress:scale-100 transition-transform"></div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary transition-colors">play_arrow</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary transition-colors">volume_up</span>
+<span class="font-label-caps text-[12px] text-white/90">03:42 / 08:15</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1 opacity-90">
+<span class="material-symbols-outlined text-[#FF0000] text-xl fill-icon">smart_display</span>
+<span class="font-bold text-[11px] text-white tracking-tighter">YouTube</span>
+</div>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary transition-colors">fullscreen</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<section class="mt-6 flex flex-col gap-4">
+<h3 class="font-title-md text-title-md text-on-surface">Technical Breakdown</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-surface-container border border-outline-variant p-5 rounded-xl hover:border-primary/50 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary mb-3 block text-3xl group-hover:scale-110 transition-transform">front_hand</span>
+<h4 class="font-title-md text-[16px] mb-1">Leg Power</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Generating explosive force from the base leg.</p>
+</div>
+<div class="bg-surface-container border border-outline-variant p-5 rounded-xl hover:border-tertiary/50 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-tertiary mb-3 block text-3xl group-hover:scale-110 transition-transform">balance</span>
+<h4 class="font-title-md text-[16px] mb-1">Off-balance</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Breaking balance to the rear corner (Kuzushi).</p>
+</div>
+<div class="bg-surface-container border border-outline-variant p-5 rounded-xl hover:border-secondary/50 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-secondary mb-3 block text-3xl group-hover:scale-110 transition-transform">trending_up</span>
+<h4 class="font-title-md text-[16px] mb-1">Execution</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">The sweeping arc of the reaping leg.</p>
+</div>
+</div>
+</section>
+</section>
+<!-- Interaction Area -->
+<section class="lg:col-span-5 flex flex-col gap-6">
+<div class="bg-surface-container-low border border-outline-variant p-6 rounded-xl">
+<h3 class="font-title-md text-title-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-error">warning</span> Common Mistakes
+                </h3>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-error text-[20px] shrink-0">cancel</span>
+<div class="flex flex-col">
+<span class="font-title-md text-[16px] text-on-surface">Stepping too far</span>
+<p class="text-on-surface-variant text-sm">Loss of power if the supporting leg is misplaced.</p>
+</div>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-error text-[20px] shrink-0">cancel</span>
+<div class="flex flex-col">
+<span class="font-title-md text-[16px] text-on-surface">Losing chest contact</span>
+<p class="text-on-surface-variant text-sm">Allows the opponent to regain balance mid-throw.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="bg-surface-container border border-outline-variant p-8 rounded-xl relative overflow-hidden">
+<span class="material-symbols-outlined absolute -bottom-10 -right-10 text-[180px] text-white/[0.03] pointer-events-none">quiz</span>
+<div class="mb-8">
+<span class="font-label-caps text-primary tracking-widest uppercase">Knowledge Check</span>
+<h3 class="font-headline-lg text-headline-lg mt-2">What type of technique is Osoto Gari?</h3>
+</div>
+<div class="flex flex-col gap-4" id="quiz-options">
+<label class="group cursor-pointer">
+<input class="hidden peer" name="technique" type="radio" value="ashi"/>
+<div class="flex items-center justify-between p-5 bg-surface-container-low border-2 border-outline-variant rounded-xl peer-checked:border-primary peer-checked:bg-primary/10 transition-all duration-200 hover:bg-surface-container-highest">
+<span class="font-body-lg text-body-lg group-hover:text-primary transition-colors">Ashiwaza (Foot)</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-all">
+<span class="material-symbols-outlined text-[16px] text-on-primary scale-0 peer-checked:scale-100 transition-transform">check</span>
+</div>
+</div>
+</label>
+<label class="group cursor-pointer">
+<input class="hidden peer" name="technique" type="radio" value="te"/>
+<div class="flex items-center justify-between p-5 bg-surface-container-low border-2 border-outline-variant rounded-xl peer-checked:border-primary peer-checked:bg-primary/10 transition-all duration-200 hover:bg-surface-container-highest">
+<span class="font-body-lg text-body-lg group-hover:text-primary transition-colors">Te-waza (Hand)</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-all">
+<span class="material-symbols-outlined text-[16px] text-on-primary scale-0 peer-checked:scale-100 transition-transform">check</span>
+</div>
+</div>
+</label>
+<label class="group cursor-pointer">
+<input class="hidden peer" name="technique" type="radio" value="koshi"/>
+<div class="flex items-center justify-between p-5 bg-surface-container-low border-2 border-outline-variant rounded-xl peer-checked:border-primary peer-checked:bg-primary/10 transition-all duration-200 hover:bg-surface-container-highest">
+<span class="font-body-lg text-body-lg group-hover:text-primary transition-colors">Koshi-waza (Hip)</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-all">
+<span class="material-symbols-outlined text-[16px] text-on-primary scale-0 peer-checked:scale-100 transition-transform">check</span>
+</div>
+</div>
+</label>
+</div>
+<div class="mt-10">
+<button class="w-full bg-primary-container text-on-primary-container font-headline-lg py-5 rounded-xl border-b-[6px] border-on-primary-container/40 active:border-b-0 active:translate-y-[6px] transition-all flex items-center justify-center gap-3" id="check-btn">
+<span class="material-symbols-outlined">done_all</span>
+                        CHECK
+                    </button>
+</div>
+</div>
+<!-- Sensei's Tip -->
+<div class="flex items-start gap-4 p-4 bg-surface-container-low/50 border-l-4 border-tertiary rounded-r-lg">
+<span class="material-symbols-outlined text-tertiary mt-0.5">info</span>
+<div>
+<p class="font-label-caps text-tertiary mb-1">Sensei's Tip</p>
+<p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Focus on the 'reaping' action of the leg. The power comes from the driving leg and the synchronized pull of the lapel.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation: Standardized -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-center px-4 pb-4">
+<div class="flex justify-around items-center w-full max-w-md mx-auto h-16 bg-surface-container-highest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl px-2">
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-lg w-16 h-12" href="#">
+<span class="material-symbols-outlined text-[20px] fill-icon">school</span>
+<span class="font-label-caps text-[10px] uppercase">Learn</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-12 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">fitness_center</span>
+<span class="font-label-caps text-[10px] uppercase">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-12 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">temple_buddhist</span>
+<span class="font-label-caps text-[10px] uppercase">Dojo</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-12 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">person</span>
+<span class="font-label-caps text-[10px] uppercase">Profile</span>
+</a>
+</div>
+</nav>
+<script>
+    const checkBtn = document.getElementById('check-btn');
+    const options = document.querySelectorAll('input[name="technique"]');
+    
+    checkBtn.addEventListener('click', () => {
+        let selected = false;
+        options.forEach(opt => {
+            if(opt.checked) {
+                selected = true;
+                const container = opt.closest('label').querySelector('div');
+                if(opt.value === 'ashi') {
+                    container.classList.remove('peer-checked:border-primary', 'peer-checked:bg-primary/10');
+                    container.classList.add('border-tertiary', 'bg-tertiary/10');
+                    checkBtn.textContent = 'EXCELLENT';
+                    checkBtn.classList.replace('bg-primary-container', 'bg-tertiary-container');
+                    checkBtn.classList.replace('text-on-primary-container', 'text-on-tertiary-container');
+                    confetti();
+                } else {
+                    container.classList.add('border-error', 'bg-error/10');
+                    checkBtn.textContent = 'TRY AGAIN';
+                }
+            }
+        });
+        if(!selected) {
+            checkBtn.classList.add('animate-bounce');
+            setTimeout(() => checkBtn.classList.remove('animate-bounce'), 1000);
+        }
+    });
+
+    function confetti() {
+        const body = document.querySelector('body');
+        for(let i=0; i<30; i++) {
+            const drop = document.createElement('div');
+            drop.style.position = 'fixed';
+            drop.style.width = '4px';
+            drop.style.height = '4px';
+            drop.style.backgroundColor = '#71d8c6';
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.top = '-10px';
+            drop.style.zIndex = '100';
+            drop.style.borderRadius = '50%';
+            body.appendChild(drop);
+            
+            const anim = drop.animate([
+                { transform: 'translateY(0) rotate(0)', opacity: 1 },
+                { transform: `translateY(100vh) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+            ], {
+                duration: 1000 + Math.random() * 2000,
+                easing: 'cubic-bezier(0, .9, .57, 1)'
+            });
+            anim.onfinish = () => drop.remove();
+        }
+    }
+</script>
+</body></html>
