@@ -375,7 +375,7 @@ const DojoHome = (() => {
         + '<p style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">UP NEXT</p>'
         + '<p style="font-size:19px;font-weight:900;color:#fff;margin-bottom:2px">' + nextUpItem + '</p>'
         + '<p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:14px">' + _en + ' · ' + nextUpGroup + '</p>'
-        + '<button onclick="DojoHome.openBeltItem(' + JSON.stringify(belt.id) + ',' + JSON.stringify(nextUpItem) + ',' + JSON.stringify(nextUpGroup) + ',' + workIdx + ')"'
+        + '<button onclick=\'DojoHome.openBeltItem("' + belt.id + '","' + nextUpItem.replace(/"/g,'') + '","' + nextUpGroup.replace(/"/g,'') + '",' + workIdx + ')\''
         + ' style="background:#fff;color:' + accent.color + ';border:none;border-radius:12px;padding:12px 20px;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;width:100%;box-shadow:0 3px 0 rgba(0,0,0,0.15)">'
         + 'Train Now</button>'
         + '</div>';
