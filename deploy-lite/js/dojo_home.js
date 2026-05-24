@@ -142,162 +142,151 @@ const DojoHome = (() => {
     const liveDone  = mission.tasks.filter(t => t._liveDone).length;
     const allQDone  = liveDone >= mission.tasks.length && mission.tasks.length > 0;
 
-    // Greeting
-    const hour     = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    const dateStr  = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'short' });
-
-    const TASK_ICON  = { technique:'sports_kabaddi', knowledge:'menu_book', drill:'fitness_center' };
-    const TASK_LABEL = { technique:'Technique', knowledge:'Knowledge', drill:'Drill' };
-
     let html = '';
 
-    // ── Greeting ──────────────────────────────────────
+    // ── Status bar (date + streak + XP) ──────────────
+    const dateStr  = new Date().toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
     html += `
-      <div class="pt-1 pb-2">
-        <p class="text-on-surface-variant font-semibold text-sm">${greeting},</p>
-        <h2 class="font-extrabold text-on-surface leading-tight" style="font-size:26px">${firstName} 🥋</h2>
+      <div class="flex items-center justify-between pt-1 pb-3">
+        <span class="font-bold text-on-surface-variant" style="font-size:12px">${dateStr}</span>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1">
+            <span class="material-symbols-outlined ms-fill" style="font-size:15px;color:#f97316">local_fire_department</span>
+            <span class="font-black text-on-surface" style="font-size:13px">${streak}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="material-symbols-outlined ms-fill" style="font-size:15px;color:${accent.color}">bolt</span>
+            <span class="font-black text-on-surface" style="font-size:13px">${xp} XP</span>
+          </div>
+        </div>
       </div>`;
 
-    // ── Session mode picker ──────────────────────────
+    // ── Session mode state ───────────────────────────
     const SESSION_MODES = [
       { mins: 2,  label: '2 min',  tasks: 1 },
       { mins: 5,  label: '5 min',  tasks: 2 },
       { mins: 10, label: '10 min', tasks: 3 },
       { mins: 0,  label: 'Any',    tasks: 3 },
+      { mins: -1, label: 'Tired',  tasks: 1 },
     ];
-    // How many quest tasks to show given session mode
-    const taskLimit = SESSION_MODES.find(m => m.mins === _sessionMins)?.tasks ?? 3;
-    const visibleTasks = mission.tasks.slice(0, taskLimit);
-    const visibleDone  = visibleTasks.filter(t => t._liveDone).length;
+    const isTiredMode    = _sessionMins === -1;
+    const taskLimit      = SESSION_MODES.find(m => m.mins === _sessionMins)?.tasks ?? 3;
+    const visibleTasks   = mission.tasks.slice(0, taskLimit);
+    const visibleDone    = visibleTasks.filter(t => t._liveDone).length;
     const allVisibleDone = visibleTasks.length > 0 && visibleDone >= visibleTasks.length;
-
-    if (!allQDone) {
-      html += '<div class="flex gap-2 mb-1">';
-      SESSION_MODES.forEach(m => {
-        const active = m.mins === _sessionMins;
-        html += '<button onclick="DojoHome.setSessionMode(' + m.mins + ')"'
-          + ' style="flex:1;padding:6px 4px;border-radius:10px;border:1.5px solid '
-          + (active ? accent.color : '#e5eeff') + ';background:'
-          + (active ? accent.color : '#fff') + ';color:'
-          + (active ? '#fff' : '#93b4f0') + ';font-weight:700;font-size:11px;cursor:pointer;letter-spacing:0.03em">'
-          + m.label + '</button>';
-      });
-      html += '</div>';
-    }
-
-    // ── Daily Quest card ──────────────────────────────
-    // Use visible subset for XP totals when a session mode is active
-    const earnedXP = visibleDone * 50;
-    const totalQXP = visibleTasks.length * 50;
-    const qBg = allVisibleDone
-      ? 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)'
-      : 'linear-gradient(135deg,#ffffff 0%,#eff4ff 100%)';
-    const qBorder = allVisibleDone ? '#00624240' : accent.color + '40';
-
-    html += `
-      <div class="rounded-2xl overflow-hidden border-2" style="background:${qBg};border-color:${qBorder};box-shadow:0 4px 16px rgba(0,74,198,0.08)">
-        <!-- Header row -->
-        <div class="flex items-center justify-between px-4 pt-4 pb-2">
-          <div>
-            <p class="font-extrabold uppercase tracking-widest mb-0.5" style="font-size:9px;color:${allVisibleDone?'#006242':accent.color}">
-              ${allVisibleDone ? '✓ QUEST COMPLETE' : '⚡ DAILY QUEST'}
-            </p>
-            <p class="font-bold text-on-surface" style="font-size:13px">${dateStr}</p>
-          </div>
-          <div class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl" style="background:${allVisibleDone?'rgba(0,98,66,0.1)':accent.color+'14'}">
-            <span class="material-symbols-outlined ms-fill" style="font-size:13px;color:${allQDone?'#006242':accent.color}">bolt</span>
-            <span class="font-black" style="font-size:12px;color:${allVisibleDone?'#006242':accent.color}">${earnedXP}/${totalQXP} XP</span>
-          </div>
-        </div>
-        <!-- Progress bar -->
-        <div class="mx-4 mb-3 h-1 rounded-full overflow-hidden" style="background:${allVisibleDone?'rgba(0,98,66,0.15)':accent.color+'15'}">
-          <div class="h-full rounded-full transition-all duration-700" style="width:${visibleTasks.length?Math.round(visibleDone/visibleTasks.length*100):0}%;background:${allVisibleDone?'#006242':accent.color}"></div>
-        </div>
-        <!-- Tasks -->
-        <div class="px-4 pb-4 space-y-2">`;
-
-    if (visibleTasks.length === 0) {
-      html += `<p class="text-on-surface-variant text-sm text-center py-3">All techniques complete! 🎉</p>`;
-    }
-
-    // First incomplete task index (for Start Training CTA)
     const firstIncompleteIdx = visibleTasks.findIndex(t => !t._liveDone);
 
-    // Start Training CTA — shown only when quest is active and not all done
-    if (!allQDone && firstIncompleteIdx !== -1) {
+    // Session context line
+    const _tc  = visibleTasks.filter(t => t.type === 'technique').length;
+    const _kc  = visibleTasks.filter(t => t.type === 'knowledge').length;
+    const _est = _tc * 5 + _kc * 3;
+    const sessionDesc = visibleTasks.length === 0
+      ? 'All techniques complete!'
+      : [_tc > 0 ? _tc + (_tc === 1 ? ' technique' : ' techniques') : '', _kc > 0 ? _kc + ' knowledge' : ''].filter(Boolean).join(' + ') + ' · ~' + _est + ' min';
+
+    // ── Hero card ────────────────────────────────────
+    if (allVisibleDone) {
       html += `
-        <button class="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black uppercase tracking-widest mb-3 active:scale-[0.97] transition-transform"
-          style="background:${accent.color};color:#fff;font-size:13px;box-shadow:0 4px 0 0 ${accent.shadow};letter-spacing:0.1em"
-          onclick="DojoHome.openFirstIncompleteTask()">
-          <span class="material-symbols-outlined ms-fill" style="font-size:18px">play_arrow</span>
-          Start Training
-        </button>`;
+        <div class="rounded-3xl" style="background:linear-gradient(135deg,#065f46,#047857);box-shadow:0 6px 0 #064e3b">
+          <div class="p-5">
+            <p class="font-black uppercase tracking-widest mb-2" style="font-size:9px;color:rgba(255,255,255,0.6)">TODAY'S SESSION</p>
+            <p class="font-black text-white leading-tight mb-1" style="font-size:22px">Session Complete!</p>
+            <p style="font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:16px">Come back tomorrow to keep your streak going.</p>
+            <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:12px;text-align:center">
+              <span class="font-black text-white" style="font-size:13px">&#10003; ${visibleDone} task${visibleDone !== 1 ? 's' : ''} done &middot; +${visibleDone * 50} XP earned</span>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      const _heroLabel = isTiredMode ? "TIRED SESSION" : "TODAY'S SESSION";
+      const _heroTitle = isTiredMode ? "One technique. That's enough." : sessionDesc;
+      const _heroSub   = isTiredMode
+        ? "Every session counts. Even small ones."
+        : accent.label + ' path · ' + readPct + '% ready';
+      html += `
+        <div class="rounded-3xl" style="background:linear-gradient(135deg,${accent.color},${accent.shadow});box-shadow:0 6px 0 ${accent.shadow}">
+          <div class="p-5">
+            <p class="font-black uppercase tracking-widest mb-1" style="font-size:9px;color:rgba(255,255,255,0.6)">${_heroLabel}</p>
+            <p class="font-black text-white leading-tight mb-1" style="font-size:22px">${_heroTitle}</p>
+            <p style="font-size:11px;color:rgba(255,255,255,0.65);margin-bottom:14px">${_heroSub}</p>
+            <div class="flex gap-2 mb-4">`;
+      SESSION_MODES.forEach(m => {
+        const active = m.mins === _sessionMins;
+        const isTiredBtn = m.mins === -1;
+        html += '<button onclick="DojoHome.setSessionMode(' + m.mins + ')"'
+          + ' style="flex:1;padding:8px 4px;border-radius:10px;border:1.5px solid '
+          + (active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)')
+          + ';background:'
+          + (active ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)')
+          + ';color:'
+          + (active ? '#fff' : 'rgba(255,255,255,0.45)')
+          + ';font-weight:800;font-size:' + (isTiredBtn ? '10' : '11') + 'px;cursor:pointer;letter-spacing:0.02em;transition:all 0.15s">'
+          + m.label + '</button>';
+      });
+      html += `</div>
+            <button class="w-full flex items-center justify-center gap-2 active:scale-[0.97] transition-transform"
+              style="background:#fff;color:${accent.color};border-radius:14px;padding:15px;font-weight:900;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,0.18)"
+              onclick="DojoHome.openFirstIncompleteTask()">
+              <span class="material-symbols-outlined ms-fill" style="font-size:20px">play_arrow</span>
+              Start Training
+            </button>
+          </div>
+        </div>`;
     }
 
-    const TIME_EST = { technique: '~5 min', knowledge: '~3 min', drill: '~3 min' };
+    // ── Quest receipt (task list) ────────────────────
+    const TASK_ICON  = { technique:'sports_kabaddi', knowledge:'menu_book', drill:'fitness_center' };
+    const TASK_LABEL = { technique:'Technique', knowledge:'Knowledge', drill:'Drill' };
+    const TIME_EST   = { technique:'~5 min', knowledge:'~3 min', drill:'~3 min' };
 
-    visibleTasks.forEach((task, i) => {
-      const done  = task._liveDone;
-      const icon  = TASK_ICON[task.type]  || 'star';
-      const label = TASK_LABEL[task.type] || 'Task';
-      const timeEst = TIME_EST[task.type] || '~5 min';
-      const en    = (task.type === 'technique' || task.type === 'knowledge')
-                    ? ((typeof TERMS_EN !== 'undefined' && TERMS_EN[task.item]) ? TERMS_EN[task.item] : task.item.replace(/-/g,' '))
-                    : '';
-      const isNext = !done && i === firstIncompleteIdx;
+    if (visibleTasks.length > 0) {
+      const earnedXP = visibleDone * 50;
+      const totalQXP = visibleTasks.length * 50;
       html += `
-          <div class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer active:scale-[0.98] transition-all"
-            style="background:${done?accent.color+'0a':isNext?accent.color+'08':'#ffffff'};border-color:${done?accent.color+'40':isNext?accent.color+'60':'#e5eeff'}"
-            onclick="DojoHome.openQuestTask(${i})">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style="background:${done?accent.color:isNext?accent.color+'20':'#eff4ff'}">
-              <span class="material-symbols-outlined ${done?'ms-fill':''}" style="font-size:18px;color:${done?'#fff':accent.color}">
-                ${done ? 'check' : icon}
-              </span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-on-surface leading-tight truncate" style="font-size:12px">${task.label}</p>
-              ${en ? `<p class="text-on-surface-variant truncate mt-0.5" style="font-size:10px">${en}</p>` : ''}
-              <p class="font-bold uppercase tracking-widest mt-0.5" style="font-size:8px;color:${done?accent.color:'#93b4f0'}">${label} · ${timeEst} · +50 XP</p>
-            </div>
-            ${done
-              ? `<span class="material-symbols-outlined ms-fill shrink-0" style="font-size:18px;color:${accent.color}">task_alt</span>`
-              : `<span class="material-symbols-outlined shrink-0" style="font-size:16px;color:#c7d7f5">chevron_right</span>`}
-          </div>`;
-    });
+        <div class="rounded-2xl border" style="background:#fff;border-color:${allVisibleDone ? '#00624230' : accent.color + '25'};box-shadow:0 2px 8px rgba(0,74,198,0.05)">
+          <div class="flex items-center justify-between px-4 pt-3 pb-2">
+            <p class="font-black uppercase tracking-widest" style="font-size:9px;color:${allVisibleDone ? '#006242' : '#93b4f0'}">${allVisibleDone ? 'COMPLETE' : "TODAY'S TASKS"}</p>
+            <span class="font-black" style="font-size:11px;color:${allVisibleDone ? '#006242' : accent.color}">${earnedXP}/${totalQXP} XP</span>
+          </div>
+          <div class="mx-4 mb-3 h-1 rounded-full overflow-hidden" style="background:${accent.color}12">
+            <div class="h-full rounded-full transition-all duration-700" style="width:${Math.round(visibleDone / visibleTasks.length * 100)}%;background:${allVisibleDone ? '#006242' : accent.color}"></div>
+          </div>
+          <div class="px-3 pb-3 space-y-2">`;
 
-    if (allVisibleDone && visibleTasks.length > 0) {
+      visibleTasks.forEach((task, i) => {
+        const done    = task._liveDone;
+        const icon    = TASK_ICON[task.type]  || 'star';
+        const label   = TASK_LABEL[task.type] || 'Task';
+        const timeEst = TIME_EST[task.type]   || '~5 min';
+        const en      = (task.type === 'technique' || task.type === 'knowledge')
+                        ? ((typeof TERMS_EN !== 'undefined' && TERMS_EN[task.item]) ? TERMS_EN[task.item] : task.item.replace(/-/g,' '))
+                        : '';
+        const isNext  = !done && i === firstIncompleteIdx;
+        html += `
+            <div class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer active:scale-[0.98] transition-all"
+              style="background:${done ? accent.color + '08' : isNext ? accent.color + '05' : '#fafcff'};border-color:${done ? accent.color + '40' : isNext ? accent.color + '40' : '#eef2ff'}"
+              onclick="DojoHome.openQuestTask(${i})">
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                style="background:${done ? accent.color : isNext ? accent.color + '20' : '#eff4ff'}">
+                <span class="material-symbols-outlined ${done ? 'ms-fill' : ''}" style="font-size:16px;color:${done ? '#fff' : accent.color}">
+                  ${done ? 'check' : icon}
+                </span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-on-surface leading-tight truncate" style="font-size:12px">${task.label}</p>
+                ${en ? '<p class="text-on-surface-variant truncate mt-0.5" style="font-size:10px">' + en + '</p>' : ''}
+                <p class="font-bold uppercase tracking-widest mt-0.5" style="font-size:8px;color:${done ? '#22c55e' : '#93b4f0'}">${label} &middot; ${timeEst} &middot; +50 XP</p>
+              </div>
+              ${done
+                ? '<span class="material-symbols-outlined ms-fill shrink-0" style="font-size:18px;color:' + accent.color + '">task_alt</span>'
+                : '<span class="material-symbols-outlined shrink-0" style="font-size:16px;color:#c7d7f5">chevron_right</span>'}
+            </div>`;
+      });
+
       html += `
-          <div class="flex items-center justify-center gap-2 pt-1">
-            <span class="material-symbols-outlined ms-fill text-emerald-600" style="font-size:16px">celebration</span>
-            <p class="font-bold text-emerald-700" style="font-size:12px">Quest complete! Come back tomorrow.</p>
-          </div>`;
+          </div>
+        </div>`;
     }
-
-    html += `
-        </div>
-      </div>`;
-
-    // ── Quick Stats strip (always shown) ────────────
-    html += `
-      <div class="grid grid-cols-3 gap-2">
-        <div class="bg-white border border-outline-variant/20 rounded-2xl p-3 flex flex-col items-center">
-          <span class="material-symbols-outlined ms-fill text-orange-400 mb-1" style="font-size:20px">local_fire_department</span>
-          <span class="font-black text-on-surface leading-none" style="font-size:20px">${streak}</span>
-          <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-1" style="font-size:8px">STREAK</span>
-        </div>
-        <div class="bg-white border border-outline-variant/20 rounded-2xl p-3 flex flex-col items-center">
-          <span class="material-symbols-outlined ms-fill text-primary mb-1" style="font-size:20px">bolt</span>
-          <span class="font-black text-on-surface leading-none" style="font-size:20px">${xp}</span>
-          <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-1" style="font-size:8px">XP</span>
-        </div>
-        <div class="bg-white border border-outline-variant/20 rounded-2xl p-3 flex flex-col items-center">
-          <div class="w-4 h-4 rounded-full mb-1 shrink-0" style="background:${accent.color}"></div>
-          <span class="font-black text-on-surface leading-none" style="font-size:20px">${readPct}%</span>
-          <span class="text-on-surface-variant font-bold uppercase text-center leading-tight mt-1" style="font-size:8px">${accent.label.replace(' Belt','').toUpperCase()}</span>
-        </div>
-      </div>`;
 
     // ── Daily Coaching Tip ────────────────────────────
     const TIPS = [
@@ -335,7 +324,7 @@ const DojoHome = (() => {
           <div class="mt-1.5 w-full h-1 rounded-full overflow-hidden" style="background:#eff4ff">
             <div class="h-full rounded-full transition-all duration-700" style="width:${readPct}%;background:${accent.color}"></div>
           </div>
-          <p class="text-on-surface-variant mt-1" style="font-size:10px">${doneCount} of ${allItems.length} techniques · ${readPct}%</p>
+          <p class="text-on-surface-variant mt-1" style="font-size:10px">${doneCount} of ${allItems.length} techniques &middot; ${readPct}%</p>
         </div>
         <span class="material-symbols-outlined shrink-0" style="font-size:20px;color:${accent.color}">arrow_forward_ios</span>
       </button>`;
@@ -366,7 +355,38 @@ const DojoHome = (() => {
     const container = document.getElementById('belt-path-container');
     if (!container) return;
 
-    let html = `<div class="tile-path space-y-3 pb-4">`;
+    // ── Next Up banner ──────────────────────────────
+    let nextUpItem = null, nextUpGroup = '';
+    for (const g of belt.groups) {
+      for (const item of g.items) {
+        if (!DojoState.isDone(belt.id, item) && DojoState.isItemUnlocked(belt.id, item)) {
+          nextUpItem  = item;
+          nextUpGroup = g.title;
+          break;
+        }
+      }
+      if (nextUpItem) break;
+    }
+
+    let html = '';
+    if (nextUpItem && !allDone) {
+      const _en = (typeof TERMS_EN !== 'undefined' && TERMS_EN[nextUpItem]) ? TERMS_EN[nextUpItem] : nextUpItem.replace(/-/g,' ');
+      html += '<div style="background:linear-gradient(135deg,' + accent.color + ',' + accent.shadow + ');border-radius:20px;padding:18px;margin-bottom:12px;box-shadow:0 4px 0 ' + accent.shadow + '">'
+        + '<p style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">UP NEXT</p>'
+        + '<p style="font-size:19px;font-weight:900;color:#fff;margin-bottom:2px">' + nextUpItem + '</p>'
+        + '<p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:14px">' + _en + ' · ' + nextUpGroup + '</p>'
+        + '<button onclick="DojoHome.openBeltItem(' + JSON.stringify(belt.id) + ',' + JSON.stringify(nextUpItem) + ',' + JSON.stringify(nextUpGroup) + ',' + workIdx + ')"'
+        + ' style="background:#fff;color:' + accent.color + ';border:none;border-radius:12px;padding:12px 20px;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;width:100%;box-shadow:0 3px 0 rgba(0,0,0,0.15)">'
+        + 'Train Now</button>'
+        + '</div>';
+    } else if (allDone) {
+      html += '<div style="background:linear-gradient(135deg,#065f46,#047857);border-radius:20px;padding:18px;margin-bottom:12px;text-align:center">'
+        + '<p style="font-size:22px;font-weight:900;color:#fff;margin-bottom:4px">Belt Path Complete!</p>'
+        + '<p style="font-size:12px;color:rgba(255,255,255,0.75)">All techniques done. Grading time.</p>'
+        + '</div>';
+    }
+
+    html += `<div class="tile-path space-y-3 pb-4">`;
     let globalIdx = 0;
 
     // Reset expanded groups when belt changes (override set)
@@ -494,6 +514,39 @@ const DojoHome = (() => {
 
     html += `</div>`;
 
+    // Technique Library
+    html += `
+      <div class="mt-6">
+        <button onclick="DojoHome.toggleTechLib()" class="w-full flex items-center gap-3 mb-3 px-1 group">
+          <div class="h-px flex-1 bg-outline-variant/30"></div>
+          <span class="text-on-surface-variant/60 font-bold uppercase tracking-widest group-active:text-primary transition-colors" style="font-size:10px;white-space:nowrap">&#9660; BROWSE ALL TECHNIQUES</span>
+          <div class="h-px flex-1 bg-outline-variant/30"></div>
+        </button>
+        <div id="tech-lib-body" class="hidden space-y-5">`;
+    belt.groups.forEach(function(group) {
+      const color = BELT_ACCENT[belt.id] ? BELT_ACCENT[belt.id].color : '#004ac6';
+      html += `<div>
+        <p class="font-black uppercase tracking-widest mb-2 px-1" style="font-size:9px;color:${color}">${group.title}</p>
+        <div class="space-y-1">`;
+      group.items.forEach(function(item) {
+        const done = DojoState.isDone(belt.id, item);
+        const en = (typeof TERMS_EN !== 'undefined' && TERMS_EN[item]) ? TERMS_EN[item] : item.replace(/-/g, ' ');
+        const pipColor = done ? color : '#d1d5db';
+        html += `<button onclick="DojoHome.openBeltItem('${belt.id}','${item}','${group.title.replace(/'/g,"\'")}',${workIdx})"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl active:scale-[0.98] transition-all text-left"
+          style="background:${done ? color+'0d' : '#f8faff'};border:1px solid ${done ? color+'33' : '#e8edf8'}">
+          <span class="w-2 h-2 rounded-full shrink-0" style="background:${pipColor}"></span>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm truncate" style="color:#1a1a2e">${item}</p>
+            <p class="text-xs truncate" style="color:#6b7280">${en}</p>
+          </div>
+          ${done ? '<span class="material-symbols-outlined shrink-0" style="font-size:14px;color:'+color+'">check_circle</span>' : '<span class="material-symbols-outlined shrink-0" style="font-size:14px;color:#d1d5db">radio_button_unchecked</span>'}
+        </button>`;
+      });
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+
     // Belt switcher
     if (BELT_DATA.length > 1) {
       html += `<div class="mt-6 mb-2">
@@ -564,7 +617,7 @@ const DojoHome = (() => {
   // ── Switch active belt ────────────────────────────
   // Temporarily view a different belt path
   let _overrideBeltIdx   = null;
-  let _sessionMins       = parseInt(localStorage.getItem('dojo_session_mins') || '0', 10); // 0 = any
+  let _sessionMins       = parseInt(localStorage.getItem('dojo_session_mins') || '5', 10); // 5 = default 5 min
 
   function setSessionMode(mins) {
     _sessionMins = mins;
@@ -589,6 +642,19 @@ const DojoHome = (() => {
     // All done — expand first group
     if (belt.groups.length > 0) autoExpand.add(belt.groups[0].title);
     return autoExpand;
+  }
+
+  function toggleTechLib() {
+    const body = document.getElementById('tech-lib-body');
+    if (!body) return;
+    const btn = body.previousElementSibling;
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      if (btn) btn.querySelector('span:not(.h-px)') && (btn.querySelectorAll('span')[1].textContent = '▲ BROWSE ALL TECHNIQUES');
+    } else {
+      body.classList.add('hidden');
+      if (btn) btn.querySelectorAll('span')[1] && (btn.querySelectorAll('span')[1].textContent = '▼ BROWSE ALL TECHNIQUES');
+    }
   }
 
   function toggleGroup(groupTitle) {
@@ -722,5 +788,16 @@ const DojoHome = (() => {
     return { total, done };
   }
 
-  return { render, renderBeltPath, renderChecklist, openItem, startUnitExam, switchBelt, openQuestTask, openFirstIncompleteTask, getNextQuestTask, getMissionTaskCount, getMissionStats, toggleGroup, setSessionMode, getSessionMins };
+  // openBeltItem — called by Next Up banner (groupTitle already known)
+  function openBeltItem(beltId, itemName, groupTitle, beltIdx) {
+    if (!DojoState.isItemUnlocked(beltId, itemName)) return;
+    const isKnowledge = /Knowledge|Moral|Terminology|Contest|Referee|Basics/i.test(groupTitle);
+    if (isKnowledge) {
+      DojoKnowledge.open(beltId, itemName, groupTitle, beltIdx, 'belt-path');
+    } else {
+      DojoLesson.open(beltId, itemName, beltIdx, 'belt-path');
+    }
+  }
+
+  return { render, renderBeltPath, renderChecklist, openItem, openBeltItem, startUnitExam, switchBelt, openQuestTask, openFirstIncompleteTask, getNextQuestTask, getMissionTaskCount, getMissionStats, toggleGroup, toggleTechLib, setSessionMode, getSessionMins };
 })();

@@ -23,10 +23,10 @@ const FirebaseSync = (() => {
 
   // ── Initialise Firebase & sign in anonymously ─────
   // Returns a Promise that resolves with the uid once auth is ready.
+  // Includes a 5s timeout so file:// and offline environments never hang.
   function init() {
-    return new Promise((resolve, reject) => {
+    const authPromise = new Promise((resolve) => {
       try {
-        // Avoid double-init if hot-reloaded
         if (!firebase.apps.length) {
           firebase.initializeApp(FIREBASE_CONFIG);
         }
@@ -45,15 +45,22 @@ const FirebaseSync = (() => {
               resolve(_uid);
             } catch (e) {
               console.warn('[FirebaseSync] signInAnonymously failed:', e.message);
-              resolve(null); // app still works offline
+              resolve(null);
             }
           }
         });
       } catch (e) {
         console.warn('[FirebaseSync] init failed:', e.message);
-        resolve(null); // degrade gracefully
+        resolve(null);
       }
     });
+
+    const timeout = new Promise(resolve => setTimeout(() => {
+      console.warn('[FirebaseSync] init timed out — using localStorage only');
+      resolve(null);
+    }, 2500));
+
+    return Promise.race([authPromise, timeout]);
   }
 
   // ── Load data from Firestore → return plain object or null ──

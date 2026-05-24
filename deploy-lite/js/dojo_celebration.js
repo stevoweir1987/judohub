@@ -124,6 +124,36 @@ const DojoCelebration = (() => {
       }
     }
 
+    // Belt progress delta — "+3% to 40% toward Yellow Belt"
+    var beltDeltaEl = document.getElementById('success-belt-delta');
+    if (beltDeltaEl) {
+      try {
+        var _belt = (typeof BELT_DATA !== 'undefined') ? BELT_DATA.find(function(b){ return b.id === _successBeltId; }) : null;
+        if (_belt) {
+          var _allItems  = _belt.groups.reduce(function(a,g){ return a.concat(g.items); }, []);
+          var _afterDone = _allItems.filter(function(item){ return DojoState.isDone(_belt.id, item); }).length;
+          var _total     = _allItems.length;
+          var _afterPct  = _total ? Math.round(_afterDone / _total * 100) : 0;
+          var _beforePct = _total ? Math.round(Math.max(0, _afterDone - 1) / _total * 100) : 0;
+          var _delta     = _afterPct - _beforePct;
+          var BLABELS = { toRed:'Red', toYellow:'Yellow', toOrange:'Orange', toGreen:'Green', toBlue:'Blue', toBrown:'Brown' };
+          var BCOLORS = { toRed:'#ef4444', toYellow:'#eab308', toOrange:'#f97316', toGreen:'#22c55e', toBlue:'#3b82f6', toBrown:'#92400e' };
+          var _bLabel = BLABELS[_successBeltId] || 'Next';
+          var _bColor = BCOLORS[_successBeltId] || '#004ac6';
+          beltDeltaEl.className = 'mt-3 w-full';
+          beltDeltaEl.innerHTML = '<div style="background:' + _bColor + '12;border:1.5px solid ' + _bColor + '35;border-radius:14px;padding:11px 14px">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">'
+            + '<span style="font-size:10px;font-weight:800;color:' + _bColor + ';text-transform:uppercase;letter-spacing:0.1em">' + _bLabel + ' Belt Path</span>'
+            + '<span style="font-size:12px;font-weight:900;color:' + _bColor + '">' + (_delta > 0 ? '+' + _delta + '%  ' : '') + '  ' + _afterPct + '%</span>'
+            + '</div>'
+            + '<div style="height:6px;border-radius:3px;background:' + _bColor + '20;overflow:hidden">'
+            + '<div id="success-belt-bar" style="height:100%;border-radius:3px;background:' + _bColor + ';width:' + _beforePct + '%;transition:width 0.9s ease 0.3s"></div>'
+            + '</div></div>';
+          setTimeout(function(){ var b=document.getElementById('success-belt-bar'); if(b) b.style.width=_afterPct+'%'; }, 80);
+        } else { beltDeltaEl.className = 'hidden'; }
+      } catch(e) { beltDeltaEl.className = 'hidden'; }
+    }
+
     _launchConfetti();
     showScreen('success');
   }
@@ -252,6 +282,30 @@ const DojoCelebration = (() => {
     stats.appendChild(s1);
     stats.appendChild(s2);
 
+    // Tomorrow's session preview
+    const tmrw = document.createElement('div');
+    tmrw.style.cssText = 'background:#f8faff;border:1.5px solid #e5eeff;border-radius:14px;padding:12px 14px;margin-bottom:16px;text-align:left';
+    try {
+      const tomorrowKey = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+      const stored = JSON.parse(localStorage.getItem('dojo_daily_quest') || '{}');
+      const tasks = stored.tasks || [];
+      const techTasks = tasks.filter(function(t){ return t.type === 'technique' || t.type === 'knowledge'; });
+      if (techTasks.length > 0) {
+        let previewLines = '<p style="font-size:9px;font-weight:800;color:#93b4f0;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 6px">Tomorrow</p>';
+        techTasks.slice(0, 2).forEach(function(t) {
+          var en = (typeof TERMS_EN !== 'undefined' && TERMS_EN[t.item]) ? TERMS_EN[t.item] : t.item.replace(/-/g,' ');
+          previewLines += '<p style="font-size:11px;font-weight:700;color:#1a1a2e;margin:2px 0">'
+            + (t.type === 'knowledge' ? '📖 ' : '🥋 ') + t.item
+            + ' <span style="color:#93b4f0;font-weight:500">&middot; ' + en + '</span></p>';
+        });
+        tmrw.innerHTML = previewLines;
+      } else {
+        tmrw.innerHTML = '<p style="font-size:11px;color:#93b4f0;margin:0">New techniques await tomorrow</p>';
+      }
+    } catch(_e) {
+      tmrw.innerHTML = '<p style="font-size:11px;color:#93b4f0;margin:0">New techniques await tomorrow</p>';
+    }
+
     const btn = document.createElement('button');
     btn.style.cssText = [
       'background:#004ac6',
@@ -283,6 +337,7 @@ const DojoCelebration = (() => {
     card.appendChild(title);
     card.appendChild(body);
     card.appendChild(stats);
+    card.appendChild(tmrw);
     card.appendChild(btn);
     card.appendChild(footer);
     overlay.appendChild(card);

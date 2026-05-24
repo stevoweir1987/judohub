@@ -63,6 +63,45 @@ const DojoState = (() => {
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
     saveStreak(last === yesterday ? getStreak() + 1 : 1);
     saveLastTrain(t);
+    _recordWeeklySession(t);
+  }
+
+  // ── Weekly tracking ───────────────────────────────
+  function _weekStart() {
+    const now = new Date();
+    const day = now.getDay(); // 0=Sun
+    const diff = now.getDate() - day;
+    return new Date(now.getFullYear(), now.getMonth(), diff).toISOString().slice(0, 10);
+  }
+
+  function _recordWeeklySession(dateStr) {
+    try {
+      const week = _weekStart();
+      const raw  = JSON.parse(localStorage.getItem('dojo_week') || '{}');
+      if (raw.week !== week) { raw.week = week; raw.days = []; raw.xp = 0; raw.techs = 0; }
+      if (!raw.days.includes(dateStr)) raw.days.push(dateStr);
+      localStorage.setItem('dojo_week', JSON.stringify(raw));
+    } catch (_e) {}
+  }
+
+  function recordWeeklyXP(amount) {
+    try {
+      const week = _weekStart();
+      const raw  = JSON.parse(localStorage.getItem('dojo_week') || '{}');
+      if (raw.week !== week) { raw.week = week; raw.days = []; raw.xp = 0; raw.techs = 0; }
+      raw.xp = (raw.xp || 0) + amount;
+      raw.techs = (raw.techs || 0) + 1;
+      localStorage.setItem('dojo_week', JSON.stringify(raw));
+    } catch (_e) {}
+  }
+
+  function getWeeklyStats() {
+    try {
+      const week = _weekStart();
+      const raw  = JSON.parse(localStorage.getItem('dojo_week') || '{}');
+      if (raw.week !== week) return { days: 0, xp: 0, techs: 0 };
+      return { days: (raw.days || []).length, xp: raw.xp || 0, techs: raw.techs || 0 };
+    } catch (_e) { return { days: 0, xp: 0, techs: 0 }; }
   }
 
   // ── Public API ────────────────────────────────────
@@ -100,25 +139,46 @@ const DojoState = (() => {
   }
 
   function showDepleted() {
-    const overlay = document.getElementById('hearts-depleted-overlay');
-    if (!overlay) return;
-    overlay.classList.remove('hidden');
-    // Start countdown tick
-    function tick() {
-      const now  = new Date();
-      const midnight = new Date(now);
-      midnight.setHours(24, 0, 0, 0);
-      const diff = midnight - now;
-      const hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
-      const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-      const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-      const el = document.getElementById('hearts-countdown');
-      if (el) el.textContent = hh + ':' + mm + ':' + ss;
-      if (!document.getElementById('hearts-depleted-overlay').classList.contains('hidden')) {
-        setTimeout(tick, 1000);
-      }
-    }
-    tick();
+    // Soft nudge — not a hard block. Show warning, let user continue.
+    const existing = document.getElementById('hearts-soft-nudge');
+    if (existing) return; // already showing
+
+    const nudge = document.createElement('div');
+    nudge.id = 'hearts-soft-nudge';
+    nudge.style.cssText = [
+      'position:fixed', 'inset:0', 'z-index:400',
+      'display:flex', 'flex-direction:column', 'align-items:center', 'justify-content:flex-end',
+      'padding:24px', 'background:rgba(0,0,0,0.5)', 'backdrop-filter:blur(6px)'
+    ].join(';');
+
+    const card = document.createElement('div');
+    card.style.cssText = [
+      'background:#fff', 'border-radius:24px', 'padding:24px',
+      'width:100%', 'max-width:360px', 'text-align:center'
+    ].join(';');
+
+    card.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">&#x2764;</div>'
+      + '<p style="font-weight:900;font-size:17px;color:#1a1a2e;margin:0 0 6px">Hearts Recharging</p>'
+      + '<p style="font-size:13px;color:#5f6b80;line-height:1.5;margin:0 0 20px">'
+      + 'You\'ve used all your hearts today. Your best training is when you\'re fresh — '
+      + 'but you can keep going if you want.</p>'
+      + '<button id="hearts-nudge-continue" style="background:#004ac6;color:#fff;border:none;border-radius:12px;padding:14px 0;'
+      + 'font-weight:800;font-size:14px;width:100%;cursor:pointer;margin-bottom:10px;letter-spacing:0.05em">'
+      + 'Keep Training Anyway</button>'
+      + '<button id="hearts-nudge-back" style="background:transparent;color:#5f6b80;border:none;'
+      + 'font-weight:600;font-size:13px;width:100%;cursor:pointer;padding:8px">'
+      + 'Take a Break — Back to Today</button>';
+
+    nudge.appendChild(card);
+    document.body.appendChild(nudge);
+
+    document.getElementById('hearts-nudge-continue').onclick = function() { nudge.remove(); };
+    document.getElementById('hearts-nudge-back').onclick = function() {
+      nudge.remove();
+      if (typeof DojoHome !== 'undefined') DojoHome.render();
+      if (typeof showScreen !== 'undefined') showScreen('home');
+    };
   }
 
   function loseHeart() {
@@ -127,7 +187,7 @@ const DojoState = (() => {
     updateHUD();
     shakeHearts();
     if (h === 0) showDepleted();
-    return h > 0;
+    return true; // never block — soft nudge only
   }
 
   function completeLesson(beltId, itemName) {
@@ -234,7 +294,7 @@ const DojoState = (() => {
     init, updateHUD, loseHeart, shakeHearts, showDepleted, completeLesson,
     beltProgress, isDone, isAreaUnlocked, isItemUnlocked, getNextItem,
     hasProfile, getProfile, saveProfile, getWorkingBeltIndex,
-    getXP, getStreak, getHearts, MAX_HEARTS,
+    getXP, getStreak, getHearts, MAX_HEARTS, getWeeklyStats,
     isSeen, markSeen, getMastery,
   };
 
@@ -245,12 +305,18 @@ const DojoState = (() => {
 const DojoProfile = {
   // ── Badge definitions ──────────────────────────────
   BADGES: [
-    { id:'first_throw',  icon:'sports_martial_arts', label:'First Throw',   color:'#71d8c6', desc:'Complete your first throw technique', check: (stats) => stats.throwsDone >= 1 },
-    { id:'on_fire',      icon:'local_fire_department',label:'On Fire',       color:'#f97316', desc:'7-day training streak',              check: (stats) => stats.streak >= 7 },
-    { id:'belt_earned',  icon:'military_tech',        label:'Belt Earned',   color:'#eab308', desc:'Complete a full belt path',           check: (stats) => stats.beltsComplete >= 1 },
-    { id:'ukemi_master', icon:'self_improvement',     label:'Ukemi Master',  color:'#a78bfa', desc:'Complete all ukemi techniques',       check: (stats) => stats.ukemiDone >= 4 },
-    { id:'iron_grip',    icon:'fitness_center',       label:'Iron Grip',     color:'#94a3b8', desc:'Complete 50 total techniques',        check: (stats) => stats.totalDone >= 50 },
-    { id:'sensei',       icon:'school',               label:'Sensei',        color:'#004ac6', desc:'Reach 1000 XP',                       check: (stats) => stats.xp >= 1000 },
+    { id:'first_throw',   icon:'sports_martial_arts',  label:'First Throw',    color:'#71d8c6', unlock:'Complete your first throw',        check: s => s.throwsDone >= 1 },
+    { id:'white_belt',    icon:'emoji_events',         label:'Off the Mat',    color:'#e2e8f0', unlock:'Complete 5 techniques',            check: s => s.totalDone >= 5 },
+    { id:'streak_3',      icon:'local_fire_department',label:'3-Day Fire',     color:'#f97316', unlock:'Train 3 days in a row',            check: s => s.streak >= 3 },
+    { id:'on_fire',       icon:'whatshot',             label:'On Fire',        color:'#ef4444', unlock:'Train 7 days in a row',            check: s => s.streak >= 7 },
+    { id:'ukemi_master',  icon:'self_improvement',     label:'Ukemi Master',   color:'#a78bfa', unlock:'Complete all ukemi techniques',    check: s => s.ukemiDone >= 4 },
+    { id:'knowledge',     icon:'menu_book',            label:'Scholar',        color:'#38bdf8', unlock:'Reach 200 XP',                    check: s => s.xp >= 200 },
+    { id:'iron_grip',     icon:'fitness_center',       label:'Iron Grip',      color:'#94a3b8', unlock:'Complete 25 techniques',           check: s => s.totalDone >= 25 },
+    { id:'belt_earned',   icon:'military_tech',        label:'Belt Earned',    color:'#eab308', unlock:'Complete a full belt path',        check: s => s.beltsComplete >= 1 },
+    { id:'centurion',     icon:'workspace_premium',    label:'Centurion',      color:'#f59e0b', unlock:'Complete 50 techniques',           check: s => s.totalDone >= 50 },
+    { id:'sensei',        icon:'school',               label:'Sensei',         color:'#004ac6', unlock:'Reach 1000 XP',                   check: s => s.xp >= 1000 },
+    { id:'champion',      icon:'emoji_events',         label:'Champion',       color:'#dc2626', unlock:'Complete 2 full belt paths',       check: s => s.beltsComplete >= 2 },
+    { id:'legend',        icon:'grade',                label:'Living Legend',  color:'#7c3aed', unlock:'Reach 2500 XP',                   check: s => s.xp >= 2500 },
   ],
 
   _getStats() {
@@ -313,6 +379,25 @@ const DojoProfile = {
     // Belt readiness
     const workBelt = (typeof BELT_DATA !== 'undefined') ? BELT_DATA[DojoState.getWorkingBeltIndex()] : null;
     set('profile-readiness', Math.round(DojoState.beltProgress(workBelt?.id || '') * 100) + '%');
+
+    // This Week card
+    const wk = DojoState.getWeeklyStats();
+    set('week-days',  wk.days);
+    set('week-xp',   wk.xp);
+    set('week-techs', wk.techs);
+    const pipsEl = document.getElementById('week-day-pips');
+    if (pipsEl) {
+      const DAY_LABELS = ['S','M','T','W','T','F','S'];
+      const today = new Date().getDay();
+      pipsEl.innerHTML = DAY_LABELS.map((d, i) => {
+        const isPast    = i <= today;
+        const isToday   = i === today;
+        const hasTrain  = wk.days > 0 && isPast && (wk.days >= (today - i + 1));
+        const bg = isToday ? '#004ac6' : hasTrain ? '#004ac640' : '#e5eeff';
+        const color = isToday ? '#fff' : hasTrain ? '#004ac6' : '#93b4f0';
+        return '<div style="flex:1;padding:4px 2px;border-radius:6px;background:' + bg + ';text-align:center;font-size:8px;font-weight:800;color:' + color + '">' + d + '</div>';
+      }).join('');
+    }
 
     // Goal buttons
     const goal = profile.goal || 'belt';
@@ -404,16 +489,36 @@ const DojoProfile = {
     const el = document.getElementById('profile-badges');
     if (!el) return;
     const stats = this._getStats();
-    el.innerHTML = this.BADGES.map(b => {
-      const earned = b.check(stats);
-      return `<div class="flex flex-col items-center gap-1.5 ${earned ? '' : 'opacity-35'}">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all"
-          style="background:${earned ? b.color+'18' : 'transparent'};border-color:${earned ? b.color : '#cbd5e1'}">
-          <span class="material-symbols-outlined ${earned ? 'ms-fill' : ''}" style="font-size:26px;color:${earned ? b.color : '#94a3b8'}">${b.icon}</span>
-        </div>
-        <span class="font-bold text-center leading-tight text-on-surface" style="font-size:9px;max-width:56px">${b.label.toUpperCase()}</span>
-      </div>`;
-    }).join('');
+    const earned = this.BADGES.filter(b => b.check(stats));
+    const locked  = this.BADGES.filter(b => !b.check(stats));
+    let html = '';
+    if (earned.length) {
+      html += '<div class="mb-3"><p style="font-size:9px;font-weight:800;color:#004ac6;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">Earned</p>'
+        + '<div class="grid grid-cols-4 gap-3">';
+      earned.forEach(b => {
+        html += '<div class="flex flex-col items-center gap-1.5 cursor-default" title="' + b.unlock + '">'
+          + '<div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2" style="background:' + b.color + '18;border-color:' + b.color + '50">'
+          + '<span class="material-symbols-outlined ms-fill" style="font-size:26px;color:' + b.color + '">' + b.icon + '</span>'
+          + '</div>'
+          + '<span class="font-bold text-center leading-tight text-on-surface" style="font-size:8px;max-width:56px">' + b.label.toUpperCase() + '</span>'
+          + '</div>';
+      });
+      html += '</div></div>';
+    }
+    if (locked.length) {
+      html += '<div><p style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">Locked</p>'
+        + '<div class="grid grid-cols-4 gap-3">';
+      locked.forEach(b => {
+        html += '<div class="flex flex-col items-center gap-1.5">'
+          + '<div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2 border-dashed" style="background:#f8faff;border-color:#e5eeff">'
+          + '<span class="material-symbols-outlined" style="font-size:26px;color:#c7d7f5">' + b.icon + '</span>'
+          + '</div>'
+          + '<span class="font-bold text-center leading-tight" style="font-size:8px;max-width:56px;color:#c7d7f5">' + b.unlock + '</span>'
+          + '</div>';
+      });
+      html += '</div></div>';
+    }
+    el.innerHTML = html || '<p style="font-size:12px;color:#94a3b8;text-align:center;padding:16px 0">Train daily to earn your first badge.</p>';
   },
 
   setGoal(goal) {
@@ -421,5 +526,87 @@ const DojoProfile = {
     profile.goal = goal;
     DojoState.saveProfile(profile);
     DojoProfile.render();
+  },
+
+  openEdit() {
+    const existing = document.getElementById('profile-edit-overlay');
+    if (existing) existing.remove();
+
+    const profile = DojoState.getProfile();
+    const BELTS = ['WHITE','RED','YELLOW','ORANGE','GREEN','BLUE','BROWN'];
+    const beltLabels = { WHITE:'White',RED:'Red',YELLOW:'Yellow',ORANGE:'Orange',GREEN:'Green',BLUE:'Blue',BROWN:'Brown' };
+
+    const overlay = document.createElement('div');
+    overlay.id = 'profile-edit-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px)';
+
+    const beltOptions = BELTS.map(b =>
+      '<option value="' + b + '"' + (profile.belt === b ? ' selected' : '') + '>' + beltLabels[b] + ' Belt</option>'
+    ).join('');
+
+    overlay.innerHTML =
+      '<div style="background:#fff;border-radius:24px 24px 0 0;padding:0;width:100%;max-width:480px;max-height:80vh;overflow-y:auto">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;border-bottom:1px solid #f0f0f0">'
+      + '<p style="font-weight:900;font-size:16px;color:#1a1a2e;margin:0">Edit Profile</p>'
+      + '<button onclick="document.getElementById(\'profile-edit-overlay\').remove()" style="background:#f5f5f5;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;color:#666">✕</button>'
+      + '</div>'
+      + '<div style="padding:20px;display:flex;flex-direction:column;gap:16px">'
+      // Name
+      + '<div>'
+      + '<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#93b4f0;display:block;margin-bottom:6px">Your Name</label>'
+      + '<input id="pe-name" type="text" value="' + (profile.name || '') + '" placeholder="e.g. Steve" maxlength="30"'
+      + ' style="width:100%;border:2px solid #e5eeff;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600;color:#1a1a2e;outline:none;box-sizing:border-box">'
+      + '</div>'
+      // Belt
+      + '<div>'
+      + '<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#93b4f0;display:block;margin-bottom:6px">Current Belt</label>'
+      + '<select id="pe-belt" style="width:100%;border:2px solid #e5eeff;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600;color:#1a1a2e;outline:none;box-sizing:border-box;background:#fff">'
+      + beltOptions
+      + '</select>'
+      + '</div>'
+      // Goal
+      + '<div>'
+      + '<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#93b4f0;display:block;margin-bottom:8px">My Main Goal</label>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+      + ['belt','training','culture'].map(g => {
+          const icons  = { belt:'military_tech', training:'fitness_center', culture:'temple_buddhist' };
+          const labels = { belt:'Pass Belt', training:'Training', culture:'Culture' };
+          const sel    = (profile.goal || 'belt') === g;
+          return '<button onclick="document.querySelectorAll(\'.pe-goal-btn\').forEach(b=>b.style.background=\'#f0f4ff\');this.style.background=\'#004ac614\';document.getElementById(\'pe-goal\').value=\'' + g + '\'"'
+            + ' class="pe-goal-btn" style="background:' + (sel ? '#004ac614' : '#f0f4ff') + ';border:2px solid ' + (sel ? '#004ac6' : '#e5eeff') + ';border-radius:12px;padding:12px 8px;cursor:pointer;text-align:center">'
+            + '<span class="material-symbols-outlined ms-fill" style="font-size:22px;color:#004ac6;display:block;margin-bottom:4px">' + icons[g] + '</span>'
+            + '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#004ac6">' + labels[g] + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>'
+      + '<input type="hidden" id="pe-goal" value="' + (profile.goal || 'belt') + '">'
+      + '</div>'
+      // Save button
+      + '<button onclick="DojoProfile.saveEdit()" style="background:#004ac6;color:#fff;border:none;border-radius:14px;padding:15px;font-weight:800;font-size:14px;width:100%;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;box-shadow:0 4px 0 #003494;margin-top:4px">Save Changes</button>'
+      + '</div>'
+      + '</div>';
+
+    document.body.appendChild(overlay);
+    // Focus name field
+    setTimeout(() => { const el = document.getElementById('pe-name'); if (el) el.focus(); }, 100);
+  },
+
+  saveEdit() {
+    const name  = (document.getElementById('pe-name')  || {}).value || '';
+    const belt  = (document.getElementById('pe-belt')  || {}).value || 'WHITE';
+    const goal  = (document.getElementById('pe-goal')  || {}).value || 'belt';
+
+    const profile = DojoState.getProfile();
+    profile.name  = name.trim() || 'Judoka';
+    profile.belt  = belt;
+    profile.goal  = goal;
+    DojoState.saveProfile(profile);
+
+    const overlay = document.getElementById('profile-edit-overlay');
+    if (overlay) overlay.remove();
+
+    DojoProfile.render();
+    DojoState.updateHUD();
+    if (typeof DojoHome !== 'undefined') { DojoHome.render(); }
   }
 };

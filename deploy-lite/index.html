@@ -78,7 +78,11 @@ tailwind.config = {
   <div style="width:56px;height:56px;border-radius:50%;border:5px solid #c7d7f5;border-top-color:#004ac6;animation:spin 0.8s linear infinite"></div>
   <p style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#004ac6;font-size:15px;letter-spacing:0.02em">Loading Dojo…</p>
 </div>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeout{0%,80%{opacity:1;pointer-events:auto}100%{opacity:0;pointer-events:none}}
+#app-loading{animation:fadeout 0.4s ease 3s forwards}
+</style>
 
 
 
@@ -352,6 +356,8 @@ tailwind.config = {
       <p class="text-body-md text-on-surface-variant mt-2 leading-relaxed">Your <strong class="text-on-surface underline decoration-primary/40 decoration-2 underline-offset-4" id="success-tech-name">technique</strong> execution has reached the required proficiency level.</p>
       <!-- Quest progress indicator -->
       <div id="success-quest-progress" class="hidden mt-3 flex items-center justify-center gap-2"></div>
+      <!-- Belt progress delta — populated by showSuccess() -->
+      <div id="success-belt-delta" class="hidden mt-3 w-full"></div>
     </div>
     <div class="w-full space-y-4 mb-8">
       <div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant shadow-xl relative overflow-hidden">
@@ -806,6 +812,26 @@ tailwind.config = {
         </button>
       </div>
 
+      <!-- This Week card -->
+      <div id="profile-week-card" class="rounded-2xl mb-4 p-4" style="background:linear-gradient(135deg,#004ac608,#004ac614);border:1.5px solid #004ac625">
+        <p class="font-black uppercase tracking-widest mb-3" style="font-size:9px;color:#004ac6">THIS WEEK</p>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <p class="font-black text-on-surface" style="font-size:22px" id="week-days">0</p>
+            <p class="font-bold uppercase text-on-surface-variant" style="font-size:8px;letter-spacing:0.08em">Days</p>
+          </div>
+          <div>
+            <p class="font-black text-on-surface" style="font-size:22px" id="week-xp">0</p>
+            <p class="font-bold uppercase text-on-surface-variant" style="font-size:8px;letter-spacing:0.08em">XP</p>
+          </div>
+          <div>
+            <p class="font-black text-on-surface" style="font-size:22px" id="week-techs">0</p>
+            <p class="font-bold uppercase text-on-surface-variant" style="font-size:8px;letter-spacing:0.08em">Techniques</p>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-1" id="week-day-pips"></div>
+      </div>
+
       <!-- Stats grid -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 text-center">
@@ -887,12 +913,12 @@ tailwind.config = {
     <button onclick="showScreen('belt-path')" data-nav="path"
       class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
       <span class="material-symbols-outlined nav-icon" style="font-size:24px">route</span>
-      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">PATH</span>
+      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">BELT</span>
     </button>
     <button onclick="showScreen('practice')" data-nav="train"
       class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
       <span class="material-symbols-outlined nav-icon" style="font-size:24px">sports_martial_arts</span>
-      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">TRAIN</span>
+      <span class="font-extrabold uppercase mt-0.5" style="font-size:9px;letter-spacing:0.08em">DRILLS</span>
     </button>
     <button onclick="showScreen('profile')" data-nav="me"
       class="nav-btn flex flex-col items-center justify-center py-2 px-5 rounded-2xl transition-all active:scale-95">
@@ -905,7 +931,7 @@ tailwind.config = {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase_sync.js?v=1"></script>
+<script src="js/firebase_sync.js?v=2"></script>
 <script src="js/data.js?v=5"></script>
 <script src="js/dojo_state.js?v=8"></script>
 <script src="js/dojo_home.js?v=18"></script>
@@ -943,12 +969,14 @@ function showScreen(name) {
     main.scrollTo({ top: 0, behavior: 'instant' });
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
-  // Hide chrome on onboarding
-  const isOnboarding = name === 'onboarding';
+  // Hide chrome on onboarding or focus screens (lesson / knowledge)
+  const FOCUS_SCREENS = ['lesson', 'knowledge', 'success', 'belt-promo'];
+  const isOnboarding  = name === 'onboarding';
+  const isFocus       = FOCUS_SCREENS.includes(name);
   const hdr = document.getElementById('app-header');
   const nav = document.getElementById('app-nav');
-  if (hdr) hdr.classList.toggle('hidden', isOnboarding);
-  if (nav) nav.classList.toggle('hidden', isOnboarding);
+  if (hdr) hdr.classList.toggle('hidden', isOnboarding || isFocus);
+  if (nav) nav.classList.toggle('hidden', isOnboarding || isFocus);
   // Nav highlight — lesson/success/promo/knowledge inherit from return screen
   let navName;
   if (['lesson','success','belt-promo','knowledge'].includes(name)) {
